@@ -1,0 +1,33 @@
+{
+  "name": "formulr",
+  "version": "1.0.0",
+  "description": "Form toolkit for React",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/intellild/formulr.git"
+  },
+  "keywords": [
+    "react",
+    "form"
+  ],
+  "author": "intellild",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/intellild/formulr/issues"
+  },
+  "homepage": "https://github.com/intellild/formulr#readme",
+  "dependencies": {
+    "@types/react": "^16.7.0",
+    "@types/react-dom": "^16.7.0",
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0",
+    "rxjs": "^6.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^3.3.3"
+  }
+}
