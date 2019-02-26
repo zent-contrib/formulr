@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IFieldModel, ModelType, createFieldModel, IModels } from './models';
+import { IFieldModel, ModelType, createFieldModel, IModels, touchField } from './models';
 import Context from './context';
 import { Subscription, merge, never } from 'rxjs';
 import {
@@ -12,6 +12,7 @@ import {
     IVerifyOption,
     mapValidatorResult,
     tracedSwitchMap,
+    ErrorType,
 } from './shared';
 
 export interface IFieldProps<T, E = T> {
@@ -28,7 +29,7 @@ export interface IFieldState<T> {
     name: string;
     value: T;
     model: IFieldModel<T> | null;
-    error: unknown;
+    error: ErrorType;
     pristine: boolean;
     touched: boolean;
 }
@@ -40,9 +41,9 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
 
     static contextType = Context;
 
-    private value$$: Subscription | null = null;
-    private error$$: Subscription | null = null;
-    private verify$$: Subscription | null = null;
+    private $value: Subscription | null = null;
+    private $error: Subscription | null = null;
+    private $verify: Subscription | null = null;
     private compositing = false;
     private trace: ITracedSwitchMapContext;
 
@@ -87,45 +88,36 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
         this.trace = makeTrace(this);
     }
 
-    getModelFromContext(): IFieldModel<T> {
-        const { name, defaultValue } = this.props;
-        const { controls } = ensureContext(this);
-        let model = controls[name];
-        if (model && model.type === ModelType.Field) {
-            return model as IFieldModel<T>;
-        }
-        const m = createFieldModel(defaultValue);
-        controls[name] = m as IModels<unknown>;
-        return m;
-    }
-
     static getDerivedStateFromProps(props: IFieldProps<unknown>, { name }: IFieldState<unknown>) {
         if (props.name !== name) {
             return {
                 name: props.name,
                 model: null,
+                error: null,
             };
         }
         return null;
     }
 
     private attach() {
+        const { defaultValue } = this.props;
+        const { name } = this.state;
         const ctx = ensureContext(this);
-        const model = this.getModelFromContext();
+        const model = touchField(name, defaultValue, ctx);
         this.setState({
             model,
         });
-        this.value$$ = model.value$.subscribe(value => {
+        this.$value = model.value$.subscribe(value => {
             this.setState({
                 value,
             });
         });
-        this.error$$ = model.error$.subscribe(error => {
+        this.$error = model.error$.subscribe(error => {
             this.setState({
                 error,
             });
         });
-        this.verify$$ = merge(model.verify$, ctx.verify$)
+        this.$verify = merge(model.verify$, ctx.verify$)
             .pipe(tracedSwitchMap<IVerifyOption>(this.trace, this.verify))
             .subscribe(error => {
                 const { model } = this.state;
@@ -139,10 +131,12 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
 
     private detach() {
         const { model } = this.state;
-        this.value$$ && this.value$$.unsubscribe();
-        this.error$$ && this.error$$.unsubscribe();
-        this.value$$ = null;
-        this.error$$ = null;
+        this.$value && this.$value.unsubscribe();
+        this.$error && this.$error.unsubscribe();
+        this.$verify && this.$verify.unsubscribe();
+        this.$value = null;
+        this.$error = null;
+        this.$verify = null;
         model && (model.attach = null);
     }
 
@@ -176,7 +170,7 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
             return never();
         }
         const { validator } = this.props;
-        const ret = validator(model.value, this.context, verifyOption);
+        const ret = validator(model.value, verifyOption);
         return mapValidatorResult(ret);
     };
 
@@ -185,8 +179,10 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
     }
 
     componentDidUpdate() {
-        const { model } = this.state;
-        const ctxModel = this.getModelFromContext();
+        const ctx = ensureContext(this);
+        const { defaultValue } = this.props;
+        const { model, name } = this.state;
+        const ctxModel = touchField(name, defaultValue, ctx);
         if (!model || model !== ctxModel) {
             this.detach();
             this.attach();

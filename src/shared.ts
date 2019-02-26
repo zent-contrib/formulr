@@ -1,5 +1,5 @@
 import { Unsubscribable, Subject, Observable, never, from, isObservable, of } from 'rxjs';
-import { ReactNode, Component } from 'react';
+import { ReactNode } from 'react';
 import { IFormContext } from './context';
 
 export type ErrorType = unknown;
@@ -74,7 +74,7 @@ export const tracedSwitchMap = <T>(ctx: ITracedSwitchMapContext, mapper: (v: T) 
         };
     });
 
-export type Validator<T> = (value: T, ctx: IFormContext, verifyOption: IVerifyOption) => unknown | Promise<unknown> | Observable<unknown>;
+export type Validator<T> = (value: T, verifyOption: IVerifyOption) => unknown | Promise<unknown> | Observable<unknown>;
 
 export function noopValidator(): Observable<unknown> {
     return never();
@@ -112,4 +112,27 @@ export function mapValidatorResult(a: unknown): Observable<unknown> {
         return a;
     }
     return of(a);
+}
+
+/**
+ * same algorithm as lodash.isPlainObject
+ */
+export function isPlainObject(value: unknown): boolean {
+    if (value === null || value === undefined) {
+        return false;
+    }
+    if (typeof value !== 'object') {
+        return false;
+    }
+    if (Object.prototype.toString.call(value) !== '[object Object]') {
+        return false;
+    }
+    if (Object.getPrototypeOf(value) === null) {
+        return true;
+    }
+    let proto = value;
+    while (Object.getPrototypeOf(proto) !== null) {
+        proto = Object.getPrototypeOf(proto);
+    }
+    return Object.getPrototypeOf(value) === proto;
 }
