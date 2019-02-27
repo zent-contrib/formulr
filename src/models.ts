@@ -12,7 +12,7 @@ export enum ModelType {
   Form = 'form',
 }
 
-export interface IBasicModel<T extends ModelType, C extends Field<T, unknown> | FieldSet | FieldArray<T>> {
+export interface IBasicModel<T extends ModelType, C> {
   type: T;
   error$: BehaviorSubject<unknown>;
   error: unknown;
@@ -22,7 +22,7 @@ export interface IBasicModel<T extends ModelType, C extends Field<T, unknown> | 
   verify(option: IVerifyOption): void;
 }
 
-export interface IFieldModel<T> extends IBasicModel<ModelType.Field, Field<T>> {
+export interface IFieldModel<T> extends IBasicModel<ModelType.Field, Field<T, unknown>> {
   value$: BehaviorSubject<T>;
   value: T;
 }
@@ -195,6 +195,6 @@ export function touchFieldArray<T>(name: string, { controls, getShadowValue }: I
   const shadowValue = getShadowValue()[name];
   const def = Array.isArray(shadowValue) ? shadowValue : [];
   const m = createFieldArrayModel<T>(def);
-  controls[name] = m;
+  controls[name] = m as IModels<unknown>;
   return m;
 }

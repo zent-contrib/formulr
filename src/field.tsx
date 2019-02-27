@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { IFieldModel, ModelType, createFieldModel, IModels, touchField } from './models';
-import Context from './context';
 import { Subscription, merge, never } from 'rxjs';
+import { IFieldModel, touchField } from './models';
+import Context from './context';
 import {
   FormChildren,
   ensureContext,
@@ -88,17 +88,6 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
     this.trace = makeTrace(this);
   }
 
-  static getDerivedStateFromProps(props: IFieldProps<unknown>, { name }: IFieldState<unknown>) {
-    if (props.name !== name) {
-      return {
-        name: props.name,
-        model: null,
-        error: null,
-      };
-    }
-    return null;
-  }
-
   private attach() {
     const { defaultValue } = this.props;
     const { name } = this.state;
@@ -173,6 +162,17 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
     const ret = validator(model.value, verifyOption);
     return mapValidatorResult(ret);
   };
+
+  static getDerivedStateFromProps(props: IFieldProps<unknown>, { name }: IFieldState<unknown>) {
+    if (props.name !== name) {
+      return {
+        name: props.name,
+        model: null,
+        error: null,
+      };
+    }
+    return null;
+  }
 
   componentDidMount() {
     this.attach();

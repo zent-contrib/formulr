@@ -1,4 +1,4 @@
-import { Unsubscribable, Subject, Observable, never, from, isObservable, of } from 'rxjs';
+import { Subject, Observable, never, from, isObservable, of, Subscription } from 'rxjs';
 import { ReactNode } from 'react';
 import { IFormContext } from './context';
 
@@ -34,7 +34,7 @@ export function noop() {
 }
 
 export interface IValidationState {
-  readonly validating: Set<Unsubscribable>;
+  readonly validating: Set<Subscription>;
 }
 
 export interface ITracedSwitchMapContext extends IValidationState {
@@ -43,7 +43,7 @@ export interface ITracedSwitchMapContext extends IValidationState {
 
 export const tracedSwitchMap = <T>(ctx: ITracedSwitchMapContext, mapper: (v: T) => Observable<unknown>) => (source: Observable<T>) =>
   new Observable<unknown>(observer => {
-    let inner: Unsubscribable | null = null;
+    let inner: Subscription | null = null;
     function disposeInner() {
       if (inner) {
         ctx.validating.delete(inner);

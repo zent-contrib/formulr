@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { Component } from 'react';
+import { Subject, Subscription, merge, never } from 'rxjs';
 import {
   ErrorType,
   Validator,
   noopValidator,
-  IFormFieldChildProps,
   ensureContext,
   ITracedSwitchMapContext,
   makeTrace,
@@ -14,7 +13,6 @@ import {
 } from './shared';
 import FormContext from './context';
 import { IFieldSetModel, touchFieldSet } from './models';
-import { Subject, Subscription, merge, never } from 'rxjs';
 
 export interface IFieldSetChildProps {
   error: ErrorType;
