@@ -5,134 +5,134 @@ import { IFormContext } from './context';
 export type ErrorType = unknown;
 
 export interface IFormFieldChildProps<T, E = T> {
-    value: T;
-    error: ErrorType;
-    pristine: boolean;
-    touched: boolean;
-    onChange(value: E): void;
-    onFocus: React.FocusEventHandler;
-    onBlur: React.FocusEventHandler;
-    onCompositionStart: React.CompositionEventHandler;
-    onCompositionEnd: React.CompositionEventHandler;
+  value: T;
+  error: ErrorType;
+  pristine: boolean;
+  touched: boolean;
+  onChange(value: E): void;
+  onFocus: React.FocusEventHandler;
+  onBlur: React.FocusEventHandler;
+  onCompositionStart: React.CompositionEventHandler;
+  onCompositionEnd: React.CompositionEventHandler;
 }
 
 export type FormChildren<T, E = T> = (props: IFormFieldChildProps<T, E>) => ReactNode;
 
 export interface IVerifyOption {
-    source: string;
+  source: string;
 }
 
 export enum ControlType {
-    Field = 'field',
-    Set = 'set',
-    Array = 'array',
-    Form = 'form',
+  Field = 'field',
+  Set = 'set',
+  Array = 'array',
+  Form = 'form',
 }
 
 export function noop() {
-    return null;
+  return null;
 }
 
 export interface IValidationState {
-    readonly validating: Set<Unsubscribable>;
+  readonly validating: Set<Unsubscribable>;
 }
 
 export interface ITracedSwitchMapContext extends IValidationState {
-    readonly error$: Subject<ErrorType>;
+  readonly error$: Subject<ErrorType>;
 }
 
 export const tracedSwitchMap = <T>(ctx: ITracedSwitchMapContext, mapper: (v: T) => Observable<unknown>) => (source: Observable<T>) =>
-    new Observable<unknown>(observer => {
-        let inner: Unsubscribable | null = null;
-        function disposeInner() {
-            if (inner) {
-                ctx.validating.delete(inner);
-                inner.unsubscribe();
-                inner = null;
-            }
-        }
-        const s = source.subscribe(v => {
-            const next = mapper(v);
-            disposeInner();
-            inner = next.subscribe({
-                next(r) {
-                    observer.next(r);
-                },
-                error(e) {
-                    ctx.error$.next(e);
-                    disposeInner();
-                },
-                complete() {
-                    disposeInner();
-                },
-            });
-            ctx.validating.add(inner);
-        });
-        return () => {
-            s.unsubscribe();
-            disposeInner();
-        };
+  new Observable<unknown>(observer => {
+    let inner: Unsubscribable | null = null;
+    function disposeInner() {
+      if (inner) {
+        ctx.validating.delete(inner);
+        inner.unsubscribe();
+        inner = null;
+      }
+    }
+    const s = source.subscribe(v => {
+      const next = mapper(v);
+      disposeInner();
+      inner = next.subscribe({
+        next(r) {
+          observer.next(r);
+        },
+        error(e) {
+          ctx.error$.next(e);
+          disposeInner();
+        },
+        complete() {
+          disposeInner();
+        },
+      });
+      ctx.validating.add(inner);
     });
+    return () => {
+      s.unsubscribe();
+      disposeInner();
+    };
+  });
 
 export type Validator<T> = (value: T, verifyOption: IVerifyOption) => unknown | Promise<unknown> | Observable<unknown>;
 
 export function noopValidator(): Observable<unknown> {
-    return never();
+  return never();
 }
 
 export interface IWithContext {
-    context?: IFormContext;
+  context?: IFormContext;
 }
 
 export function ensureContext(comp: IWithContext): IFormContext {
-    if (!comp.context) {
-        throw new Error(`${comp.constructor.name} must be used under Form`);
-    }
-    return comp.context;
+  if (!comp.context) {
+    throw new Error(`${comp.constructor.name} must be used under Form`);
+  }
+  return comp.context;
 }
 
 export function makeTrace(comp: IWithContext): ITracedSwitchMapContext {
-    return {
-        validating: new Set(),
-        get error$() {
-            const { form } = ensureContext(comp);
-            return form.error$;
-        },
-    };
+  return {
+    validating: new Set(),
+    get error$() {
+      const { form } = ensureContext(comp);
+      return form.error$;
+    },
+  };
 }
 
 export function isPromise(maybePromise: { then?: Function }): maybePromise is Promise<unknown> {
-    return typeof maybePromise.then === 'function';
+  return typeof maybePromise.then === 'function';
 }
 
 export function mapValidatorResult(a: unknown): Observable<unknown> {
-    if (typeof a === 'object' && a !== null && isPromise(a)) {
-        return from(a);
-    } else if (isObservable(a)) {
-        return a;
-    }
-    return of(a);
+  if (typeof a === 'object' && a !== null && isPromise(a)) {
+    return from(a);
+  } else if (isObservable(a)) {
+    return a;
+  }
+  return of(a);
 }
 
 /**
  * same algorithm as lodash.isPlainObject
  */
 export function isPlainObject(value: unknown): boolean {
-    if (value === null || value === undefined) {
-        return false;
-    }
-    if (typeof value !== 'object') {
-        return false;
-    }
-    if (Object.prototype.toString.call(value) !== '[object Object]') {
-        return false;
-    }
-    if (Object.getPrototypeOf(value) === null) {
-        return true;
-    }
-    let proto = value;
-    while (Object.getPrototypeOf(proto) !== null) {
-        proto = Object.getPrototypeOf(proto);
-    }
-    return Object.getPrototypeOf(value) === proto;
+  if (value === null || value === undefined) {
+    return false;
+  }
+  if (typeof value !== 'object') {
+    return false;
+  }
+  if (Object.prototype.toString.call(value) !== '[object Object]') {
+    return false;
+  }
+  if (Object.getPrototypeOf(value) === null) {
+    return true;
+  }
+  let proto = value;
+  while (Object.getPrototypeOf(proto) !== null) {
+    proto = Object.getPrototypeOf(proto);
+  }
+  return Object.getPrototypeOf(value) === proto;
 }

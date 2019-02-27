@@ -4,13 +4,13 @@ import { IFieldSetModel, IControls, IFieldArrayModel, IFormModel, createFormMode
 import { IVerifyOption, IValidationState } from './shared';
 
 export interface IFormContext {
-    form: IFormModel<unknown>;
-    controls: IControls;
-    section: IFieldSetModel<unknown> | IFieldArrayModel<unknown>;
-    verify$: Subject<IVerifyOption>;
-    change$: Subject<never>;
-    getShadowValue(): any;
-    validationState: IValidationState;
+  form: IFormModel<unknown>;
+  controls: IControls;
+  section: IFieldSetModel<unknown> | IFieldArrayModel<unknown>;
+  verify$: Subject<IVerifyOption>;
+  change$: Subject<never>;
+  getShadowValue(): any;
+  validationState: IValidationState;
 }
 
 export const FormContext = createContext<IFormContext | null>(null);
