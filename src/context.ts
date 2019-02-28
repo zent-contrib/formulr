@@ -6,7 +6,7 @@ import { IVerifyOption, IValidationState } from './shared';
 export interface IFormContext {
   form: IFormModel<unknown>;
   controls: IControls;
-  section: IFieldSetModel<unknown> | IFieldArrayModel<unknown>;
+  section: IFieldSetModel<unknown> | IFieldArrayModel<unknown> | IFormModel<unknown>;
   verify$: Subject<IVerifyOption>;
   change$: Subject<never>;
   getShadowValue(): any;
