@@ -22,13 +22,6 @@ export interface IVerifyOption {
   source: string;
 }
 
-export enum ControlType {
-  Field = 'field',
-  Set = 'set',
-  Array = 'array',
-  Form = 'form',
-}
-
 export function noop() {
   return null;
 }

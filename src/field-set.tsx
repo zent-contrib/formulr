@@ -65,7 +65,7 @@ export class FieldSet<T = unknown> extends React.Component<IFieldSetProps<T>, IF
       return never();
     }
     const { validator } = this.props;
-    const ret = validator(model.getRawValues(), verifyOption);
+    const ret = validator(model.getRawValue(), verifyOption);
     return mapValidatorResult(ret);
   };
 

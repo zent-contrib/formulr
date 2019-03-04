@@ -20,7 +20,7 @@ export class Form<T = any> extends React.Component {
   }
 
   getValue = () => {
-    this.model.getRawValues();
+    this.model.getRawValue();
   };
 
   setValue = (values: T) => {
