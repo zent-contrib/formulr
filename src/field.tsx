@@ -19,8 +19,8 @@ export interface IFieldProps<T, E = T> {
   name: string;
   defaultValue: T;
   children: FormChildren<T, E>;
-  onChange?: (e: E) => T;
-  onBlur?: React.FocusEventHandler;
+  onChange?: (e: E) => void | T;
+  onBlur?: (e: React.FocusEvent, value: T) => void | T;
   onFocus?: React.FocusEventHandler;
   validator: Validator<T>;
 }
@@ -62,11 +62,13 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
     if (!model) {
       return;
     }
-    let nextValue: E | T = value;
+    let nextValue: E | T | void = value;
     if (onChange) {
       nextValue = onChange(value);
     }
-    model.value = nextValue as any;
+    if (nextValue !== undefined) {
+      model.value = nextValue as any;
+    }
     if (!this.compositing) {
       change$.next();
       model.verify({
@@ -155,10 +157,13 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
       return;
     }
     const { onBlur } = this.props;
-    onBlur && onBlur(e);
-    this.setState({
-      touched: true,
-    });
+    if (!onBlur) {
+      return;
+    }
+    const next = onBlur(e, model.value);
+    if (next !== undefined) {
+      model.value = next;
+    }
   };
 
   verify = (verifyOption: IVerifyOption) => {
