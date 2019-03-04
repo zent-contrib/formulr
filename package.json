@@ -1,10 +1,16 @@
 {
   "name": "formulr",
-  "version": "0.1.0",
+  "version": "0.1.0-beta-3",
   "description": "Form toolkit for React",
   "main": "./lib/index.js",
+  "module": "./esm/index.js",
+  "types": "./esm/index.d.ts",
   "scripts": {
     "dev": "webpack-dev-server --progress",
+    "build:esm": "rimraf ./esm && tsc --module es2015 --outDir esm",
+    "build:cmd": "rimraf ./cmd && tsc --module commonjs --outDir cmd",
+    "build": "npm run build:esm && npm run build:cmd",
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -14,6 +20,11 @@
   "keywords": [
     "react",
     "form"
+  ],
+  "files": [
+    "src/**/*",
+    "cmd/**/*",
+    "esm/**/*"
   ],
   "author": "intellild",
   "license": "MIT",
@@ -26,7 +37,8 @@
     "@types/react-dom": "^16.7.0",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
-    "rxjs": "^6.4.0"
+    "rxjs": "^6.4.0",
+    "tslib": "^1.9.3"
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",
@@ -34,6 +46,7 @@
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.5",
     "html-webpack-plugin": "^3.2.0",
+    "rimraf": "^2.6.3",
     "typescript": "^3.3.3",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.2.3",

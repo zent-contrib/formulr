@@ -6,6 +6,9 @@
         "noUnusedLocals": true,
         "jsx": "react",
         "strict": true,
+        "outDir": "esm",
+        "declaration": true,
+        "importHelpers": true,
         "lib": ["dom", "es2017"]
     },
     "exclude": ["node_modules", "esm", "lib"]
