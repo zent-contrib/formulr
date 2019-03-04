@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IFormModel, createFormModel, ModelType, IFieldSetModel } from './models';
+import { IFormModel, createFormModel } from './models';
 import { IValidationState } from './shared';
 import { Subscription } from 'rxjs';
 import FormContext from './context';
