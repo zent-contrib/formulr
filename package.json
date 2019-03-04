@@ -4,6 +4,7 @@
   "description": "Form toolkit for React",
   "main": "./lib/index.js",
   "scripts": {
+    "dev": "webpack-dev-server --progress",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,6 +29,14 @@
     "rxjs": "^6.4.0"
   },
   "devDependencies": {
-    "typescript": "^3.3.3"
+    "@babel/core": "^7.3.4",
+    "@babel/preset-react": "^7.0.0",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.5",
+    "html-webpack-plugin": "^3.2.0",
+    "typescript": "^3.3.3",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
   }
 }

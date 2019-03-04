@@ -23,6 +23,7 @@ export interface IFieldProps<T, E = T> {
   onBlur?: (e: React.FocusEvent, value: T) => void | T;
   onFocus?: React.FocusEventHandler;
   validator: Validator<T>;
+  typeKey?: Function;
 }
 
 export interface IFieldState<T> {
@@ -91,10 +92,10 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
   }
 
   private attach() {
-    const { defaultValue } = this.props;
+    const { defaultValue, typeKey } = this.props;
     const { name } = this.state;
     const ctx = ensureContext(this);
-    const model = touchField(name, defaultValue, ctx);
+    const model = touchField(name, defaultValue, ctx, typeKey);
     this.setState({
       model,
     });
@@ -208,7 +209,10 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
 
   render() {
     const { value, error, model, pristine, touched } = this.state;
-    const { children } = this.props;
+    const { children, name } = this.props;
+    if (typeof name !== 'string') {
+      throw new Error(`'name' must be set!`);
+    }
     if (!model) {
       return null;
     }

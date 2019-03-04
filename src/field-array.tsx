@@ -64,7 +64,7 @@ export class FieldArray<T> extends React.Component<IFieldArrayProps<T>, IFieldAr
       return;
     }
     model.setValues(value);
-  }
+  };
 
   getModel() {
     return this.state.model;
@@ -163,12 +163,16 @@ export class FieldArray<T> extends React.Component<IFieldArrayProps<T>, IFieldAr
   }
 
   render() {
+    const { children, name } = this.props;
+    if (typeof name !== 'string') {
+      throw new Error(`'name' must be set!`);
+    }
     const ctx = ensureContext(this);
     const { model, keys, error } = this.state;
     if (!model) {
       return null;
     }
-    const { children, name } = this.props;
+
     return (
       <FormContext.Provider
         value={{

@@ -43,7 +43,6 @@ export class FieldSet<T = unknown> extends React.Component<IFieldSetProps<T>, IF
   private $verify: Subscription | null = null;
   private readonly change$ = new Subject<never>();
   private readonly trace: ITracedSwitchMapContext;
-  // private readonly e
 
   constructor(props: IFieldSetProps<T>) {
     super(props);
@@ -61,7 +60,7 @@ export class FieldSet<T = unknown> extends React.Component<IFieldSetProps<T>, IF
       return;
     }
     model.setValues(value);
-  }
+  };
 
   getModel = () => {
     return this.state.model;
@@ -147,12 +146,15 @@ export class FieldSet<T = unknown> extends React.Component<IFieldSetProps<T>, IF
   }
 
   render() {
+    const { children, name } = this.props;
+    if (typeof name !== 'string') {
+      throw new Error(`'name' must be set!`);
+    }
     const ctx = ensureContext(this);
     const { model, error } = this.state;
     if (!model) {
       return null;
     }
-    const { children, name } = this.props;
     return (
       <FormContext.Provider
         value={{

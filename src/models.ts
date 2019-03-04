@@ -54,6 +54,52 @@ export type IModels<T> = IFieldModel<T> | IFieldSetModel<T> | IFieldArrayModel<T
 
 export type IControls = Dic<IModels<unknown>>;
 
+function fieldSetGetValues<T>(this: IFieldSetModel<T>) {
+  const values: Dic = {};
+  for (const key of Object.keys(this.controls)) {
+    const value = this.controls[key];
+    if (!value.attach) {
+      continue;
+    }
+    values[key] = value.getRawValue();
+  }
+  return values;
+}
+
+function fieldSetSetValues<T>(this: IFieldSetModel<T>, values: Dic) {
+  if (!isPlainObject(values)) {
+    throw new Error('FieldSet values must be plain object');
+  }
+  this.shadowValue = values;
+  for (const key of Object.keys(values)) {
+    const value = values[key];
+    const control = this.controls[key];
+    if (!control) {
+      continue;
+    }
+    switch (control.type) {
+      case ModelType.Field:
+        control.value = value;
+        break;
+      case ModelType.FieldArray:
+        try {
+          control.setValues(value);
+        } catch (error) {
+          // noop
+        }
+        break;
+      case ModelType.FieldSet:
+        try {
+          control.setValues(value);
+        } catch (error) {
+          // noop
+        }
+      default:
+        break;
+    }
+  }
+}
+
 export function createFieldModel<T>(defaultValue: T): IFieldModel<T> {
   return {
     type: ModelType.Field,
@@ -92,50 +138,8 @@ export function createFieldSetModel<T>(defaultValues: T = {} as any): IFieldSetM
       this.verify$.next(option);
     },
     controls: {},
-    getRawValue() {
-      const values: Dic = {};
-      for (const key of Object.keys(this.controls)) {
-        const value = this.controls[key];
-        if (!value.attach) {
-          continue;
-        }
-        values[key] = value.getRawValue();
-      }
-      return values;
-    },
-    setValues(values: Dic) {
-      if (!isPlainObject(values)) {
-        throw new Error('FieldSet values must be plain object');
-      }
-      this.shadowValue = values;
-      for (const key of Object.keys(values)) {
-        const value = values[key];
-        const control = this.controls[key];
-        if (!control) {
-          continue;
-        }
-        switch (control.type) {
-          case ModelType.Field:
-            control.value = value;
-            break;
-          case ModelType.FieldArray:
-            try {
-              control.setValues(value);
-            } catch (error) {
-              // noop
-            }
-            break;
-          case ModelType.FieldSet:
-            try {
-              control.setValues(value);
-            } catch (error) {
-              // noop
-            }
-          default:
-            break;
-        }
-      }
-    },
+    getRawValue: fieldSetGetValues,
+    setValues: fieldSetSetValues,
     error$: new BehaviorSubject<unknown>(null),
     get error() {
       return this.error$.getValue();
@@ -210,18 +214,8 @@ export function createFormModel<T>(): IFormModel<T> {
     verify(option: IVerifyOption) {
       this.verify$.next(option);
     },
-    getRawValue() {
-      const values: Dic = {};
-      for (const key of Object.keys(this.controls)) {
-        const value = this.controls[key];
-        if (!value.attach) {
-          continue;
-        }
-        values[key] = value.getRawValue();
-      }
-      return values;
-    },
-    setValues() {},
+    getRawValue: fieldSetGetValues,
+    setValues: fieldSetSetValues,
     error$: new BehaviorSubject<unknown>(null),
     get error() {
       return this.error$.getValue();
@@ -234,9 +228,9 @@ export function createFormModel<T>(): IFormModel<T> {
   };
 }
 
-export function touchField<T>(name: string, defaultValue: T, { controls, getShadowValue }: IFormContext): IFieldModel<T> {
+export function touchField<T>(name: string, defaultValue: T, { controls, getShadowValue }: IFormContext, typeKey?: Function): IFieldModel<T> {
   const model = controls[name];
-  if (model && model.type === ModelType.Field) {
+  if (model && model.type === ModelType.Field && (!typeKey || Object(model.value) instanceof typeKey)) {
     return model as IFieldModel<T>;
   }
   const shadow = getShadowValue()[name];

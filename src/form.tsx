@@ -20,12 +20,16 @@ export class Form<T = any> extends React.Component {
   }
 
   getValue = () => {
-    this.model.getRawValue();
+    return this.model.getRawValue();
   };
 
   setValue = (values: T) => {
     this.model.setValues(values);
   };
+
+  getModel = () => {
+    return this.model;
+  }
 
   componentDidMount() {
     this.$change = this.model.change$.subscribe(() => {
