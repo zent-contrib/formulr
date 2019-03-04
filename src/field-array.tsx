@@ -58,6 +58,14 @@ export class FieldArray<T> extends React.Component<IFieldArrayProps<T>, IFieldAr
     this.trace = makeTrace(this);
   }
 
+  setValue = (value: T[]) => {
+    const { model } = this.state;
+    if (!model) {
+      return;
+    }
+    model.setValues(value);
+  }
+
   getModel() {
     return this.state.model;
   }

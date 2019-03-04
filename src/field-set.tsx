@@ -55,6 +55,14 @@ export class FieldSet<T = unknown> extends React.Component<IFieldSetProps<T>, IF
     this.trace = makeTrace(this);
   }
 
+  setValue = (value: T) => {
+    const { model } = this.state;
+    if (!model) {
+      return;
+    }
+    model.setValues(value);
+  }
+
   getModel = () => {
     return this.state.model;
   };

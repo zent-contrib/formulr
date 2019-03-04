@@ -129,6 +129,14 @@ export class Field<T, E = T> extends React.Component<IFieldProps<T, E>, IFieldSt
     model && (model.attach = null);
   }
 
+  setValue = (value: T) => {
+    const { model } = this.state;
+    if (!model) {
+      return;
+    }
+    model.value = value;
+  }
+
   getModel = () => {
     return this.state.model;
   };
