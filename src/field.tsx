@@ -3,7 +3,6 @@ import { Subscription, merge, never } from 'rxjs';
 import { IFieldModel, touchField } from './models';
 import Context from './context';
 import {
-  FormChildren,
   ensureContext,
   Validator,
   noopValidator,
@@ -14,6 +13,20 @@ import {
   tracedSwitchMap,
   ErrorType,
 } from './shared';
+
+export interface IFormFieldChildProps<T, E = T> {
+  value: T;
+  error: ErrorType;
+  pristine: boolean;
+  touched: boolean;
+  onChange(value: E): void;
+  onFocus: React.FocusEventHandler;
+  onBlur: React.FocusEventHandler;
+  onCompositionStart: React.CompositionEventHandler;
+  onCompositionEnd: React.CompositionEventHandler;
+}
+
+export type FormChildren<T, E = T> = (props: IFormFieldChildProps<T, E>) => React.ReactNode;
 
 export interface IFieldProps<T, E = T> {
   name: string;

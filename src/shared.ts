@@ -1,22 +1,7 @@
 import { Subject, Observable, never, from, isObservable, of, Subscription } from 'rxjs';
-import { ReactNode } from 'react';
 import { IFormContext } from './context';
 
 export type ErrorType = unknown;
-
-export interface IFormFieldChildProps<T, E = T> {
-  value: T;
-  error: ErrorType;
-  pristine: boolean;
-  touched: boolean;
-  onChange(value: E): void;
-  onFocus: React.FocusEventHandler;
-  onBlur: React.FocusEventHandler;
-  onCompositionStart: React.CompositionEventHandler;
-  onCompositionEnd: React.CompositionEventHandler;
-}
-
-export type FormChildren<T, E = T> = (props: IFormFieldChildProps<T, E>) => ReactNode;
 
 export interface IVerifyOption {
   source: string;
