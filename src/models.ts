@@ -50,7 +50,7 @@ export interface IFormModel<T> extends IBasicModel<ModelType.Form, never> {
   readonly change$: Subject<never>;
 }
 
-export type IModels<T> = IFieldModel<T> | IFieldSetModel<T> | IFieldArrayModel<T>;
+export type IModels<T> = IFieldModel<T> | IFieldSetModel<T> | IFieldArrayModel<T> | IFormModel<T>;
 
 export type IControls = Dic<IModels<unknown>>;
 

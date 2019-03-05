@@ -6,7 +6,7 @@ import FormContext from './context';
 
 export class Form<T = any> extends React.Component {
   private readonly model: IFormModel<T>;
-  private readonly validationState: IValidationState;
+  readonly validationState: IValidationState;
   private $change: Subscription | null = null;
 
   isDirty = false;
