@@ -12,7 +12,7 @@ type ValidatorImpl<Value> = (input: Value) => boolean;
 
 export interface IValidator<Value> {
   (input: Value): ValidatorResult;
-  name: string;
+  name: string | symbol;
 }
 
 function makeValidator<Value>(
