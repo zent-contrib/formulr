@@ -1,5 +1,5 @@
-import { BehaviorSubject } from 'rxjs';
-import { IValidator } from './validate';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { IValidator, ValidateStrategy } from './validate';
 
 export interface IError<T> {
   validator: IValidator<T>;
@@ -13,23 +13,17 @@ export enum FormStrategy {
   View,
 }
 
-export enum ModelType {
-  Field = 'field',
-  FieldSet = 'field-set',
-  FieldArray = 'field-array',
-  Form = 'form',
-}
-
 export type Model<Value> =
   | FieldModel<Value>
   | FieldArrayModel<Value>
   | FieldSetModel<Value>;
 
-export abstract class BasicModel<Type extends ModelType, Value> {
+export abstract class BasicModel<Value> {
   pristine = true;
   touched = false;
-
-  abstract readonly kind: Type;
+  readonly validate$ = new Subject<ValidateStrategy>();
+  readonly change$ = new Subject<never>();
+  protected abstract initialValue: Value;
   abstract getRawValue(): Value;
 
   readonly error$ = new BehaviorSubject<IErrors<Value> | null>(null);
@@ -42,28 +36,27 @@ export abstract class BasicModel<Type extends ModelType, Value> {
     this.error$.next(error);
   }
 
-  // verify$ = new Subject<IVerifyOption>();
+  initialize(value: Value) {
+    this.initialValue = value;
+    this.touched = false;
+    this.pristine = true;
+  }
+
+  validate(strategy: ValidateStrategy = ValidateStrategy.Normal) {
+    this.validate$.next(strategy);
+  }
 
   validators: Array<IValidator<Value>> = [];
 }
 
-export type FieldModelRuntimeType =
-  | 'number'
-  | 'boolean'
-  | 'string'
-  | 'bigint'
-  | Function;
-
-export class FieldModel<Value> extends BasicModel<ModelType.Field, Value> {
-  readonly kind: ModelType.Field;
+export class FieldModel<Value> extends BasicModel<Value> {
   readonly value$: BehaviorSubject<Value>;
-  type: Function;
+  protected initialValue: Value;
 
-  constructor(defaultValue: Value, type?: Function) {
+  constructor(defaultValue: Value) {
     super();
-    this.type = type || Object.getPrototypeOf(Object(defaultValue));
-    this.kind = ModelType.Field;
     this.value$ = new BehaviorSubject(defaultValue);
+    this.initialValue = defaultValue;
   }
 
   get value() {
@@ -74,30 +67,26 @@ export class FieldModel<Value> extends BasicModel<ModelType.Field, Value> {
     this.value$.next(value);
   }
 
+  initialize(value: Value) {
+    super.initialize(value);
+    this.value$.next(value);
+  }
+
   getRawValue() {
     return this.value$.getValue();
   }
 }
 
-export interface IFieldSetDefaultValue {
-  [key: string]: unknown;
-}
-
-export interface IFieldSetChildren {
-  [key: string]: BasicModel<ModelType, unknown>;
-}
-
-export class FieldSetModel<Value = IFieldSetDefaultValue> extends BasicModel<
-  ModelType.FieldSet,
+export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<
   Value
 > {
-  readonly kind: ModelType.FieldSet;
-  readonly children: IFieldSetChildren;
+  readonly children: Record<string, BasicModel<unknown>>;
+  protected initialValue: Value;
 
-  constructor() {
+  constructor(defaultValue: Value = {} as Value) {
     super();
-    this.kind = ModelType.FieldSet;
     this.children = {};
+    this.initialValue = defaultValue;
   }
 
   getRawValue(): Value {
@@ -112,32 +101,29 @@ export class FieldSetModel<Value = IFieldSetDefaultValue> extends BasicModel<
 }
 
 export interface IFieldArrayChildFactory<Item> {
-  (value: Item): BasicModel<ModelType, Item>;
+  (value: Item): BasicModel<Item>;
 }
 
-export class FieldArrayModel<Item> extends BasicModel<
-  ModelType.FieldArray,
-  ReadonlyArray<Item>
-> {
-  readonly kind: ModelType.FieldArray;
-  readonly models$: BehaviorSubject<ReadonlyArray<BasicModel<ModelType, Item>>>;
+export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
+  readonly models$: BehaviorSubject<ReadonlyArray<BasicModel<Item>>>;
+  protected initialValue: ReadonlyArray<Item>;
 
   constructor(
     private readonly factory: IFieldArrayChildFactory<Item>,
     defaultValue: ReadonlyArray<Item> = [],
   ) {
     super();
-    this.kind = ModelType.FieldArray;
     this.models$ = new BehaviorSubject(defaultValue.map(
       factory,
-    ) as ReadonlyArray<BasicModel<ModelType, Item>>);
+    ) as ReadonlyArray<BasicModel<Item>>);
+    this.initialValue = defaultValue;
   }
 
   get models() {
     return this.models$.getValue();
   }
 
-  set models(models: ReadonlyArray<BasicModel<ModelType, Item>>) {
+  set models(models: ReadonlyArray<BasicModel<Item>>) {
     this.models$.next(models);
   }
 
@@ -169,7 +155,7 @@ export class FieldArrayModel<Item> extends BasicModel<
     this.models$.next(nextModels);
   }
 
-  splice(start: number, deleteCount?: number): BasicModel<ModelType, Item>[];
+  splice(start: number, deleteCount?: number): BasicModel<Item>[];
 
   splice(start: number, deleteCount: number, ...items: ReadonlyArray<Item>) {
     const models = this.models$.getValue().slice();
@@ -179,236 +165,23 @@ export class FieldArrayModel<Item> extends BasicModel<
   }
 }
 
-// export class FieldSetModel
+export class FormModel extends FieldSetModel {
+  private readonly workingValidators = new Set<Observable<unknown>>();
+  readonly isValidating$ = new BehaviorSubject(false);
 
-// export interface IFieldSetModel<T> extends IBasicModel<ModelType.FieldSet, FieldSet> {
-//   controls: IControls;
-//   setValues(values: unknown): void;
-// }
+  addWorkingValidator(v: Observable<unknown>) {
+    this.workingValidators.add(v);
+    const isValidating = this.workingValidators.size > 0;
+    if (isValidating !== this.isValidating$.getValue()) {
+      this.isValidating$.next(isValidating);
+    }
+  }
 
-// export interface IFieldArrayModel<T> extends IBasicModel<ModelType.FieldArray, FieldArray<T>> {
-//   controls: IControls;
-//   setValues(values: unknown): void;
-//   readonly keys$: BehaviorSubject<string[]>;
-//   keys: string[];
-// }
-
-// export interface IFormModel<T> extends IBasicModel<ModelType.Form, never> {
-//   controls: IControls;
-//   setValues(values: unknown): void;
-//   readonly change$: Subject<never>;
-// }
-
-// export type IModels<T> = IFieldModel<T> | IFieldSetModel<T> | IFieldArrayModel<T> | IFormModel<T>;
-
-// export type IControls = Dic<IModels<unknown>>;
-
-// function fieldSetGetValues<T>(this: IFieldSetModel<T>) {
-//   const values: Dic = {};
-//   for (const key of Object.keys(this.controls)) {
-//     const value = this.controls[key];
-//     if (!value.attach) {
-//       continue;
-//     }
-//     values[key] = value.getRawValue();
-//   }
-//   return values;
-// }
-
-// function fieldSetSetValues<T>(this: IFieldSetModel<T>, values: Dic) {
-//   if (!isPlainObject(values)) {
-//     throw new Error('FieldSet values must be plain object');
-//   }
-//   this.shadowValue = values;
-//   for (const key of Object.keys(values)) {
-//     const value = values[key];
-//     const control = this.controls[key];
-//     if (!control) {
-//       continue;
-//     }
-//     switch (control.type) {
-//       case ModelType.Field:
-//         control.value = value;
-//         break;
-//       case ModelType.FieldArray:
-//         try {
-//           control.setValues(value);
-//         } catch (error) {
-//           // noop
-//         }
-//         break;
-//       case ModelType.FieldSet:
-//         try {
-//           control.setValues(value);
-//         } catch (error) {
-//           // noop
-//         }
-//       default:
-//         break;
-//     }
-//   }
-// }
-
-// export function createFieldModel<T>(defaultValue: T): IFieldModel<T> {
-//   return {
-//     type: ModelType.Field,
-//     value$: new BehaviorSubject(defaultValue),
-//     verify$: new Subject(),
-//     verify(option: IVerifyOption) {
-//       this.verify$.next(option);
-//     },
-//     get value() {
-//       return this.value$.getValue();
-//     },
-//     set value(value: T) {
-//       this.value$.next(value);
-//     },
-//     error$: new BehaviorSubject<unknown>(null),
-//     get error() {
-//       return this.error$.getValue();
-//     },
-//     set error(e: unknown) {
-//       this.error$.next(e);
-//     },
-//     attach: null,
-//     shadowValue: defaultValue,
-//     getRawValue() {
-//       return this.value;
-//     },
-//   };
-// }
-
-// export function createFieldSetModel<T>(defaultValues: T = {} as any): IFieldSetModel<T> {
-//   return {
-//     type: ModelType.FieldSet,
-//     shadowValue: defaultValues,
-//     verify$: new Subject(),
-//     verify(option: IVerifyOption) {
-//       this.verify$.next(option);
-//     },
-//     controls: {},
-//     getRawValue: fieldSetGetValues,
-//     setValues: fieldSetSetValues,
-//     error$: new BehaviorSubject<unknown>(null),
-//     get error() {
-//       return this.error$.getValue();
-//     },
-//     set error(e: unknown) {
-//       this.error$.next(e);
-//     },
-//     attach: null,
-//   };
-// }
-
-// export function createFieldArrayModel<T>(defaultValues: T[] = []): IFieldArrayModel<T> {
-//   return {
-//     type: ModelType.FieldArray,
-//     controls: {},
-//     keys$: new BehaviorSubject<string[]>([]),
-//     verify$: new Subject(),
-//     verify(option: IVerifyOption) {
-//       this.verify$.next(option);
-//     },
-//     get keys() {
-//       return this.keys$.getValue();
-//     },
-//     set keys(keys: string[]) {
-//       this.keys$.next(keys);
-//     },
-//     getRawValue() {
-//       const keys = this.keys;
-//       const values: unknown[] = Array(keys.length);
-//       for (let i = 0; i < keys.length; i += 1) {
-//         const key = keys[i];
-//         const control = this.controls[key];
-//         if (control) {
-//           values[i] = control.getRawValue();
-//         } else {
-//           values[i] = undefined;
-//         }
-//       }
-//       return values;
-//     },
-//     setValues(values: unknown[]) {
-//       if (!Array.isArray(values)) {
-//         throw new Error('Field Array values must be an Array');
-//       }
-//       const keys = Array(values.length);
-//       const shadowValue: Dic = {};
-//       for (let i = 0; i < values.length; i += 1) {
-//         keys[i] = '' + i;
-//         shadowValue[i] = values[i];
-//       }
-//       this.shadowValue = shadowValue;
-//       this.controls = {};
-//       this.keys = keys;
-//     },
-//     error$: new BehaviorSubject<unknown>(null),
-//     get error() {
-//       return this.error$.getValue();
-//     },
-//     set error(e: unknown) {
-//       this.error$.next(e);
-//     },
-//     attach: null,
-//   };
-// }
-
-// export function createFormModel<T>(): IFormModel<T> {
-//   return {
-//     type: ModelType.Form,
-//     shadowValue: {},
-//     controls: {},
-//     verify$: new Subject(),
-//     verify(option: IVerifyOption) {
-//       this.verify$.next(option);
-//     },
-//     getRawValue: fieldSetGetValues,
-//     setValues: fieldSetSetValues,
-//     error$: new BehaviorSubject<unknown>(null),
-//     get error() {
-//       return this.error$.getValue();
-//     },
-//     set error(e: unknown) {
-//       this.error$.next(e);
-//     },
-//     attach: null,
-//     change$: new Subject<never>(),
-//   };
-// }
-
-// export function touchField<T>(name: string, defaultValue: T, { controls, getShadowValue }: IFormContext, typeKey?: Function): IFieldModel<T> {
-//   const model = controls[name];
-//   if (model && model.type === ModelType.Field && (!typeKey || Object(model.value) instanceof typeKey)) {
-//     return model as IFieldModel<T>;
-//   }
-//   const shadow = getShadowValue()[name];
-//   const def = shadow != null ? shadow : defaultValue;
-//   const m = createFieldModel(def);
-//   controls[name] = m as IModels<unknown>;
-//   return m;
-// }
-
-// export function touchFieldSet<T>(name: string, { controls, getShadowValue }: IFormContext): IFieldSetModel<T> {
-//   const model = controls[name];
-//   if (model && model.type === ModelType.FieldSet) {
-//     return model as IFieldSetModel<T>;
-//   }
-//   const shadowValue = getShadowValue()[name];
-//   const def = isPlainObject(shadowValue) ? shadowValue : {};
-//   const m = createFieldSetModel(def);
-//   controls[name] = m;
-//   return m;
-// }
-
-// export function touchFieldArray<T>(name: string, { controls, getShadowValue }: IFormContext): IFieldArrayModel<T> {
-//   const model = controls[name];
-//   if (model && model.type === ModelType.FieldArray) {
-//     return model as IFieldArrayModel<T>;
-//   }
-//   const shadowValue = getShadowValue()[name];
-//   const def = Array.isArray(shadowValue) ? shadowValue : [];
-//   const m = createFieldArrayModel<T>(def);
-//   controls[name] = m as IModels<unknown>;
-//   return m;
-// }
+  removeWorkingValidator(v: Observable<unknown>) {
+    this.workingValidators.delete(v);
+    const isValidating = this.workingValidators.size > 0;
+    if (isValidating !== this.isValidating$.getValue()) {
+      this.isValidating$.next(isValidating);
+    }
+  }
+}

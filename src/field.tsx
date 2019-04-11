@@ -1,14 +1,14 @@
 // import * as React from 'react';
-import { useRef, useCallback, useContext } from 'react';
-import { FieldModel, ModelType, IError } from './models';
+import { useRef, useCallback } from 'react';
+import { FieldModel, IErrors } from './models';
 import { useValue$ } from './utils';
-import FormContext from './context';
+import { useFormContext } from './context';
 // import { merge, never } from 'rxjs';
 // import { switchMap, debounceTime } from 'rxjs/operators';
 
 export interface IFormFieldChildProps<Value> {
   value: Value;
-  error: IError | null;
+  error: IErrors<Value> | null;
   pristine: boolean;
   touched: boolean;
   onChange(value: Value): void;
@@ -21,7 +21,6 @@ export interface IFormFieldChildProps<Value> {
 export function useField<Value>(
   field: string,
   defaultValue: Value,
-  type?: Function,
 ): IFormFieldChildProps<Value>;
 
 export function useField<Value>(
@@ -31,14 +30,13 @@ export function useField<Value>(
 export function useField<Value>(
   field: FieldModel<Value> | string,
   defaultValue?: Value,
-  type?: Function,
 ): IFormFieldChildProps<Value> {
-  const ctx = useContext(FormContext);
+  const ctx = useFormContext();
   let model: FieldModel<Value>;
   if (typeof field === 'string') {
-    let m = ctx.fields[field];
-    if (!m || m.kind !== ModelType.Field) {
-      m = new FieldModel(defaultValue, type);
+    let m = ctx.parent.children[field];
+    if (!m || !(m instanceof FieldModel)) {
+      model = new FieldModel<Value>(defaultValue as Value);
     }
     model = m as FieldModel<Value>;
   } else {

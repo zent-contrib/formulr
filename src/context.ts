@@ -1,33 +1,28 @@
-import { createContext } from 'react';
+import { createContext, useContext } from 'react';
 import { Subject } from 'rxjs';
-// import { IFieldSetModel, IControls, IFieldArrayModel, IFormModel } from './models';
-import { IVerifyOption } from './shared';
-import { Model, FormStrategy } from './models';
+import { FormStrategy, FormModel, FieldSetModel } from './models';
+import { ValidateStrategy } from './validate';
 
 export interface IFormContext {
-  verify$: Subject<IVerifyOption>;
+  validate$: Subject<ValidateStrategy>;
   change$: Subject<never>;
-  getShadowValue(): any;
   strategy: FormStrategy;
-  // validationState: IValidationState;
-  fields: {
-    [key: string]: Model<any>;
-  }
+  form: FormModel;
+  parent: FieldSetModel;
 }
 
-export const FormContext = createContext<IFormContext>({
-  fields: {},
-  getShadowValue() {
-    return {};
-  },
-  verify$: new Subject(),
-  change$: new Subject(),
-  strategy: FormStrategy.Model,
-  // validationState:
-});
+export const FormContext = createContext<IFormContext | null>(null);
 
 FormContext.displayName = 'FormContext';
 
 export const FormProvider = FormContext.Provider;
+
+export function useFormContext(): IFormContext {
+  const ctx = useContext(FormContext);
+  if (!ctx) {
+    throw new Error();
+  }
+  return ctx;
+}
 
 export default FormContext;

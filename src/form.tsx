@@ -1,67 +1,53 @@
-import * as React from 'react';
-import { IFormModel, createFormModel } from './models';
-import { IValidationState } from './shared';
-import { Subscription } from 'rxjs';
-import FormContext from './context';
+import { useCallback, useMemo } from 'react';
+import { FormStrategy, FormModel } from './models';
+import { ValidateStrategy } from './validate';
+import { useValue$ } from './utils';
+import { IFormContext } from './context';
 
-export class Form<T = any> extends React.Component {
-  private readonly model: IFormModel<T>;
-  readonly validationState: IValidationState;
-  private $change: Subscription | null = null;
+export interface IFormApis {
+  validate(strategy: ValidateStrategy): void;
+  isValidating: boolean;
+}
 
-  isDirty = false;
+export function useForm(strategy: FormStrategy.View): void;
 
-  constructor(props: {}) {
-    super(props);
-    this.model = createFormModel();
-    this.validationState = {
-      validating: new Set(),
-    };
+export function useForm(model: FormModel): void;
+
+export function useForm(
+  a: FormStrategy.View | FormModel,
+): [IFormApis, IFormContext] {
+  let strategy: FormStrategy;
+  let model: FormModel;
+  if (a === FormStrategy.View) {
+    strategy = a;
+    model = new FormModel();
+  } else {
+    strategy = FormStrategy.Model;
+    model = a;
   }
-
-  getValue = () => {
-    return this.model.getRawValue();
-  };
-
-  setValue = (values: T) => {
-    this.model.setValues(values);
-  };
-
-  getModel = () => {
-    return this.model;
-  }
-
-  componentDidMount() {
-    this.$change = this.model.change$.subscribe(() => {
-      this.isDirty = true;
-    });
-  }
-
-  componentWillUnmount() {
-    this.$change && this.$change.unsubscribe();
-    this.$change = null;
-  }
-
-  render() {
-    const { children } = this.props;
-    const { change$, verify$, controls } = this.model;
-
-    return (
-      <FormContext.Provider
-        value={{
-          change$,
-          verify$,
-          controls,
-          form: this.model,
-          section: this.model,
-          validationState: this.validationState,
-          getShadowValue: () => {
-            return this.model.shadowValue || {};
-          },
-        }}
-      >
-        {children}
-      </FormContext.Provider>
-    );
-  }
+  const { validate$, change$ } = model;
+  const validate = useCallback(
+    (strategy = ValidateStrategy.Normal) => {
+      model.validate(strategy);
+    },
+    [model],
+  );
+  const isValidating = useValue$(model.isValidating$, false);
+  const ctx = useMemo<IFormContext>(
+    () => ({
+      validate$,
+      change$,
+      strategy,
+      form: model,
+      parent: model,
+    }),
+    [validate$, change$, strategy, model],
+  );
+  return [
+    {
+      validate,
+      isValidating,
+    },
+    ctx,
+  ];
 }

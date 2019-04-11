@@ -8,8 +8,18 @@ import {
   isObservable,
   from,
 } from 'rxjs';
-import { BasicModel, IErrors, ModelType } from './models';
+import { BasicModel, IErrors, FormModel } from './models';
 import { isPromise } from './utils';
+
+export enum ValidateStrategy {
+  Normal,
+  IgnoreAsync,
+}
+
+export interface IValidateContext {
+  strategy: ValidateStrategy;
+  form: FormModel;
+}
 
 export interface IValidator<Value> {
   (input: Value): ValidatorResult;
@@ -28,6 +38,7 @@ class ValidatorResultSubscriber<T> implements Observer<string | null> {
   constructor(
     private readonly subscriber: ValidateSubscriber<T>,
     private readonly validator: IValidator<T>,
+    readonly original$: Observable<string | null>,
   ) {}
 
   next(result: string | null) {
@@ -55,10 +66,15 @@ class ValidatorResultSubscriber<T> implements Observer<string | null> {
 }
 
 class ValidateOperator<T> implements Operator<T, IErrors<T>> {
-  constructor(private readonly model: BasicModel<ModelType, T>) {}
+  constructor(
+    private readonly model: BasicModel<T>,
+    private readonly ctx: IValidateContext,
+  ) {}
 
   call(subscriber: Subscriber<IErrors<T>>, source: Observable<T>) {
-    return source.subscribe(new ValidateSubscriber(subscriber, this.model));
+    return source.subscribe(
+      new ValidateSubscriber(subscriber, this.model, this.ctx),
+    );
   }
 }
 
@@ -68,11 +84,12 @@ class ValidateSubscriber<T> extends Subscriber<T> {
     Subscription
   >();
 
-  private errors: IErrors<T> = [];
+  private errors: IErrors<T> | null = null;
 
   constructor(
     destination: Subscriber<IErrors<T>>,
-    private readonly model: BasicModel<ModelType, T>,
+    private readonly model: BasicModel<T>,
+    private readonly ctx: IValidateContext,
   ) {
     super(destination);
   }
@@ -80,6 +97,9 @@ class ValidateSubscriber<T> extends Subscriber<T> {
   childResult(validator: IValidator<T>, error: null | string) {
     if (error === null || !this.destination) {
       return;
+    }
+    if (!this.errors) {
+      this.errors = [];
     }
     this.errors.push({
       validator,
@@ -101,6 +121,7 @@ class ValidateSubscriber<T> extends Subscriber<T> {
 
   private _removeChild(child: ValidatorResultSubscriber<T>) {
     const $ = this.$validators.get(child);
+    this.ctx.form.removeWorkingValidator(child.original$);
     if ($) {
       $.unsubscribe();
       this.$validators.delete(child);
@@ -112,18 +133,27 @@ class ValidateSubscriber<T> extends Subscriber<T> {
     const validators = this.model.validators;
     for (const validator of validators) {
       const result = validator(value);
+      const ignoreAsync = this.ctx.strategy === ValidateStrategy.IgnoreAsync;
       if (result === null) {
         continue;
       }
       if (isPromise<string | null>(result)) {
+        if (ignoreAsync) {
+          continue;
+        }
         const result$ = from(result);
-        const subscriber = new ValidatorResultSubscriber(this, validator);
+        const subscriber = new ValidatorResultSubscriber(this, validator, result$);
         const $ = result$.subscribe(subscriber);
         this.$validators.set(subscriber, $);
+        this.ctx.form.addWorkingValidator(result$);
       } else if (isObservable<string | null>(result)) {
-        const subscriber = new ValidatorResultSubscriber(this, validator);
+        if (ignoreAsync) {
+          continue;
+        }
+        const subscriber = new ValidatorResultSubscriber(this, validator, result);
         const $ = result.subscribe(subscriber);
         this.$validators.set(subscriber, $);
+        this.ctx.form.addWorkingValidator(result);
       } else {
         this.childResult(validator, result);
       }
@@ -135,7 +165,7 @@ class ValidateSubscriber<T> extends Subscriber<T> {
       $.unsubscribe();
     });
     this.$validators.clear();
-    this.errors = [];
+    this.errors = null;
     this._destinationNext();
   }
 
@@ -150,11 +180,12 @@ class ValidateSubscriber<T> extends Subscriber<T> {
 }
 
 export function validate<T>(
-  model: BasicModel<ModelType, T>,
+  model: BasicModel<T>,
+  ctx: IValidateContext,
 ): OperatorFunction<T, IErrors<T>> {
   return function validateOperation(
     source: Observable<T>,
   ): Observable<IErrors<T>> {
-    return source.lift(new ValidateOperator(model));
+    return source.lift(new ValidateOperator(model, ctx));
   };
 }
