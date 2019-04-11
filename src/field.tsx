@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { combineLatest, merge } from 'rxjs';
-import { debounceTime, startWith, filter } from 'rxjs/operators';
+import { merge } from 'rxjs';
+import { debounceTime, filter, withLatestFrom, map } from 'rxjs/operators';
 import { FieldModel, IErrors } from './models';
-import { useValue$ } from './utils';
+import { useValue$, withLeft } from './utils';
 import { useFormContext } from './context';
 import {
   ValidateStrategy,
@@ -75,9 +75,13 @@ export function useField<Value>(
   }, [model]);
   const { validate$, form } = ctx;
   useEffect(() => {
-    const $validate = combineLatest(
-      merge(validate$, localValidate$).pipe(startWith(ValidateStrategy.Normal)),
-      value$.pipe(debounceTime(100)),
+    const $validate = merge(
+      validate$.pipe(withLatestFrom(value$)),
+      localValidate$.pipe(withLatestFrom(value$)),
+      value$.pipe(
+        debounceTime(100),
+        map(withLeft(ValidateStrategy.IgnoreAsync)),
+      ),
     )
       .pipe(
         filter(filterWithCompositing(compositingRef)),
