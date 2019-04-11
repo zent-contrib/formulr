@@ -11,22 +11,25 @@ import {
 } from 'rxjs';
 import { BasicModel, IErrors, FormModel } from './models';
 import { isPromise } from './utils';
+import { RefObject } from 'react';
 
 export type ValidateEvent<T> = [ValidateStrategy, T];
 
 export enum ValidateStrategy {
-  Normal,
-  IgnoreAsync,
+  Normal = 0b0000,
+  IgnoreAsync = 0b0010,
+  IgnoreTouched = 0b0100,
 }
 
 export interface IValidateContext {
-  strategy: ValidateStrategy;
+  strategy: number;
   form: FormModel;
 }
 
 export interface IValidator<Value> {
   (input: Value): ValidatorResult;
   name: string | symbol;
+  isAsync?: boolean;
 }
 
 export type ValidatorResult =
@@ -136,10 +139,16 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
 
   protected _next([strategy, value]: ValidateEvent<T>) {
     this._clear();
-    const validators = this.model.validators;
+    const { validators, touched } = this.model;
+    if (!touched && !(strategy & ValidateStrategy.IgnoreTouched)) {
+      return;
+    }
+    const ignoreAsync = !!(strategy & ValidateStrategy.IgnoreAsync);
     for (const validator of validators) {
+      if (ignoreAsync && validator.isAsync) {
+        continue;
+      }
       const result = validator(value);
-      const ignoreAsync = strategy === ValidateStrategy.IgnoreAsync;
       if (result === null) {
         continue;
       }
@@ -171,6 +180,14 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
       } else {
         this.childResult(validator, result);
       }
+    }
+    /**
+     * this._clear set this.errors to null
+     * and if this.$validators is empty
+     * means no error is returned
+     */
+    if (this.errors === null) {
+      this._destinationNext();
     }
   }
 
@@ -210,4 +227,8 @@ export class ErrorSubscriber<T> implements NextObserver<IErrors<T>> {
   next(error: IErrors<T>) {
     this.model.error = error;
   }
+}
+
+export function filterWithCompositing(compositingRef: RefObject<boolean>) {
+  return () => !compositingRef.current;
 }

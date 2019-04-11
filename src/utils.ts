@@ -46,7 +46,3 @@ export function isPromise<T>(maybePromise: any): maybePromise is Promise<T> {
 export function noop() {
   return null;
 }
-
-export function withLeft<A, B>(b: B): (a: A) => [B, A] {
-  return a => [b, a]
-}
