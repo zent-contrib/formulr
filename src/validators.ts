@@ -1,19 +1,8 @@
-import { Observable } from 'rxjs';
+import { ValidatorResult, IValidator } from './validate';
 
 const EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
 
-export type ValidatorResult =
-  | string
-  | null
-  | Promise<string | null>
-  | Observable<string | null>;
-
 type ValidatorImpl<Value> = (input: Value) => boolean;
-
-export interface IValidator<Value> {
-  (input: Value): ValidatorResult;
-  name: string | symbol;
-}
 
 function makeValidator<Value>(
   name: string,
