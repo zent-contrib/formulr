@@ -1,13 +1,15 @@
-// import * as React from 'react';
-import { useRef, useCallback, useEffect } from 'react';
-import { merge } from 'rxjs';
-import { debounceTime, withLatestFrom, map } from 'rxjs/operators';
+import { useCallback, useEffect, useRef } from 'react';
+import { combineLatest, merge } from 'rxjs';
+import { debounceTime, startWith, filter } from 'rxjs/operators';
 import { FieldModel, IErrors } from './models';
-import { useValue$, withLeft } from './utils';
+import { useValue$ } from './utils';
 import { useFormContext } from './context';
-import { ValidateStrategy, validate, ErrorSubscriber } from './validate';
-// import { merge, never } from 'rxjs';
-// import { switchMap, debounceTime } from 'rxjs/operators';
+import {
+  ValidateStrategy,
+  validate,
+  ErrorSubscriber,
+  filterWithCompositing,
+} from './validate';
 
 export interface IFormFieldChildProps<Value> {
   value: Value;
@@ -45,39 +47,45 @@ export function useField<Value>(
   } else {
     model = field;
   }
-  const { pristine, touched } = model;
+  const {
+    pristine,
+    touched,
+    value$,
+    error$,
+    validate$: localValidate$,
+  } = model;
   const compositingRef = useRef(false);
-  const fieldRef = useRef(model);
-  fieldRef.current = model;
-  const { value$, error$ } = model;
   const value = useValue$(value$, value$.getValue());
   const error = useValue$(error$, error$.getValue());
-  const onChange = useCallback(function onChangeImpl(value: Value) {
-    fieldRef.current.value = value;
-  }, []);
+  const onChange = useCallback(
+    function onChangeImpl(value: Value) {
+      model.value = value;
+    },
+    [model],
+  );
   const onCompositionStart = useCallback(() => {
     compositingRef.current = true;
-  }, []);
+  }, [model]);
   const onCompositionEnd = useCallback(() => {
     compositingRef.current = false;
-  }, []);
-  const onBlur = useCallback(() => {}, []);
+  }, [model]);
+  const onBlur = useCallback(() => model.validate(), [model]);
   const onFocus = useCallback(() => {
     model.touched = true;
-  }, []);
+  }, [model]);
   const { validate$, form } = ctx;
   useEffect(() => {
-    const $validate = merge(
-      validate$.pipe(withLatestFrom(value$)),
-      value$.pipe(
-        debounceTime(100),
-        map(withLeft(ValidateStrategy.Normal)),
-      ),
+    const $validate = combineLatest(
+      merge(validate$, localValidate$).pipe(startWith(ValidateStrategy.Normal)),
+      value$.pipe(debounceTime(100)),
     )
-      .pipe(validate(model, form))
+      .pipe(
+        filter(filterWithCompositing(compositingRef)),
+        validate(model, form),
+      )
       .subscribe(new ErrorSubscriber(model));
     return $validate.unsubscribe.bind($validate);
-  }, [value$, validate$, model, form]);
+  }, [value$, validate$, localValidate$, model, form]);
   return {
     value,
     error,
