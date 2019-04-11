@@ -1,9 +1,12 @@
-import { BehaviorSubject, Subject } from 'rxjs';
-import { IVerifyOption } from './shared';
+import { BehaviorSubject } from 'rxjs';
+import { IValidator } from './validate';
 
-export interface Dic<T = unknown> {
-  [key: string]: T;
+export interface IError<T> {
+  validator: IValidator<T>;
+  error: null | string;
 }
+
+export type IErrors<T> = Array<IError<T>>;
 
 export enum FormStrategy {
   Model,
@@ -17,29 +20,31 @@ export enum ModelType {
   Form = 'form',
 }
 
-export type Model<Value = unknown> =
+export type Model<Value> =
   | FieldModel<Value>
   | FieldArrayModel<Value>
   | FieldSetModel<Value>;
 
-abstract class BasicModel<Type extends ModelType, Value, ErrorType = unknown> {
+export abstract class BasicModel<Type extends ModelType, Value> {
   pristine = true;
   touched = false;
 
   abstract readonly kind: Type;
   abstract getRawValue(): Value;
 
-  readonly error$ = new BehaviorSubject<ErrorType | null>(null);
+  readonly error$ = new BehaviorSubject<IErrors<Value> | null>(null);
 
   get error() {
     return this.error$.getValue();
   }
 
-  set error(error: ErrorType | null) {
+  set error(error: IErrors<Value> | null) {
     this.error$.next(error);
   }
 
-  verify$ = new Subject<IVerifyOption>();
+  // verify$ = new Subject<IVerifyOption>();
+
+  validators: Array<IValidator<Value>> = [];
 }
 
 export type FieldModelRuntimeType =
@@ -49,11 +54,7 @@ export type FieldModelRuntimeType =
   | 'bigint'
   | Function;
 
-export class FieldModel<Value, ErrorType = unknown> extends BasicModel<
-  ModelType.Field,
-  Value,
-  ErrorType
-> {
+export class FieldModel<Value> extends BasicModel<ModelType.Field, Value> {
   readonly kind: ModelType.Field;
   readonly value$: BehaviorSubject<Value>;
   type: Function;
@@ -83,13 +84,13 @@ export interface IFieldSetDefaultValue {
 }
 
 export interface IFieldSetChildren {
-  [key: string]: Model;
+  [key: string]: BasicModel<ModelType, unknown>;
 }
 
-export class FieldSetModel<
-  Value = IFieldSetDefaultValue,
-  ErrorType = unknown
-> extends BasicModel<ModelType.FieldSet, Value, ErrorType> {
+export class FieldSetModel<Value = IFieldSetDefaultValue> extends BasicModel<
+  ModelType.FieldSet,
+  Value
+> {
   readonly kind: ModelType.FieldSet;
   readonly children: IFieldSetChildren;
 
@@ -114,10 +115,9 @@ export interface IFieldArrayChildFactory<Item> {
   (value: Item): BasicModel<ModelType, Item>;
 }
 
-export class FieldArrayModel<Item, ErrorType = unknown> extends BasicModel<
+export class FieldArrayModel<Item> extends BasicModel<
   ModelType.FieldArray,
-  ReadonlyArray<Item>,
-  ErrorType
+  ReadonlyArray<Item>
 > {
   readonly kind: ModelType.FieldArray;
   readonly models$: BehaviorSubject<ReadonlyArray<BasicModel<ModelType, Item>>>;
