@@ -7,9 +7,12 @@ import {
   Observer,
   isObservable,
   from,
+  NextObserver,
 } from 'rxjs';
 import { BasicModel, IErrors, FormModel } from './models';
 import { isPromise } from './utils';
+
+export type ValidateEvent<T> = [ValidateStrategy, T];
 
 export enum ValidateStrategy {
   Normal,
@@ -65,20 +68,23 @@ class ValidatorResultSubscriber<T> implements Observer<string | null> {
   }
 }
 
-class ValidateOperator<T> implements Operator<T, IErrors<T>> {
+class ValidateOperator<T> implements Operator<ValidateEvent<T>, IErrors<T>> {
   constructor(
     private readonly model: BasicModel<T>,
-    private readonly ctx: IValidateContext,
+    private readonly form: FormModel,
   ) {}
 
-  call(subscriber: Subscriber<IErrors<T>>, source: Observable<T>) {
+  call(
+    subscriber: Subscriber<IErrors<T>>,
+    source: Observable<ValidateEvent<T>>,
+  ) {
     return source.subscribe(
-      new ValidateSubscriber(subscriber, this.model, this.ctx),
+      new ValidateSubscriber(subscriber, this.model, this.form),
     );
   }
 }
 
-class ValidateSubscriber<T> extends Subscriber<T> {
+class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
   private readonly $validators = new Map<
     ValidatorResultSubscriber<T>,
     Subscription
@@ -89,7 +95,7 @@ class ValidateSubscriber<T> extends Subscriber<T> {
   constructor(
     destination: Subscriber<IErrors<T>>,
     private readonly model: BasicModel<T>,
-    private readonly ctx: IValidateContext,
+    private readonly form: FormModel,
   ) {
     super(destination);
   }
@@ -121,19 +127,19 @@ class ValidateSubscriber<T> extends Subscriber<T> {
 
   private _removeChild(child: ValidatorResultSubscriber<T>) {
     const $ = this.$validators.get(child);
-    this.ctx.form.removeWorkingValidator(child.original$);
+    this.form.removeWorkingValidator(child.original$);
     if ($) {
       $.unsubscribe();
       this.$validators.delete(child);
     }
   }
 
-  protected _next(value: T) {
+  protected _next([strategy, value]: ValidateEvent<T>) {
     this._clear();
     const validators = this.model.validators;
     for (const validator of validators) {
       const result = validator(value);
-      const ignoreAsync = this.ctx.strategy === ValidateStrategy.IgnoreAsync;
+      const ignoreAsync = strategy === ValidateStrategy.IgnoreAsync;
       if (result === null) {
         continue;
       }
@@ -142,18 +148,26 @@ class ValidateSubscriber<T> extends Subscriber<T> {
           continue;
         }
         const result$ = from(result);
-        const subscriber = new ValidatorResultSubscriber(this, validator, result$);
+        const subscriber = new ValidatorResultSubscriber(
+          this,
+          validator,
+          result$,
+        );
         const $ = result$.subscribe(subscriber);
         this.$validators.set(subscriber, $);
-        this.ctx.form.addWorkingValidator(result$);
+        this.form.addWorkingValidator(result$);
       } else if (isObservable<string | null>(result)) {
         if (ignoreAsync) {
           continue;
         }
-        const subscriber = new ValidatorResultSubscriber(this, validator, result);
+        const subscriber = new ValidatorResultSubscriber(
+          this,
+          validator,
+          result,
+        );
         const $ = result.subscribe(subscriber);
         this.$validators.set(subscriber, $);
-        this.ctx.form.addWorkingValidator(result);
+        this.form.addWorkingValidator(result);
       } else {
         this.childResult(validator, result);
       }
@@ -181,11 +195,19 @@ class ValidateSubscriber<T> extends Subscriber<T> {
 
 export function validate<T>(
   model: BasicModel<T>,
-  ctx: IValidateContext,
-): OperatorFunction<T, IErrors<T>> {
+  form: FormModel,
+): OperatorFunction<[ValidateStrategy, T], IErrors<T>> {
   return function validateOperation(
-    source: Observable<T>,
+    source: Observable<[ValidateStrategy, T]>,
   ): Observable<IErrors<T>> {
-    return source.lift(new ValidateOperator(model, ctx));
+    return source.lift(new ValidateOperator(model, form));
   };
+}
+
+export class ErrorSubscriber<T> implements NextObserver<IErrors<T>> {
+  constructor(private readonly model: BasicModel<T>) {}
+
+  next(error: IErrors<T>) {
+    this.model.error = error;
+  }
 }

@@ -1,8 +1,11 @@
 // import * as React from 'react';
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
+import { merge } from 'rxjs';
+import { debounceTime, withLatestFrom, map } from 'rxjs/operators';
 import { FieldModel, IErrors } from './models';
-import { useValue$ } from './utils';
+import { useValue$, withLeft } from './utils';
 import { useFormContext } from './context';
+import { ValidateStrategy, validate, ErrorSubscriber } from './validate';
 // import { merge, never } from 'rxjs';
 // import { switchMap, debounceTime } from 'rxjs/operators';
 
@@ -62,17 +65,19 @@ export function useField<Value>(
   const onFocus = useCallback(() => {
     model.touched = true;
   }, []);
-  // useEffect(() => {
-  //   const $verify = merge(ctx.verify$, value$.pipe(debounceTime(100))).pipe(
-  //     // switchMap(() => {
-  //     //   if (compositingRef.current) {
-  //     //     return never();
-  //     //   }
-  //     //   // const value = 
-  //     // }),
-  //   ).subscribe();
-  //   return () => $verify.unsubscribe();
-  // }, [value$, ctx.verify$]);
+  const { validate$, form } = ctx;
+  useEffect(() => {
+    const $validate = merge(
+      validate$.pipe(withLatestFrom(value$)),
+      value$.pipe(
+        debounceTime(100),
+        map(withLeft(ValidateStrategy.Normal)),
+      ),
+    )
+      .pipe(validate(model, form))
+      .subscribe(new ErrorSubscriber(model));
+    return $validate.unsubscribe.bind($validate);
+  }, [value$, validate$, model, form]);
   return {
     value,
     error,
