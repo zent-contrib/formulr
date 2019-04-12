@@ -13,9 +13,6 @@ import {
 
 export interface IFormFieldChildProps<Value> {
   value: Value;
-  error: IErrors<Value> | null;
-  pristine: boolean;
-  touched: boolean;
   onChange(value: Value): void;
   onFocus: React.FocusEventHandler;
   onBlur: React.FocusEventHandler;
@@ -23,27 +20,34 @@ export interface IFormFieldChildProps<Value> {
   onCompositionEnd: React.CompositionEventHandler;
 }
 
+export interface IFieldMeta<Value> {
+  pristine: boolean;
+  touched: boolean;
+  error: IErrors<Value>;
+}
+
 export function useField<Value>(
   field: string,
   defaultValue: Value,
-): IFormFieldChildProps<Value>;
+): [IFormFieldChildProps<Value>, IFieldMeta<Value>, FieldModel<Value>];
 
 export function useField<Value>(
   field: FieldModel<Value>,
-): IFormFieldChildProps<Value>;
+): [IFormFieldChildProps<Value>, IFieldMeta<Value>, FieldModel<Value>];
 
 export function useField<Value>(
   field: FieldModel<Value> | string,
   defaultValue?: Value,
-): IFormFieldChildProps<Value> {
+): [IFormFieldChildProps<Value>, IFieldMeta<Value>, FieldModel<Value>] {
   const ctx = useFormContext();
   let model: FieldModel<Value>;
   if (typeof field === 'string') {
     let m = ctx.parent.children[field];
     if (!m || !(m instanceof FieldModel)) {
       model = new FieldModel<Value>(defaultValue as Value);
+    } else {
+      model = m;
     }
-    model = m as FieldModel<Value>;
   } else {
     model = field;
   }
@@ -90,15 +94,20 @@ export function useField<Value>(
       .subscribe(new ErrorSubscriber(model));
     return $validate.unsubscribe.bind($validate);
   }, [value$, validate$, localValidate$, model, form]);
-  return {
-    value,
-    error,
-    onChange,
-    onCompositionStart,
-    onCompositionEnd,
-    onBlur,
-    onFocus,
-    pristine,
-    touched,
-  };
+  return [
+    {
+      value,
+      onChange,
+      onCompositionStart,
+      onCompositionEnd,
+      onBlur,
+      onFocus,
+    },
+    {
+      pristine,
+      touched,
+      error,
+    },
+    model,
+  ];
 }
