@@ -35,8 +35,8 @@
   "dependencies": {
     "@types/react": "^16.7.0",
     "@types/react-dom": "^16.7.0",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "rxjs": "^6.4.0",
     "tslib": "^1.9.3",
     "utility-types": "^3.5.0"

@@ -46,7 +46,7 @@ export abstract class BasicModel<Value> {
     this.validate$.next(strategy);
   }
 
-  validators: Array<IValidator<Value>> = [];
+  validators: ReadonlyArray<IValidator<Value>> = [];
 }
 
 export class FieldModel<Value> extends BasicModel<Value> {

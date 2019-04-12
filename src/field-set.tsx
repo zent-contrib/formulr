@@ -1,7 +1,8 @@
 import { useFormContext, IFormContext } from './context';
-import { FieldSetModel, IErrors, BasicModel } from './models';
+import { FieldSetModel, IErrors, BasicModel, FormStrategy } from './models';
 import { useMemo } from 'react';
-import { useValue$ } from './utils';
+import { useValue$ } from './hooks';
+import { IValidator } from './validate';
 
 export interface IFieldSetMeta<T> {
   error: IErrors<T>;
@@ -9,10 +10,14 @@ export interface IFieldSetMeta<T> {
 
 export function useFieldSet<T>(
   field: string | FieldSetModel<T>,
+  validators?: ReadonlyArray<IValidator<T>>,
 ): [IFormContext, IFieldSetMeta<T>, FieldSetModel<T>] {
   const ctx = useFormContext();
   let model: FieldSetModel<T>;
   if (typeof field === 'string') {
+    if (ctx.strategy !== FormStrategy.View) {
+      throw new Error();
+    }
     const m = ctx.parent.children[field];
     if (!m || !(m instanceof FieldSetModel)) {
       model = new FieldSetModel();
@@ -20,6 +25,7 @@ export function useFieldSet<T>(
     } else {
       model = m;
     }
+    model.validators = validators || [];
   } else {
     model = field;
   }

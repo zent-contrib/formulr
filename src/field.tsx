@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { merge } from 'rxjs';
 import { debounceTime, filter, withLatestFrom, map } from 'rxjs/operators';
-import { FieldModel, IErrors, BasicModel } from './models';
-import { useValue$, withLeft } from './utils';
+import { FieldModel, IErrors, BasicModel, FormStrategy } from './models';
+import { useValue$ } from './hooks';
+import { withLeft } from './utils';
 import { useFormContext } from './context';
 import {
   ValidateStrategy,
   validate,
   ErrorSubscriber,
   filterWithCompositing,
+  IValidator,
 } from './validate';
 
 export interface IFormFieldChildProps<Value> {
@@ -29,6 +31,7 @@ export interface IFieldMeta<Value> {
 export function useField<Value>(
   field: string,
   defaultValue: Value,
+  validators?: ReadonlyArray<IValidator<Value>>,
 ): [IFormFieldChildProps<Value>, IFieldMeta<Value>, FieldModel<Value>];
 
 export function useField<Value>(
@@ -38,10 +41,14 @@ export function useField<Value>(
 export function useField<Value>(
   field: FieldModel<Value> | string,
   defaultValue?: Value,
+  validators?: ReadonlyArray<IValidator<Value>>,
 ): [IFormFieldChildProps<Value>, IFieldMeta<Value>, FieldModel<Value>] {
   const ctx = useFormContext();
   let model: FieldModel<Value>;
   if (typeof field === 'string') {
+    if (ctx.strategy !== FormStrategy.View) {
+      throw new Error();
+    }
     let m = ctx.parent.children[field];
     if (!m || !(m instanceof FieldModel)) {
       model = new FieldModel<Value>(defaultValue as Value);
@@ -49,6 +56,7 @@ export function useField<Value>(
     } else {
       model = m;
     }
+    model.validators = validators || [];
   } else {
     model = field;
   }

@@ -1,12 +1,10 @@
 import { useCallback, useMemo } from 'react';
 import { FormStrategy, FormModel } from './models';
 import { ValidateStrategy } from './validate';
-import { useValue$ } from './utils';
 import { IFormContext } from './context';
 
 export interface IFormApis {
   validate(strategy: ValidateStrategy): void;
-  isValidating: boolean;
 }
 
 export function useForm(strategy: FormStrategy.View): void;
@@ -15,7 +13,7 @@ export function useForm(model: FormModel): void;
 
 export function useForm(
   a: FormStrategy.View | FormModel,
-): [IFormApis, IFormContext] {
+): [IFormApis, IFormContext, FormModel] {
   let strategy: FormStrategy;
   let model: FormModel;
   if (a === FormStrategy.View) {
@@ -32,7 +30,6 @@ export function useForm(
     },
     [model],
   );
-  const isValidating = useValue$(model.isValidating$, false);
   const ctx = useMemo<IFormContext>(
     () => ({
       validate$,
@@ -46,8 +43,8 @@ export function useForm(
   return [
     {
       validate,
-      isValidating,
     },
     ctx,
+    model,
   ];
 }
