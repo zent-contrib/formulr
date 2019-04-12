@@ -23,7 +23,7 @@ export function useForm(
     strategy = FormStrategy.Model;
     model = a;
   }
-  const { validate$, change$ } = model;
+  const { validate$ } = model;
   const validate = useCallback(
     (strategy = ValidateStrategy.Normal) => {
       model.validate(strategy);
@@ -33,7 +33,6 @@ export function useForm(
   const ctx = useMemo<IFormContext>(
     () => ({
       validate$,
-      change$,
       strategy,
       form: model,
       parent: model,
