@@ -3,9 +3,11 @@ import {
   IErrors,
   BasicModel,
   IFieldArrayChildFactory,
+  FormStrategy,
 } from './models';
 import { useFormContext } from './context';
-import { useValue$ } from './utils';
+import { useValue$ } from './hooks';
+import { IValidator } from './validate';
 
 export interface IFieldArrayMeta<Item> {
   error: IErrors<Item[]>;
@@ -14,6 +16,7 @@ export interface IFieldArrayMeta<Item> {
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string,
   factory: IFieldArrayChildFactory<Item>,
+  validators?: ReadonlyArray<IValidator<readonly Item[]>>,
 ): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>];
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
@@ -23,10 +26,14 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item>,
   factory?: IFieldArrayChildFactory<Item>,
+  validators?: ReadonlyArray<IValidator<readonly Item[]>>,
 ): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>] {
   const ctx = useFormContext();
   let model: FieldArrayModel<Item>;
   if (typeof field === 'string') {
+    if (ctx.strategy !== FormStrategy.View) {
+      throw new Error();
+    }
     const m = ctx.parent.children[field];
     if (!m || !(m instanceof FieldArrayModel)) {
       model = new FieldArrayModel(factory as IFieldArrayChildFactory<Item>);
@@ -34,6 +41,7 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
     } else {
       model = m;
     }
+    model.validators = validators || [];
   } else {
     model = field;
   }
