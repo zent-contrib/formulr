@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { merge } from 'rxjs';
 import { debounceTime, filter, withLatestFrom, map } from 'rxjs/operators';
-import { FieldModel, IErrors } from './models';
+import { FieldModel, IErrors, BasicModel } from './models';
 import { useValue$, withLeft } from './utils';
 import { useFormContext } from './context';
 import {
@@ -45,6 +45,7 @@ export function useField<Value>(
     let m = ctx.parent.children[field];
     if (!m || !(m instanceof FieldModel)) {
       model = new FieldModel<Value>(defaultValue as Value);
+      ctx.parent.children[field] = model as BasicModel<unknown>;
     } else {
       model = m;
     }

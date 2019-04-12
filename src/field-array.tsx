@@ -1,196 +1,49 @@
-import * as React from 'react';
-import { never, Subscription, Subject, merge } from 'rxjs';
-import { mapTo } from 'rxjs/operators';
 import {
-  ErrorType,
-  Validator,
-  IVerifyOption,
-  ensureContext,
-  mapValidatorResult,
-  noopValidator,
-  ITracedSwitchMapContext,
-  makeTrace,
-  tracedSwitchMap,
-} from './shared';
-import { IFieldArrayModel, touchFieldArray } from './models';
-import FormContext from './context';
+  FieldArrayModel,
+  IErrors,
+  BasicModel,
+  IFieldArrayChildFactory,
+} from './models';
+import { useFormContext } from './context';
+import { useValue$ } from './utils';
 
-export interface IFieldArrayChildProps {
-  keys: string[];
-  onKeysChange(keys: string[]): void;
-  error: ErrorType;
+export interface IFieldArrayMeta<Item> {
+  error: IErrors<Item[]>;
 }
 
-export interface IFieldArrayProps<T> {
-  name: string;
-  validator: Validator<T[]>;
-  children(props: IFieldArrayChildProps): React.ReactNode;
-}
+export function useFieldArray<Item, Child extends BasicModel<Item>>(
+  field: string,
+  factory: IFieldArrayChildFactory<Item>,
+): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>];
 
-export interface IFieldArrayState<T> {
-  name: string;
-  model: IFieldArrayModel<T> | null;
-  keys: string[];
-  error: ErrorType;
-}
+export function useFieldArray<Item, Child extends BasicModel<Item>>(
+  field: FieldArrayModel<Item>,
+): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>];
 
-export class FieldArray<T> extends React.Component<IFieldArrayProps<T>, IFieldArrayState<T>> {
-  static defaultProps = {
-    validator: noopValidator,
-  };
-
-  static contextType = FormContext;
-
-  private change$ = new Subject<never>();
-  private $keys: Subscription | null = null;
-  private $error: Subscription | null = null;
-  private $verify: Subscription | null = null;
-  private trace: ITracedSwitchMapContext;
-
-  constructor(props: IFieldArrayProps<T>) {
-    super(props);
-    this.state = {
-      name: props.name,
-      model: null,
-      keys: [],
-      error: null,
-    };
-    this.trace = makeTrace(this);
-  }
-
-  setValue = (value: T[]) => {
-    const { model } = this.state;
-    if (!model) {
-      return;
+export function useFieldArray<Item, Child extends BasicModel<Item>>(
+  field: string | FieldArrayModel<Item>,
+  factory?: IFieldArrayChildFactory<Item>,
+): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>] {
+  const ctx = useFormContext();
+  let model: FieldArrayModel<Item>;
+  if (typeof field === 'string') {
+    const m = ctx.parent.children[field];
+    if (!m || !(m instanceof FieldArrayModel)) {
+      model = new FieldArrayModel(factory as IFieldArrayChildFactory<Item>);
+      ctx.parent.children[field] = model as BasicModel<unknown>;
+    } else {
+      model = m;
     }
-    model.setValues(value);
-  };
-
-  getModel() {
-    return this.state.model;
+  } else {
+    model = field;
   }
-
-  verify = (verifyOption: IVerifyOption) => {
-    const { model } = this.state;
-    if (!model) {
-      return never();
-    }
-    const { validator } = this.props;
-    const ret = validator(model.getRawValue(), verifyOption);
-    return mapValidatorResult(ret);
-  };
-
-  onKeysChange = (keys: string[]) => {
-    const { model } = this.state;
-    if (model) {
-      model.keys = keys;
-    }
-  };
-
-  attach() {
-    const ctx = ensureContext(this);
-    const { name } = this.props;
-    const model = touchFieldArray<T>(name, ctx);
-    this.setState({
-      model,
-    });
-    this.$keys = model.keys$.subscribe(keys => {
-      this.setState({
-        keys,
-      });
-    });
-    this.$error = model.error$.subscribe(error => {
-      this.setState({
-        error,
-      });
-    });
-    this.$verify = merge(
-      this.change$.pipe(
-        mapTo({
-          source: 'change',
-        }),
-      ),
-      ctx.verify$,
-    )
-      .pipe(tracedSwitchMap(this.trace, this.verify))
-      .subscribe(error => {
-        model.error = error;
-      });
-    model.attach = this;
-  }
-
-  detach() {
-    const { model } = this.state;
-    if (!model) {
-      return;
-    }
-    this.$keys && this.$keys.unsubscribe();
-    this.$error && this.$error.unsubscribe();
-    this.$verify && this.$verify.unsubscribe();
-    this.$keys = null;
-    this.$error = null;
-    this.$verify = null;
-    model.attach = null;
-  }
-
-  static getDerivedStateFromProps(props: IFieldArrayProps<unknown>, { name }: IFieldArrayState<unknown>) {
-    if (props.name !== name) {
-      return {
-        name: props.name,
-        model: null,
-        error: null,
-      };
-    }
-    return null;
-  }
-
-  componentDidMount() {
-    this.attach();
-  }
-
-  componentDidUpdate() {
-    const ctx = ensureContext(this);
-    const { model, name } = this.state;
-    const ctxModel = touchFieldArray<T>(name, ctx);
-    if (!model || model !== ctxModel) {
-      this.detach();
-      this.attach();
-    }
-  }
-
-  componentWillUnmount() {
-    this.detach();
-  }
-
-  render() {
-    const { children, name } = this.props;
-    if (typeof name !== 'string') {
-      throw new Error(`'name' must be set!`);
-    }
-    const ctx = ensureContext(this);
-    const { model, keys, error } = this.state;
-    if (!model) {
-      return null;
-    }
-
-    return (
-      <FormContext.Provider
-        value={{
-          ...ctx,
-          section: model as IFieldArrayModel<unknown>,
-          controls: model.controls,
-          change$: this.change$,
-          getShadowValue() {
-            return model.shadowValue || ctx.getShadowValue()[name] || {};
-          },
-        }}
-      >
-        {children({
-          keys,
-          error,
-          onKeysChange: this.onKeysChange,
-        })}
-      </FormContext.Provider>
-    );
-  }
+  const { error$ } = model;
+  const error = useValue$(error$, error$.getValue());
+  return [
+    model.models$.getValue() as ReadonlyArray<Child>,
+    {
+      error,
+    },
+    model,
+  ];
 }

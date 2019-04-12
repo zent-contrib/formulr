@@ -1,5 +1,5 @@
 import { useFormContext, IFormContext } from './context';
-import { FieldSetModel, IErrors } from './models';
+import { FieldSetModel, IErrors, BasicModel } from './models';
 import { useMemo } from 'react';
 import { useValue$ } from './utils';
 
@@ -16,6 +16,7 @@ export function useFieldSet<T>(
     const m = ctx.parent.children[field];
     if (!m || !(m instanceof FieldSetModel)) {
       model = new FieldSetModel();
+      ctx.parent.children[field] = model as BasicModel<unknown>;
     } else {
       model = m;
     }
