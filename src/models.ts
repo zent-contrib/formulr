@@ -22,7 +22,6 @@ export abstract class BasicModel<Value> {
   pristine = true;
   touched = false;
   readonly validate$ = new Subject<ValidateStrategy>();
-  readonly change$ = new Subject<never>();
   protected abstract initialValue: Value;
   abstract getRawValue(): Value;
 

@@ -8,6 +8,7 @@ import {
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { IValidator } from './validate';
+import { useEffect } from 'react';
 
 export interface IFieldArrayMeta<Item> {
   error: IErrors<Item[]>;
@@ -16,7 +17,7 @@ export interface IFieldArrayMeta<Item> {
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string,
   factory: IFieldArrayChildFactory<Item>,
-  validators?: ReadonlyArray<IValidator<readonly Item[]>>,
+  validators?: ReadonlyArray<IValidator<ReadonlyArray<Item>>>,
 ): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>];
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
@@ -26,18 +27,18 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item>,
   factory?: IFieldArrayChildFactory<Item>,
-  validators?: ReadonlyArray<IValidator<readonly Item[]>>,
+  validators?: ReadonlyArray<IValidator<ReadonlyArray<Item>>>,
 ): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>] {
-  const ctx = useFormContext();
+  const { parent, strategy } = useFormContext();
   let model: FieldArrayModel<Item>;
   if (typeof field === 'string') {
-    if (ctx.strategy !== FormStrategy.View) {
+    if (strategy !== FormStrategy.View) {
       throw new Error();
     }
-    const m = ctx.parent.children[field];
+    const m = parent.children[field];
     if (!m || !(m instanceof FieldArrayModel)) {
       model = new FieldArrayModel(factory as IFieldArrayChildFactory<Item>);
-      ctx.parent.children[field] = model as BasicModel<unknown>;
+      parent.children[field] = model as BasicModel<unknown>;
     } else {
       model = m;
     }
@@ -47,6 +48,10 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   }
   const { error$ } = model;
   const error = useValue$(error$, error$.getValue());
+  useEffect(() => {
+    const $ = model.validate$.subscribe(parent.validate$);
+    return $.unsubscribe.bind($);
+  }, [model, parent]);
   return [
     model.models$.getValue() as ReadonlyArray<Child>,
     {
