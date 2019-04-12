@@ -6,7 +6,7 @@ export interface IError<T> {
   error: null | string;
 }
 
-export type IErrors<T> = Array<IError<T>>;
+export type IErrors<T> = Array<IError<T>> | null;
 
 export enum FormStrategy {
   Model,
