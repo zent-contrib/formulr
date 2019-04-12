@@ -37,7 +37,7 @@ export function useForm(
       form: model,
       parent: model,
     }),
-    [validate$, change$, strategy, model],
+    [validate$, strategy, model],
   );
   return [
     {
