@@ -43,16 +43,17 @@ export function useField<Value>(
   defaultValue?: Value,
   validators?: ReadonlyArray<IValidator<Value>>,
 ): [IFormFieldChildProps<Value>, IFieldMeta<Value>, FieldModel<Value>] {
-  const ctx = useFormContext();
+  const { parent, strategy, validate$, form } = useFormContext();
+  // const { parent } = ctx;
   let model: FieldModel<Value>;
   if (typeof field === 'string') {
-    if (ctx.strategy !== FormStrategy.View) {
+    if (strategy !== FormStrategy.View) {
       throw new Error();
     }
-    let m = ctx.parent.children[field];
+    let m = parent.children[field];
     if (!m || !(m instanceof FieldModel)) {
       model = new FieldModel<Value>(defaultValue as Value);
-      ctx.parent.children[field] = model as BasicModel<unknown>;
+      parent.children[field] = model as BasicModel<unknown>;
     } else {
       model = m;
     }
@@ -73,8 +74,9 @@ export function useField<Value>(
   const onChange = useCallback(
     function onChangeImpl(value: Value) {
       model.value = value;
+      parent.validate(ValidateStrategy.IgnoreAsync);
     },
-    [model],
+    [model, parent],
   );
   const onCompositionStart = useCallback(() => {
     compositingRef.current = true;
@@ -82,13 +84,15 @@ export function useField<Value>(
   const onCompositionEnd = useCallback(() => {
     compositingRef.current = false;
   }, [model]);
-  const onBlur = useCallback(() => model.validate(), [model]);
+  const onBlur = useCallback(() => {
+    model.validate();
+    parent.validate();
+  }, [model, parent]);
   const onFocus = useCallback(() => {
     model.touched = true;
   }, [model]);
-  const { validate$, form } = ctx;
   useEffect(() => {
-    const $validate = merge(
+    const $ = merge(
       validate$.pipe(withLatestFrom(value$)),
       localValidate$.pipe(withLatestFrom(value$)),
       value$.pipe(
@@ -101,7 +105,7 @@ export function useField<Value>(
         validate(model, form),
       )
       .subscribe(new ErrorSubscriber(model));
-    return $validate.unsubscribe.bind($validate);
+    return $.unsubscribe.bind($);
   }, [value$, validate$, localValidate$, model, form]);
   return [
     {
