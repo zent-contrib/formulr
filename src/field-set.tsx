@@ -8,10 +8,16 @@ export interface IFieldSetMeta<T> {
   error: IErrors<T>;
 }
 
+export type IUseFieldSet<T> = [
+  IFormContext,
+  IFieldSetMeta<T>,
+  FieldSetModel<T>
+];
+
 export function useFieldSet<T>(
   field: string | FieldSetModel<T>,
   validators?: ReadonlyArray<IValidator<T>>,
-): [IFormContext, IFieldSetMeta<T>, FieldSetModel<T>] {
+): IUseFieldSet<T> {
   const { parent, strategy, form } = useFormContext();
   let model: FieldSetModel<T>;
   if (typeof field === 'string') {
