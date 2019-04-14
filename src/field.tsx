@@ -28,21 +28,25 @@ export interface IFieldMeta<Value> {
   error: IErrors<Value>;
 }
 
+export type IUseField<Value> = [
+  IFormFieldChildProps<Value>,
+  IFieldMeta<Value>,
+  FieldModel<Value>
+];
+
 export function useField<Value>(
   field: string,
   defaultValue: Value,
   validators?: ReadonlyArray<IValidator<Value>>,
-): [IFormFieldChildProps<Value>, IFieldMeta<Value>, FieldModel<Value>];
+): IUseField<Value>;
 
-export function useField<Value>(
-  field: FieldModel<Value>,
-): [IFormFieldChildProps<Value>, IFieldMeta<Value>, FieldModel<Value>];
+export function useField<Value>(field: FieldModel<Value>): IUseField<Value>;
 
 export function useField<Value>(
   field: FieldModel<Value> | string,
   defaultValue?: Value,
   validators?: ReadonlyArray<IValidator<Value>>,
-): [IFormFieldChildProps<Value>, IFieldMeta<Value>, FieldModel<Value>] {
+): IUseField<Value> {
   const { parent, strategy, validate$, form } = useFormContext();
   // const { parent } = ctx;
   let model: FieldModel<Value>;

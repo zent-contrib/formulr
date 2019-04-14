@@ -14,21 +14,27 @@ export interface IFieldArrayMeta<Item> {
   error: IErrors<Item[]>;
 }
 
+export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
+  ReadonlyArray<Child>,
+  IFieldArrayMeta<Item>,
+  FieldArrayModel<Item>
+];
+
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string,
   factory: IFieldArrayChildFactory<Item>,
   validators?: ReadonlyArray<IValidator<ReadonlyArray<Item>>>,
-): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>];
+): IUseFieldArray<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: FieldArrayModel<Item>,
-): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>];
+): IUseFieldArray<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item>,
   factory?: IFieldArrayChildFactory<Item>,
   validators?: ReadonlyArray<IValidator<ReadonlyArray<Item>>>,
-): [ReadonlyArray<Child>, IFieldArrayMeta<Item>, FieldArrayModel<Item>] {
+): IUseFieldArray<Item, Child> {
   const { parent, strategy } = useFormContext();
   let model: FieldArrayModel<Item>;
   if (typeof field === 'string') {
