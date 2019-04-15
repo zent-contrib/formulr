@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { merge } from 'rxjs';
 import { debounceTime, filter, withLatestFrom, map } from 'rxjs/operators';
 import { FieldModel, IErrors, BasicModel, FormStrategy } from './models';
@@ -75,26 +75,30 @@ export function useField<Value>(
   const compositingRef = useRef(false);
   const value = useValue$(value$, value$.getValue());
   const error = useValue$(error$, error$.getValue());
-  const onChange = useCallback(
-    function onChangeImpl(value: Value) {
-      model.value = value;
-      parent.validate(ValidateStrategy.IgnoreAsync);
-    },
-    [model, parent],
+  const childProps = useMemo<IFormFieldChildProps<Value>>(
+    () => ({
+      value,
+      onChange() {
+        model.value = value;
+        parent.validate(ValidateStrategy.IgnoreAsync);
+      },
+      onCompositionStart() {
+        compositingRef.current = true;
+      },
+      onCompositionEnd() {
+        compositingRef.current = false;
+      },
+      onBlur() {
+        model.validate();
+        parent.validate();
+      },
+      onFocus() {
+        model.touched = true;
+      },
+    }),
+    [parent, model],
   );
-  const onCompositionStart = useCallback(() => {
-    compositingRef.current = true;
-  }, [model]);
-  const onCompositionEnd = useCallback(() => {
-    compositingRef.current = false;
-  }, [model]);
-  const onBlur = useCallback(() => {
-    model.validate();
-    parent.validate();
-  }, [model, parent]);
-  const onFocus = useCallback(() => {
-    model.touched = true;
-  }, [model]);
+  childProps.value = value;
   useEffect(() => {
     const $ = merge(
       validate$.pipe(withLatestFrom(value$)),
@@ -112,14 +116,7 @@ export function useField<Value>(
     return $.unsubscribe.bind($);
   }, [value$, validate$, localValidate$, model, form]);
   return [
-    {
-      value,
-      onChange,
-      onCompositionStart,
-      onCompositionEnd,
-      onBlur,
-      onFocus,
-    },
+    childProps,
     {
       pristine,
       touched,
