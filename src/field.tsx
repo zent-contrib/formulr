@@ -1,7 +1,13 @@
 import { useEffect, useRef, useMemo } from 'react';
-import { merge } from 'rxjs';
-import { debounceTime, filter, withLatestFrom, map } from 'rxjs/operators';
-import { FieldModel, IErrors, BasicModel, FormStrategy } from './models';
+import { merge, NextObserver } from 'rxjs';
+import { debounceTime, filter, withLatestFrom, map, tap } from 'rxjs/operators';
+import {
+  FieldModel,
+  IErrors,
+  BasicModel,
+  FormStrategy,
+  FieldSetModel,
+} from './models';
 import { useValue$ } from './hooks';
 import { withLeft } from './utils';
 import { useFormContext } from './context';
@@ -34,53 +40,34 @@ export type IUseField<Value> = [
   FieldModel<Value>
 ];
 
-export function useField<Value>(
-  field: string,
-  defaultValue: Value,
-  validators?: ReadonlyArray<IValidator<Value>>,
-): IUseField<Value>;
-
-export function useField<Value>(field: FieldModel<Value>): IUseField<Value>;
-
-export function useField<Value>(
+function useModelAndChildProps<Value>(
   field: FieldModel<Value> | string,
-  defaultValue?: Value,
-  validators?: ReadonlyArray<IValidator<Value>>,
-): IUseField<Value> {
-  const { parent, strategy, validate$, form } = useFormContext();
-  // const { parent } = ctx;
-  let model: FieldModel<Value>;
-  if (typeof field === 'string') {
-    if (strategy !== FormStrategy.View) {
-      throw new Error();
-    }
-    let m = parent.children[field];
-    if (!m || !(m instanceof FieldModel)) {
-      model = new FieldModel<Value>(defaultValue as Value);
-      parent.children[field] = model as BasicModel<unknown>;
+  parent: FieldSetModel,
+  strategy: FormStrategy,
+  defaultValue: Value,
+  compositingRef: React.MutableRefObject<boolean>,
+) {
+  return useMemo(() => {
+    let model: FieldModel<Value>;
+    if (typeof field === 'string') {
+      if (strategy !== FormStrategy.View) {
+        throw new Error();
+      }
+      const m = parent.children[field];
+      if (!m || !(m instanceof FieldModel)) {
+        model = new FieldModel<Value>(defaultValue as Value);
+        parent.children[field] = model as BasicModel<unknown>;
+      } else {
+        model = m;
+      }
     } else {
-      model = m;
+      model = field;
     }
-    model.validators = validators || [];
-  } else {
-    model = field;
-  }
-  const {
-    pristine,
-    touched,
-    value$,
-    error$,
-    validate$: localValidate$,
-  } = model;
-  const compositingRef = useRef(false);
-  const value = useValue$(value$, value$.getValue());
-  const error = useValue$(error$, error$.getValue());
-  const childProps = useMemo<IFormFieldChildProps<Value>>(
-    () => ({
+    const { value } = model;
+    const childProps: IFormFieldChildProps<Value> = {
       value,
       onChange() {
         model.value = value;
-        parent.validate(ValidateStrategy.IgnoreAsync);
       },
       onCompositionStart() {
         compositingRef.current = true;
@@ -95,10 +82,56 @@ export function useField<Value>(
       onFocus() {
         model.touched = true;
       },
-    }),
-    [parent, model],
+    };
+    return {
+      childProps,
+      model,
+    };
+  }, [field, parent, strategy]);
+}
+
+class NotifyParentValidate<Value>
+  implements NextObserver<[ValidateStrategy, Value]> {
+  constructor(private readonly parent: FieldSetModel) {}
+
+  next([strategy, _]: [ValidateStrategy, Value]) {
+    this.parent.validate(strategy);
+  }
+}
+
+export function useField<Value>(
+  field: string,
+  defaultValue: Value,
+  validators?: ReadonlyArray<IValidator<Value>>,
+): IUseField<Value>;
+
+export function useField<Value>(field: FieldModel<Value>): IUseField<Value>;
+
+export function useField<Value>(
+  field: FieldModel<Value> | string,
+  defaultValue?: Value,
+  validators?: ReadonlyArray<IValidator<Value>>,
+): IUseField<Value> {
+  const { parent, strategy, validate$, form } = useFormContext();
+  const compositingRef = useRef(false);
+  const { childProps, model } = useModelAndChildProps(
+    field,
+    parent,
+    strategy,
+    defaultValue as Value,
+    compositingRef,
   );
+  const {
+    pristine,
+    touched,
+    value$,
+    error$,
+    validate$: localValidate$,
+  } = model;
+  const value = useValue$(value$, value$.getValue());
+  const error = useValue$(error$, error$.getValue());
   childProps.value = value;
+  model.validators = validators || [];
   useEffect(() => {
     const $ = merge(
       validate$.pipe(withLatestFrom(value$)),
@@ -106,6 +139,7 @@ export function useField<Value>(
       value$.pipe(
         debounceTime(100),
         map(withLeft(ValidateStrategy.IgnoreAsync)),
+        tap<[ValidateStrategy, Value]>(new NotifyParentValidate(parent)),
       ),
     )
       .pipe(
