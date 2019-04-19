@@ -131,7 +131,9 @@ export function useField<Value>(
   const value = useValue$(value$, value$.getValue());
   const error = useValue$(error$, error$.getValue());
   childProps.value = value;
-  model.validators = validators || [];
+  if (typeof field === 'string') {
+    model.validators = validators || [];
+  }
   useEffect(() => {
     const $ = merge(
       validate$.pipe(withLatestFrom(value$)),
@@ -139,13 +141,11 @@ export function useField<Value>(
       value$.pipe(
         debounceTime(100),
         map(withLeft(ValidateStrategy.IgnoreAsync)),
+        filter(filterWithCompositing(compositingRef)),
         tap<[ValidateStrategy, Value]>(new NotifyParentValidate(parent)),
       ),
     )
-      .pipe(
-        filter(filterWithCompositing(compositingRef)),
-        validate(model, form),
-      )
+      .pipe(validate(model, form))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [value$, validate$, localValidate$, model, form]);

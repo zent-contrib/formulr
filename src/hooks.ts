@@ -11,7 +11,7 @@ export function useValue$<T>(value$: Observable<T>, initialValue: T) {
 
 export function useEffect$<T>(event$: Observable<T>, effect: (e: T) => void) {
   useEffect(() => {
-    const $value = event$.subscribe(effect);
-    return () => $value.unsubscribe();
+    const $ = event$.subscribe(effect);
+    return $.unsubscribe.bind($);
   }, [event$]);
 }
