@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { FormStrategy, FormModel } from './models';
 import { ValidateStrategy } from './validate';
 import { IFormContext } from './context';
@@ -12,38 +12,34 @@ export function useForm(strategy: FormStrategy.View): void;
 export function useForm(model: FormModel): void;
 
 export function useForm(
-  a: FormStrategy.View | FormModel,
+  arg: FormStrategy.View | FormModel,
 ): [IFormApis, IFormContext, FormModel] {
-  let strategy: FormStrategy;
-  let model: FormModel;
-  if (a === FormStrategy.View) {
-    strategy = a;
-    model = new FormModel();
-  } else {
-    strategy = FormStrategy.Model;
-    model = a;
-  }
-  const { validate$ } = model;
-  const validate = useCallback(
-    (strategy = ValidateStrategy.Normal) => {
+  return useMemo(() => {
+    let strategy: FormStrategy;
+    let model: FormModel;
+    if (arg === FormStrategy.View) {
+      strategy = arg;
+      model = new FormModel();
+    } else {
+      strategy = FormStrategy.Model;
+      model = arg;
+    }
+    const { validate$ } = model;
+    function validate(strategy = ValidateStrategy.Normal) {
       model.validate(strategy);
-    },
-    [model],
-  );
-  const ctx = useMemo<IFormContext>(
-    () => ({
+    }
+    const ctx = {
       validate$,
       strategy,
       form: model,
       parent: model,
-    }),
-    [validate$, strategy, model],
-  );
-  return [
-    {
-      validate,
-    },
-    ctx,
-    model,
-  ];
+    };
+    return [
+      {
+        validate,
+      },
+      ctx,
+      model,
+    ];
+  }, [arg]);
 }
