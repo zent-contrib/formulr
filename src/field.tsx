@@ -55,7 +55,7 @@ function useModelAndChildProps<Value>(
     const { value } = model;
     const childProps: IFormFieldChildProps<Value> = {
       value,
-      onChange() {
+      onChange(value: Value) {
         model.value = value;
       },
       onCompositionStart() {
