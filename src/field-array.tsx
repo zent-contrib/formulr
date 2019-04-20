@@ -1,6 +1,5 @@
 import {
   FieldArrayModel,
-  IErrors,
   BasicModel,
   IFieldArrayChildFactory,
   FormStrategy,
@@ -11,13 +10,8 @@ import { useValue$ } from './hooks';
 import { IValidator } from './validate';
 import { useEffect, useMemo } from 'react';
 
-export interface IFieldArrayMeta<Item> {
-  error: IErrors<Item[]>;
-}
-
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
   ReadonlyArray<Child>,
-  IFieldArrayMeta<Item>,
   FieldArrayModel<Item>
 ];
 
@@ -73,16 +67,14 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
     model.validators = validators || [];
   }
   const { error$ } = model;
-  const error = useValue$(error$, error$.getValue());
+  /**
+   * ignore returned value
+   * user can get the value from model
+   */
+  useValue$(error$, error$.getValue());
   useEffect(() => {
     const $ = model.validate$.subscribe(parent.validate$);
     return $.unsubscribe.bind($);
   }, [model, parent]);
-  return [
-    model.models$.getValue() as ReadonlyArray<Child>,
-    {
-      error,
-    },
-    model,
-  ];
+  return [model.models$.getValue() as ReadonlyArray<Child>, model];
 }

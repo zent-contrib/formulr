@@ -3,17 +3,17 @@ import { FormStrategy, FormModel } from './models';
 import { ValidateStrategy } from './validate';
 import { IFormContext } from './context';
 
-export interface IFormApis {
+export interface IForm {
   validate(strategy: ValidateStrategy): void;
+  ctx: IFormContext;
+  model: FormModel;
 }
 
 export function useForm(strategy: FormStrategy.View): void;
 
 export function useForm(model: FormModel): void;
 
-export function useForm(
-  arg: FormStrategy.View | FormModel,
-): [IFormApis, IFormContext, FormModel] {
+export function useForm(arg: FormStrategy.View | FormModel): IForm {
   return useMemo(() => {
     let strategy: FormStrategy;
     let model: FormModel;
@@ -34,12 +34,10 @@ export function useForm(
       form: model,
       parent: model,
     };
-    return [
-      {
-        validate,
-      },
+    return {
+      validate,
       ctx,
       model,
-    ];
+    };
   }, [arg]);
 }

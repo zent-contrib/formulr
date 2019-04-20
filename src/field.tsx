@@ -3,7 +3,6 @@ import { merge, NextObserver } from 'rxjs';
 import { debounceTime, filter, withLatestFrom, map, tap } from 'rxjs/operators';
 import {
   FieldModel,
-  IErrors,
   BasicModel,
   FormStrategy,
   FieldSetModel,
@@ -28,17 +27,7 @@ export interface IFormFieldChildProps<Value> {
   onCompositionEnd: React.CompositionEventHandler;
 }
 
-export interface IFieldMeta<Value> {
-  pristine: boolean;
-  touched: boolean;
-  error: IErrors<Value>;
-}
-
-export type IUseField<Value> = [
-  IFormFieldChildProps<Value>,
-  IFieldMeta<Value>,
-  FieldModel<Value>
-];
+export type IUseField<Value> = [IFormFieldChildProps<Value>, FieldModel<Value>];
 
 function useModelAndChildProps<Value>(
   field: FieldModel<Value> | string,
@@ -121,15 +110,13 @@ export function useField<Value>(
     defaultValue as Value,
     compositingRef,
   );
-  const {
-    pristine,
-    touched,
-    value$,
-    error$,
-    validate$: localValidate$,
-  } = model;
+  const { value$, error$, validate$: localValidate$ } = model;
   const value = useValue$(value$, value$.getValue());
-  const error = useValue$(error$, error$.getValue());
+  /**
+   * ignore returned value
+   * user can get the value from model
+   */
+  useValue$(error$, error$.getValue());
   childProps.value = value;
   if (typeof field === 'string') {
     model.validators = validators || [];
@@ -149,13 +136,5 @@ export function useField<Value>(
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [value$, validate$, localValidate$, model, form]);
-  return [
-    childProps,
-    {
-      pristine,
-      touched,
-      error,
-    },
-    model,
-  ];
+  return [childProps, model];
 }

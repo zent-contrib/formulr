@@ -1,18 +1,10 @@
 import { useFormContext, IFormContext } from './context';
-import { FieldSetModel, IErrors, BasicModel, FormStrategy } from './models';
+import { FieldSetModel, BasicModel, FormStrategy } from './models';
 import { useMemo, useEffect } from 'react';
 import { useValue$ } from './hooks';
 import { IValidator } from './validate';
 
-export interface IFieldSetMeta<T> {
-  error: IErrors<T>;
-}
-
-export type IUseFieldSet<T> = [
-  IFormContext,
-  IFieldSetMeta<T>,
-  FieldSetModel<T>
-];
+export type IUseFieldSet<T> = [IFormContext, FieldSetModel<T>];
 
 function useFieldSetModel<T extends object>(
   field: string | FieldSetModel<T>,
@@ -58,16 +50,14 @@ export function useFieldSet<T extends object>(
     }),
     [validate$, strategy, form, model],
   );
-  const error = useValue$(error$, error$.getValue());
+  /**
+   * ignore returned value
+   * user can get the value from model
+   */
+  useValue$(error$, error$.getValue());
   useEffect(() => {
     const $ = validate$.subscribe(parent.validate$);
     return $.unsubscribe.bind($);
   }, [model, parent]);
-  return [
-    childContext,
-    {
-      error,
-    },
-    model,
-  ];
+  return [childContext, model];
 }
