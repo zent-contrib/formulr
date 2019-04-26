@@ -33,12 +33,12 @@ function useFieldSetModel<T extends object>(
 
 export function useFieldSet<T extends object>(
   field: string | FieldSetModel<T>,
-  validators?: ReadonlyArray<IValidator<T>>,
+  validators: ReadonlyArray<IValidator<T>> = [],
 ): IUseFieldSet<T> {
   const { parent, strategy, form } = useFormContext();
   const model = useFieldSetModel(field, parent, strategy);
   if (typeof field === 'string') {
-    model.validators = validators || [];
+    model.validators = validators;
   }
   const { validate$, error$ } = model;
   const childContext = useMemo(
@@ -59,5 +59,11 @@ export function useFieldSet<T extends object>(
     const $ = validate$.subscribe(parent.validate$);
     return $.unsubscribe.bind($);
   }, [model, parent]);
+  useEffect(() => {
+    model.attached = true;
+    return () => {
+      model.attached = false;
+    };
+  }, [model]);
   return [childContext, model];
 }

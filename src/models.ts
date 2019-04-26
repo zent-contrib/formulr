@@ -13,10 +13,7 @@ export enum FormStrategy {
   View,
 }
 
-export type Model<Value> =
-  | FieldModel<Value>
-  | FieldArrayModel<Value>
-  | FieldSetModel<Value>;
+export type Model<Value> = FieldModel<Value> | FieldArrayModel<Value> | FieldSetModel<Value>;
 
 export abstract class BasicModel<Value> {
   pristine = true;
@@ -24,14 +21,15 @@ export abstract class BasicModel<Value> {
   readonly validate$ = new Subject<ValidateStrategy>();
   protected abstract initialValue: Value;
   abstract getRawValue(): Value;
+  attached = false;
 
-  readonly error$ = new BehaviorSubject<IErrors<Value> | null>(null);
+  readonly error$ = new BehaviorSubject<IErrors<Value>>(null);
 
   get error() {
     return this.error$.getValue();
   }
 
-  set error(error: IErrors<Value> | null) {
+  set error(error: IErrors<Value>) {
     this.error$.next(error);
   }
 
@@ -76,9 +74,7 @@ export class FieldModel<Value> extends BasicModel<Value> {
   }
 }
 
-export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<
-  Value
-> {
+export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<Value> {
   readonly children: Record<string, BasicModel<unknown>>;
   protected initialValue: Value;
 
@@ -107,15 +103,15 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
   readonly models$: BehaviorSubject<ReadonlyArray<BasicModel<Item>>>;
   protected initialValue: ReadonlyArray<Item>;
 
-  constructor(
-    private readonly factory: IFieldArrayChildFactory<Item>,
-    defaultValue: ReadonlyArray<Item> = [],
-  ) {
+  constructor(private readonly factory: IFieldArrayChildFactory<Item>, defaultValue: ReadonlyArray<Item> = []) {
     super();
-    this.models$ = new BehaviorSubject(defaultValue.map(
-      factory,
-    ) as ReadonlyArray<BasicModel<Item>>);
+    this.models$ = new BehaviorSubject<ReadonlyArray<BasicModel<Item>>>(defaultValue.map(factory));
     this.initialValue = defaultValue;
+  }
+
+  initialize(values: Item[]) {
+    super.initialize(values);
+    this.models$.next(values.map(this.factory));
   }
 
   get models() {
@@ -131,7 +127,7 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
   }
 
   push(...items: ReadonlyArray<Item>) {
-    const nextModels = this.models$.getValue().concat(items.map(this.factory));
+    const nextModels: ReadonlyArray<BasicModel<Item>> = this.models$.getValue().concat(items.map(this.factory));
     this.models$.next(nextModels);
   }
 

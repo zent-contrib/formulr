@@ -1,19 +1,10 @@
-import {
-  FieldArrayModel,
-  BasicModel,
-  IFieldArrayChildFactory,
-  FormStrategy,
-  FieldSetModel,
-} from './models';
+import { FieldArrayModel, BasicModel, IFieldArrayChildFactory, FormStrategy, FieldSetModel } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { IValidator } from './validate';
 import { useEffect, useMemo } from 'react';
 
-export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
-  ReadonlyArray<Child>,
-  FieldArrayModel<Item>
-];
+export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [Array<Child>, FieldArrayModel<Item>];
 
 function useArrayModel<Item>(
   field: string | FieldArrayModel<Item>,
@@ -54,17 +45,12 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item>,
   factory?: IFieldArrayChildFactory<Item>,
-  validators?: ReadonlyArray<IValidator<ReadonlyArray<Item>>>,
+  validators: ReadonlyArray<IValidator<ReadonlyArray<Item>>> = [],
 ): IUseFieldArray<Item, Child> {
   const { parent, strategy } = useFormContext();
-  const model = useArrayModel(
-    field,
-    parent,
-    strategy,
-    factory as IFieldArrayChildFactory<Item>,
-  );
+  const model = useArrayModel(field, parent, strategy, factory as IFieldArrayChildFactory<Item>);
   if (typeof field === 'string') {
-    model.validators = validators || [];
+    model.validators = validators;
   }
   const { error$ } = model;
   /**
@@ -76,5 +62,11 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
     const $ = model.validate$.subscribe(parent.validate$);
     return $.unsubscribe.bind($);
   }, [model, parent]);
-  return [model.models$.getValue() as ReadonlyArray<Child>, model];
+  useEffect(() => {
+    model.attached = true;
+    return () => {
+      model.attached = false;
+    };
+  }, [model]);
+  return [model.models$.getValue() as Array<Child>, model];
 }
