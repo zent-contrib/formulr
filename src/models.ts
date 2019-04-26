@@ -6,7 +6,7 @@ export interface IError<T> {
   error: null | string;
 }
 
-export type IErrors<T> = Array<IError<T>> | null;
+export type IMaybeErrors<T> = Array<IError<T>> | null;
 
 export enum FormStrategy {
   Model,
@@ -23,13 +23,13 @@ export abstract class BasicModel<Value> {
   abstract getRawValue(): Value;
   attached = false;
 
-  readonly error$ = new BehaviorSubject<IErrors<Value>>(null);
+  readonly error$ = new BehaviorSubject<IMaybeErrors<Value>>(null);
 
   get error() {
     return this.error$.getValue();
   }
 
-  set error(error: IErrors<Value>) {
+  set error(error: IMaybeErrors<Value>) {
     this.error$.next(error);
   }
 

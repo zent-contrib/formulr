@@ -9,7 +9,7 @@ import {
   from,
   NextObserver,
 } from 'rxjs';
-import { BasicModel, IErrors, FormModel } from './models';
+import { BasicModel, IMaybeErrors, FormModel } from './models';
 import { isPromise } from './utils';
 import { RefObject } from 'react';
 
@@ -71,14 +71,14 @@ class ValidatorResultSubscriber<T> implements Observer<string | null> {
   }
 }
 
-class ValidateOperator<T> implements Operator<ValidateEvent<T>, IErrors<T>> {
+class ValidateOperator<T> implements Operator<ValidateEvent<T>, IMaybeErrors<T>> {
   constructor(
     private readonly model: BasicModel<T>,
     private readonly form: FormModel,
   ) {}
 
   call(
-    subscriber: Subscriber<IErrors<T>>,
+    subscriber: Subscriber<IMaybeErrors<T>>,
     source: Observable<ValidateEvent<T>>,
   ) {
     return source.subscribe(
@@ -93,10 +93,10 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
     Subscription
   >();
 
-  private errors: IErrors<T> | null = null;
+  private errors: IMaybeErrors<T> = null;
 
   constructor(
-    destination: Subscriber<IErrors<T>>,
+    destination: Subscriber<IMaybeErrors<T>>,
     private readonly model: BasicModel<T>,
     private readonly form: FormModel,
   ) {
@@ -213,18 +213,18 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
 export function validate<T>(
   model: BasicModel<T>,
   form: FormModel,
-): OperatorFunction<[ValidateStrategy, T], IErrors<T>> {
+): OperatorFunction<[ValidateStrategy, T], IMaybeErrors<T>> {
   return function validateOperation(
     source: Observable<[ValidateStrategy, T]>,
-  ): Observable<IErrors<T>> {
+  ): Observable<IMaybeErrors<T>> {
     return source.lift(new ValidateOperator(model, form));
   };
 }
 
-export class ErrorSubscriber<T> implements NextObserver<IErrors<T>> {
+export class ErrorSubscriber<T> implements NextObserver<IMaybeErrors<T>> {
   constructor(private readonly model: BasicModel<T>) {}
 
-  next(error: IErrors<T>) {
+  next(error: IMaybeErrors<T>) {
     this.model.error = error;
   }
 }
