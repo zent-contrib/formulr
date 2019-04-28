@@ -20,7 +20,7 @@ function useFieldSetModel<T extends object>(
       const m = parent.children[field];
       if (!m || !(m instanceof FieldSetModel)) {
         model = new FieldSetModel();
-        parent.children[field] = model as BasicModel<unknown>;
+        parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
       }

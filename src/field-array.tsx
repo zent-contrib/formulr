@@ -21,7 +21,7 @@ function useArrayModel<Item>(
       const m = parent.children[field];
       if (!m || !(m instanceof FieldArrayModel)) {
         model = new FieldArrayModel(factory as IFieldArrayChildFactory<Item>);
-        parent.children[field] = model as BasicModel<unknown>;
+        parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
       }

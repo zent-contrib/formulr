@@ -18,6 +18,8 @@ export abstract class BasicModel<Value> {
 
   readonly error$ = new BehaviorSubject<IMaybeErrors<Value>>(null);
 
+  abstract isValid(): boolean;
+
   get error() {
     return this.error$.getValue();
   }
@@ -65,6 +67,10 @@ export class FieldModel<Value> extends BasicModel<Value> {
   getRawValue() {
     return this.value$.getValue();
   }
+
+  isValid() {
+    return this.error$.getValue() === null;
+  }
 }
 
 export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<Value> {
@@ -87,6 +93,25 @@ export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<V
       value[key] = childValue;
     }
     return value;
+  }
+
+  registerChild(name: string, model: BasicModel<unknown>) {
+    this.children[name] = model;
+  }
+
+  isValid() {
+    if (this.error$.getValue() !== null) {
+      return false;
+    }
+    const keys = Object.keys(this.children);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      const child = this.children[key];
+      if (!child.isValid()) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
@@ -115,6 +140,20 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
 
   set models(models: ReadonlyArray<BasicModel<Item>>) {
     this.models$.next(models);
+  }
+
+  isValid() {
+    if (this.error$.getValue() !== null) {
+      return false;
+    }
+    const models = this.models$.getValue();
+    for (let i = 0; i < models.length; i += 1) {
+      const model = models[i];
+      if (!model.isValid()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   getRawValue(): Item[] {

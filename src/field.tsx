@@ -34,7 +34,7 @@ function useModelAndChildProps<Value>(
       const m = parent.children[field];
       if (!m || !(m instanceof FieldModel)) {
         model = new FieldModel<Value>(defaultValue as Value);
-        parent.children[field] = model as BasicModel<unknown>;
+        parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
       }
@@ -46,6 +46,7 @@ function useModelAndChildProps<Value>(
       value,
       onChange(value: Value) {
         model.value = value;
+        model.pristine = false;
       },
       onCompositionStart() {
         compositingRef.current = true;
