@@ -1,12 +1,5 @@
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { IValidator, ValidateStrategy } from './validate';
-
-export interface IError<T> {
-  validator: IValidator<T>;
-  error: null | string;
-}
-
-export type IMaybeErrors<T> = Array<IError<T>> | null;
+import { IValidator, ValidateStrategy, IMaybeErrors } from './validate';
 
 export enum FormStrategy {
   Model,
