@@ -117,8 +117,8 @@ export function useField<Value>(
       localValidate$.pipe(withLatestFrom(value$)),
       value$.pipe(
         debounceTime(100),
-        map(withLeft(ValidateStrategy.IgnoreAsync)),
         filter(filterWithCompositing(compositingRef)),
+        map(withLeft(ValidateStrategy.IgnoreAsync)),
         tap<[ValidateStrategy, Value]>(new NotifyParentValidate(parent)),
       ),
     )

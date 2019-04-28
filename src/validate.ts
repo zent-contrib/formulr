@@ -1,3 +1,4 @@
+import { RefObject } from 'react';
 import {
   Observable,
   Subscription,
@@ -9,11 +10,21 @@ import {
   from,
   NextObserver,
 } from 'rxjs';
-import { BasicModel, IMaybeErrors, FormModel } from './models';
+import { BasicModel, FormModel } from './models';
 import { isPromise } from './utils';
-import { RefObject } from 'react';
 
 export type ValidateEvent<T> = [ValidateStrategy, T];
+
+export interface IValidateResult<T> {
+  message?: string;
+  expect?: T;
+  actual?: T;
+  [key: string]: any;
+}
+
+export type IMaybeErrors<T> = {
+  [key: string]: ValidatorResult<T>;
+} | null;
 
 export enum ValidateStrategy {
   Normal = 0b0000,
@@ -27,27 +38,27 @@ export interface IValidateContext {
 }
 
 export interface IValidator<Value> {
-  (input: Value): ValidatorResult;
-  name: string | symbol;
+  (input: Value): ValidatorResult<Value> | null;
+  name: string;
   isAsync?: boolean;
 }
 
-export type ValidatorResult =
-  | string
+export type ValidatorResult<T> =
+  | IValidateResult<T>
   | null
-  | Promise<string | null>
-  | Observable<string | null>;
+  | Promise<IValidateResult<T> | null>
+  | Observable<IValidateResult<T> | null>;
 
-class ValidatorResultSubscriber<T> implements Observer<string | null> {
+class ValidatorResultSubscriber<T> implements Observer<IValidateResult<T> | null> {
   closed = false;
 
   constructor(
     private readonly subscriber: ValidateSubscriber<T>,
     private readonly validator: IValidator<T>,
-    readonly original$: Observable<string | null>,
+    readonly original$: Observable<IValidateResult<T> | null>,
   ) {}
 
-  next(result: string | null) {
+  next(result: IValidateResult<T> | null) {
     if (this.closed) {
       return;
     }
@@ -72,26 +83,15 @@ class ValidatorResultSubscriber<T> implements Observer<string | null> {
 }
 
 class ValidateOperator<T> implements Operator<ValidateEvent<T>, IMaybeErrors<T>> {
-  constructor(
-    private readonly model: BasicModel<T>,
-    private readonly form: FormModel,
-  ) {}
+  constructor(private readonly model: BasicModel<T>, private readonly form: FormModel) {}
 
-  call(
-    subscriber: Subscriber<IMaybeErrors<T>>,
-    source: Observable<ValidateEvent<T>>,
-  ) {
-    return source.subscribe(
-      new ValidateSubscriber(subscriber, this.model, this.form),
-    );
+  call(subscriber: Subscriber<IMaybeErrors<T>>, source: Observable<ValidateEvent<T>>) {
+    return source.subscribe(new ValidateSubscriber(subscriber, this.model, this.form));
   }
 }
 
 class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
-  private readonly $validators = new Map<
-    ValidatorResultSubscriber<T>,
-    Subscription
-  >();
+  private readonly $validators = new Map<ValidatorResultSubscriber<T>, Subscription>();
 
   private errors: IMaybeErrors<T> = null;
 
@@ -103,17 +103,14 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
     super(destination);
   }
 
-  childResult(validator: IValidator<T>, error: null | string) {
+  childResult(validator: IValidator<T>, error: IValidateResult<T> | null) {
     if (error === null || !this.destination) {
       return;
     }
     if (!this.errors) {
-      this.errors = [];
+      this.errors = {};
     }
-    this.errors.push({
-      validator,
-      error,
-    });
+    this.errors[validator.name] = error;
     this._destinationNext();
   }
 
@@ -144,7 +141,8 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
       return;
     }
     const ignoreAsync = !!(strategy & ValidateStrategy.IgnoreAsync);
-    for (const validator of validators) {
+    for (let i = 0; i < validators.length; i += 1) {
+      const validator = validators[i];
       if (ignoreAsync && validator.isAsync) {
         continue;
       }
@@ -152,28 +150,20 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
       if (result === null) {
         continue;
       }
-      if (isPromise<string | null>(result)) {
+      if (isPromise<IValidateResult<T> | null>(result)) {
         if (ignoreAsync) {
           continue;
         }
         const result$ = from(result);
-        const subscriber = new ValidatorResultSubscriber(
-          this,
-          validator,
-          result$,
-        );
+        const subscriber = new ValidatorResultSubscriber(this, validator, result$);
         const $ = result$.subscribe(subscriber);
         this.$validators.set(subscriber, $);
         this.form.addWorkingValidator(result$);
-      } else if (isObservable<string | null>(result)) {
+      } else if (isObservable<IValidateResult<T> | null>(result)) {
         if (ignoreAsync) {
           continue;
         }
-        const subscriber = new ValidatorResultSubscriber(
-          this,
-          validator,
-          result,
-        );
+        const subscriber = new ValidatorResultSubscriber(this, validator, result);
         const $ = result.subscribe(subscriber);
         this.$validators.set(subscriber, $);
         this.form.addWorkingValidator(result);
@@ -213,10 +203,8 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
 export function validate<T>(
   model: BasicModel<T>,
   form: FormModel,
-): OperatorFunction<[ValidateStrategy, T], IMaybeErrors<T>> {
-  return function validateOperation(
-    source: Observable<[ValidateStrategy, T]>,
-  ): Observable<IMaybeErrors<T>> {
+): OperatorFunction<ValidateEvent<T>, IMaybeErrors<T>> {
+  return function validateOperation(source: Observable<ValidateEvent<T>>): Observable<IMaybeErrors<T>> {
     return source.lift(new ValidateOperator(model, form));
   };
 }

@@ -4,16 +4,17 @@ const EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(
 
 type ValidatorImpl<Value> = (input: Value) => boolean;
 
-function makeValidator<Value>(
-  name: string,
-  impl: ValidatorImpl<Value>,
-  error: string,
-): IValidator<Value> {
-  const validator: IValidator<Value> = (value: Value): ValidatorResult => {
+function makeValidator<Value>(name: string, impl: ValidatorImpl<Value>, message: string): IValidator<Value> {
+  const validator: IValidator<Value> = (value: Value): ValidatorResult<Value> => {
     if (isEmptyInputValue(value)) {
       return null;
     }
-    return impl(value) ? error : null;
+    return impl(value)
+      ? {
+          message,
+          actual: value,
+        }
+      : null;
   };
   validator.name = name;
   return validator;
@@ -46,44 +47,79 @@ export function max(value: number, error: string) {
   );
 }
 
-export function required(error: string) {
+export function required(message: string): IValidator<any> {
   function required(input: any) {
-    return isEmptyInputValue(input) ? error : null;
+    return isEmptyInputValue(input)
+      ? {
+          message,
+          actual: input,
+        }
+      : null;
   }
   return required;
 }
 
-export function requiredTrue(error: string) {
+export function requiredTrue(message: string): IValidator<boolean> {
   function requiredTrue(input: boolean) {
-    return input === true ? null : error;
+    return input === true
+      ? null
+      : {
+          message,
+          expected: true,
+          actual: input,
+        };
   }
   return requiredTrue;
 }
 
-export function email(error: string) {
+export function email(message: string): IValidator<string> {
   function email(input: string) {
-    return EMAIL_REGEXP.test(input) ? null : error;
+    return EMAIL_REGEXP.test(input)
+      ? null
+      : {
+          message,
+          actual: input,
+        };
   }
   return email;
 }
 
-export function minLength(len: number, error: string) {
-  function minLength(input: string | unknown[]) {
-    return input.length < len ? error : null;
+export interface IWithLength {
+  length: number;
+}
+
+export function minLength<T extends IWithLength>(len: number, message: string): IValidator<T> {
+  function minLength(input: T) {
+    return input.length < len
+      ? {
+          message,
+          actual: input,
+        }
+      : null;
   }
   return minLength;
 }
 
-export function maxLength(len: number, error: string) {
-  function maxLength(input: string | unknown[]) {
-    return input.length > len ? error : null;
+export function maxLength<T extends IWithLength>(len: number, message: string): IValidator<T> {
+  function maxLength(input: T) {
+    return input.length > len
+      ? {
+          message,
+          actual: input,
+        }
+      : null;
   }
   return maxLength;
 }
 
-export function pattern(regexp: RegExp, error: string) {
+export function pattern(regexp: RegExp, message: string): IValidator<string> {
   function pattern(input: string) {
-    return regexp.test(input) ? error : null;
+    return regexp.test(input)
+      ? {
+          message,
+          actual: input,
+        }
+      : null;
   }
   pattern.name = `pattern(${regexp})`;
   return pattern;
