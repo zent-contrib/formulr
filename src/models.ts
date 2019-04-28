@@ -86,7 +86,9 @@ export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<V
 
   getRawValue(): Value {
     const value: any = {};
-    for (const key in Object.keys(this.children)) {
+    const childrenKeys = Object.keys(this.children);
+    for (let i = 0; i < childrenKeys.length; i++) {
+      const key = childrenKeys[i];
       const model = this.children[key];
       const childValue = model.getRawValue();
       value[key] = childValue;
@@ -166,14 +168,15 @@ export class FormModel extends FieldSetModel {
 
   addWorkingValidator(v: Observable<unknown>) {
     this.workingValidators.add(v);
-    const isValidating = this.workingValidators.size > 0;
-    if (isValidating !== this.isValidating$.getValue()) {
-      this.isValidating$.next(isValidating);
-    }
+    this.updateIsValidating();
   }
 
   removeWorkingValidator(v: Observable<unknown>) {
     this.workingValidators.delete(v);
+    this.updateIsValidating();
+  }
+
+  private updateIsValidating() {
     const isValidating = this.workingValidators.size > 0;
     if (isValidating !== this.isValidating$.getValue()) {
       this.isValidating$.next(isValidating);
