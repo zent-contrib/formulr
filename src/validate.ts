@@ -23,7 +23,7 @@ export interface IValidateResult<T> {
 }
 
 export type IMaybeErrors<T> = {
-  [key: string]: ValidatorResult<T>;
+  [key: string]: IValidateResult<T>;
 } | null;
 
 export enum ValidateStrategy {

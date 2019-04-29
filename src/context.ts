@@ -18,7 +18,7 @@ export const FormProvider = FormContext.Provider;
 
 export function useFormContext(): IFormContext {
   const ctx = useContext(FormContext);
-  if (!ctx) {
+  if (ctx === null) {
     throw new Error();
   }
   return ctx;
