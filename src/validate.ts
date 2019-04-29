@@ -40,6 +40,7 @@ export interface IValidateContext {
 export interface IValidator<Value> {
   (input: Value): ValidatorResult<Value> | null;
   name: string;
+  displayName?: string;
   isAsync?: boolean;
 }
 
@@ -110,7 +111,8 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
     if (!this.errors) {
       this.errors = {};
     }
-    this.errors[validator.name] = error;
+    const name = validator.displayName || validator.name;
+    this.errors[name] = error;
     this._destinationNext();
   }
 

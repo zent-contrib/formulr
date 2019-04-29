@@ -1,50 +1,61 @@
-import { ValidatorResult, IValidator } from './validate';
+import Decimal from 'big.js';
+import { IValidator, IValidateResult } from './validate';
 
 const EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
-
-type ValidatorImpl<Value> = (input: Value) => boolean;
-
-function makeValidator<Value>(name: string, impl: ValidatorImpl<Value>, message?: string): IValidator<Value> {
-  const validator: IValidator<Value> = (value: Value): ValidatorResult<Value> => {
-    if (isEmptyInputValue(value)) {
-      return null;
-    }
-    return impl(value)
-      ? {
-          message,
-          actual: value,
-        }
-      : null;
-  };
-  validator.name = name;
-  return validator;
-}
 
 function isEmptyInputValue(value: any) {
   // we don't check for string here so it also works with arrays
   return value == null || value.length === 0;
 }
 
-export function min(value: number, message?: string) {
-  return makeValidator(
-    'min',
-    (input: string) => {
-      const parsed = parseFloat(input);
-      return !isNaN(parsed) && parsed < value;
-    },
-    message,
-  );
+export function min(limit: number | string, message?: string) {
+  return function min(value: number | string): IValidateResult<number | string> | null {
+    if (isEmptyInputValue(value)) {
+      return null;
+    }
+    try {
+      const decimal = new Decimal(value);
+      if (decimal.lt(limit)) {
+        return {
+          actual: value,
+          limit,
+          message,
+        };
+      }
+    } catch (error) {
+      return {
+        actual: value,
+        limit,
+        message,
+      };
+    }
+    return null;
+  };
 }
 
-export function max(value: number, message?: string) {
-  return makeValidator(
-    'max',
-    (input: string) => {
-      const parsed = parseFloat(input);
-      return !isNaN(parsed) && parsed > value;
-    },
-    message,
-  );
+export function max(limit: number, message?: string) {
+  return function max(value: number | string): IValidateResult<number | string> | null {
+    if (isEmptyInputValue(value)) {
+      return null;
+    }
+    try {
+      const decimal = new Decimal(value);
+      if (decimal.gt(limit)) {
+        return {
+          actual: value,
+          limit,
+          message,
+        };
+      }
+    } catch (error) {
+      return {
+        actual: value,
+        limit,
+        message,
+      };
+    }
+    return null;
+  };
 }
 
 export function required(message?: string): IValidator<any> {
@@ -120,9 +131,9 @@ export function pattern(regexp: RegExp, message?: string): IValidator<string> {
       ? {
           message,
           actual: input,
+          pattern: regexp,
         }
       : null;
   }
-  pattern.name = `pattern(${regexp})`;
   return pattern;
 }
