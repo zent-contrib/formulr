@@ -1,10 +1,8 @@
 import { useMemo } from 'react';
 import { FormStrategy, FormModel } from './models';
-import { ValidateStrategy } from './validate';
 import { IFormContext } from './context';
 
 export interface IForm {
-  validate(strategy: ValidateStrategy): void;
   ctx: IFormContext;
   model: FormModel;
 }
@@ -25,9 +23,6 @@ export function useForm(arg: FormStrategy.View | FormModel): IForm {
       model = arg;
     }
     const { validate$ } = model;
-    function validate(strategy = ValidateStrategy.Normal) {
-      model.validate(strategy);
-    }
     const ctx = {
       validate$,
       strategy,
@@ -35,7 +30,6 @@ export function useForm(arg: FormStrategy.View | FormModel): IForm {
       parent: model,
     };
     return {
-      validate,
       ctx,
       model,
     };

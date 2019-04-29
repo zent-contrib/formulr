@@ -252,7 +252,7 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
   }
 }
 
-export class FormModel extends FieldSetModel {
+export class FormModel<T extends object = any> extends FieldSetModel<T> {
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);
 
