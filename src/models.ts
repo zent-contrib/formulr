@@ -19,6 +19,8 @@ export abstract class BasicModel<Value> {
   readonly error$ = new BehaviorSubject<IMaybeErrors<Value>>(null);
 
   abstract isValid(): boolean;
+  abstract patchValue(value: Value): void;
+  abstract resetValue(): void;
 
   get error() {
     return this.error$.getValue();
@@ -71,6 +73,15 @@ export class FieldModel<Value> extends BasicModel<Value> {
   isValid() {
     return this.error$.getValue() === null;
   }
+
+  patchValue(value: Value) {
+    this.value$.next(value);
+  }
+
+  resetValue() {
+    this.pristine = true;
+    this.value$.next(this.initialValue);
+  }
 }
 
 export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<Value> {
@@ -113,6 +124,29 @@ export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<V
     }
     return true;
   }
+
+  patchValue(value: Value) {
+    const keys = Object.keys(value);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      const child = this.children[key];
+      if (child) {
+        child.patchValue((value as any)[key]);
+      }
+    }
+  }
+
+  resetValue() {
+    this.pristine = true;
+    const keys = Object.keys(this.children);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      const child = this.children[key];
+      if (child) {
+        child.resetValue();
+      }
+    }
+  }
 }
 
 export interface IFieldArrayChildFactory<Item> {
@@ -129,7 +163,7 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
     this.initialValue = defaultValue;
   }
 
-  initialize(values: Item[]) {
+  initialize(values: ReadonlyArray<Item>) {
     super.initialize(values);
     this.models$.next(values.map(this.factory));
   }
@@ -158,6 +192,30 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
 
   getRawValue(): Item[] {
     return this.models$.getValue().map(model => model.getRawValue());
+  }
+
+  patchValue(value: Item[]) {
+    const models = this.models$.getValue();
+    for (let i = 0; i < value.length; i += 1) {
+      if (i >= models.length) {
+        break;
+      }
+      const item = value[i];
+      const model = models[i];
+      model.patchValue(item);
+    }
+    if (value.length <= models.length) {
+      this.splice(models.length - 1, value.length - models.length);
+      return;
+    }
+    for (let i = models.length; i < value.length; i += 1) {
+      const item = value[i];
+      this.push(item);
+    }
+  }
+
+  resetValue() {
+    this.initialize(this.initialValue);
   }
 
   push(...items: ReadonlyArray<Item>) {
