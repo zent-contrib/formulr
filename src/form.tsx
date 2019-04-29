@@ -7,11 +7,7 @@ export interface IForm {
   model: FormModel;
 }
 
-export function useForm(strategy: FormStrategy.View): void;
-
-export function useForm(model: FormModel): void;
-
-export function useForm(arg: FormStrategy.View | FormModel): IForm {
+export function useForm<T extends object = any>(arg: FormStrategy.View | FormModel<T>): IForm {
   return useMemo(() => {
     let strategy: FormStrategy;
     let model: FormModel;
