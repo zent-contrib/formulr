@@ -33,8 +33,10 @@
   },
   "homepage": "https://github.com/intellild/formulr#readme",
   "dependencies": {
+    "@types/big.js": "^4.0.5",
     "@types/react": "^16.8.0",
     "@types/react-dom": "^16.8.0",
+    "big.js": "^5.2.2",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "rxjs": "^6.4.0",
