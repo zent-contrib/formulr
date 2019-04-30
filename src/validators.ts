@@ -17,6 +17,7 @@ export function min(limit: number | string, message?: string) {
       const decimal = new Decimal(value);
       if (decimal.lt(limit)) {
         return {
+          name: 'min',
           actual: value,
           limit,
           message,
@@ -24,6 +25,7 @@ export function min(limit: number | string, message?: string) {
       }
     } catch (error) {
       return {
+        name: 'min',
         actual: value,
         limit,
         message,
@@ -42,6 +44,7 @@ export function max(limit: number, message?: string) {
       const decimal = new Decimal(value);
       if (decimal.gt(limit)) {
         return {
+          name: 'max',
           actual: value,
           limit,
           message,
@@ -49,6 +52,7 @@ export function max(limit: number, message?: string) {
       }
     } catch (error) {
       return {
+        name: 'max',
         actual: value,
         limit,
         message,
@@ -62,6 +66,7 @@ export function required(message?: string): IValidator<any> {
   function required(input: any) {
     return isEmptyInputValue(input)
       ? {
+          name: 'required',
           message,
           actual: input,
         }
@@ -75,6 +80,7 @@ export function requiredTrue(message?: string): IValidator<boolean> {
     return input === true
       ? null
       : {
+          name: 'requiredTrue',
           message,
           expect: true,
           actual: input,
@@ -88,6 +94,7 @@ export function email(message?: string): IValidator<string> {
     return EMAIL_REGEXP.test(input)
       ? null
       : {
+          name: 'email',
           message,
           actual: input,
         };
@@ -103,6 +110,7 @@ export function minLength<T extends IWithLength>(length: number, message?: strin
   function minLength(input: T) {
     return input.length < length
       ? {
+          name: 'minLength',
           message,
           actual: input,
           limit: length,
@@ -116,6 +124,7 @@ export function maxLength<T extends IWithLength>(length: number, message?: strin
   function maxLength(input: T) {
     return input.length > length
       ? {
+          name: 'maxLength',
           message,
           actual: input,
           limit: length,
@@ -129,6 +138,7 @@ export function pattern(regexp: RegExp, message?: string): IValidator<string> {
   function pattern(input: string) {
     return regexp.test(input)
       ? {
+          name: 'pattern',
           message,
           actual: input,
           pattern: regexp,
