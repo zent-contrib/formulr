@@ -17,7 +17,7 @@ export type IMaybeError<T> = IValidateResult<T> | null;
 export enum ValidateStrategy {
   Normal = 0b0000,
   IgnoreAsync = 0b0010,
-  IgnoreTouched = 0b0100,
+  IncludeUntouched = 0b0100,
   IncludeChildren = 0b1000,
 }
 
@@ -101,10 +101,10 @@ class ValidateSubscriber<T> extends Subscriber<ValidateStrategy> {
   protected _next(strategy: ValidateStrategy) {
     this._destinationNext(of(null));
     const { validators, touched } = this.model;
-    if (!touched && !(strategy & ValidateStrategy.IgnoreTouched)) {
+    if (!touched && !(strategy & ValidateStrategy.IncludeUntouched)) {
       return;
     }
-    const ignoreAsync = (strategy & ValidateStrategy.IgnoreAsync) > 0;
+    const ignoreAsync = strategy & ValidateStrategy.IgnoreAsync;
     const value = this.model.getRawValue();
     for (let i = 0; i < validators.length; i += 1) {
       const validator = validators[i];
@@ -120,10 +120,6 @@ class ValidateSubscriber<T> extends Subscriber<ValidateStrategy> {
 
   private _destinationNext(next: Observable<IMaybeError<T>>) {
     this.destination.next && this.destination.next(next);
-  }
-
-  unsubscribe() {
-    super.unsubscribe();
   }
 }
 
