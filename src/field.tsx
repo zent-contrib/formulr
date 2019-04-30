@@ -1,10 +1,11 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { merge } from 'rxjs';
-import { debounceTime, filter, mapTo, concatAll } from 'rxjs/operators';
+import { debounceTime, filter, mapTo, concatAll, takeWhile } from 'rxjs/operators';
 import { FieldModel, BasicModel, FormStrategy, FieldSetModel } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { ValidateStrategy, validate, ErrorSubscriber, filterWithCompositing, IValidator } from './validate';
+import { isNull } from './utils';
 
 export interface IFormFieldChildProps<Value> {
   value: Value;
@@ -44,8 +45,9 @@ function useModelAndChildProps<Value>(
     const childProps: IFormFieldChildProps<Value> = {
       value,
       onChange(value: Value) {
-        model.value = value;
         model.pristine = false;
+        model.touched = true;
+        model.value = value;
       },
       onCompositionStart() {
         compositingRef.current = true;
@@ -116,6 +118,7 @@ export function useField<Value>(
       .pipe(
         validate(model, form, parent),
         concatAll(),
+        takeWhile(isNull)
       )
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
