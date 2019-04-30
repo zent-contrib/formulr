@@ -1,8 +1,9 @@
+import { merge } from 'rxjs';
+import { useMemo, useEffect } from 'react';
 import { useFormContext, IFormContext } from './context';
 import { FieldSetModel, BasicModel, FormStrategy } from './models';
-import { useMemo, useEffect } from 'react';
 import { useValue$ } from './hooks';
-import { IValidator } from './validate';
+import { IValidator, validate, ErrorSubscriber } from './validate';
 
 export type IUseFieldSet<T> = [IFormContext, FieldSetModel<T>];
 
@@ -35,20 +36,20 @@ export function useFieldSet<T extends object>(
   field: string | FieldSetModel<T>,
   validators: ReadonlyArray<IValidator<T>> = [],
 ): IUseFieldSet<T> {
-  const { parent, strategy, form } = useFormContext();
+  const { parent, strategy, form, validate$: parentValidate$ } = useFormContext();
   const model = useFieldSetModel(field, parent, strategy);
   if (typeof field === 'string') {
     model.validators = validators;
   }
-  const { validate$, error$ } = model;
+  const { validateSelf$, error$ } = model;
   const childContext = useMemo(
     () => ({
-      validate$,
+      validate$: model.validateChildren$,
       strategy,
       form,
       parent: model as FieldSetModel,
     }),
-    [validate$, strategy, form, model],
+    [strategy, form, model],
   );
   /**
    * ignore returned value
@@ -56,9 +57,11 @@ export function useFieldSet<T extends object>(
    */
   useValue$(error$, error$.getValue());
   useEffect(() => {
-    const $ = validate$.subscribe(parent.validate$);
+    const $ = merge(parentValidate$, validateSelf$)
+      .pipe(validate(model, form, parent))
+      .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
-  }, [model, parent]);
+  }, [model, parent, form]);
   useEffect(() => {
     model.attached = true;
     return () => {

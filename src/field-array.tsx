@@ -1,8 +1,9 @@
+import { merge } from 'rxjs';
+import { useEffect, useMemo } from 'react';
 import { FieldArrayModel, BasicModel, IFieldArrayChildFactory, FormStrategy, FieldSetModel } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
-import { IValidator } from './validate';
-import { useEffect, useMemo } from 'react';
+import { IValidator, validate, ErrorSubscriber } from './validate';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [Array<Child>, FieldArrayModel<Item>];
 
@@ -47,19 +48,21 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   factory?: IFieldArrayChildFactory<Item>,
   validators: ReadonlyArray<IValidator<ReadonlyArray<Item>>> = [],
 ): IUseFieldArray<Item, Child> {
-  const { parent, strategy } = useFormContext();
+  const { parent, strategy, validate$: parentValidate$, form } = useFormContext();
   const model = useArrayModel(field, parent, strategy, factory as IFieldArrayChildFactory<Item>);
   if (typeof field === 'string') {
     model.validators = validators;
   }
-  const { error$ } = model;
+  const { error$, validateSelf$ } = model;
   /**
    * ignore returned value
    * user can get the value from model
    */
   useValue$(error$, error$.getValue());
   useEffect(() => {
-    const $ = model.validate$.subscribe(parent.validate$);
+    const $ = merge(parentValidate$, validateSelf$)
+      .pipe(validate(model, form, parent))
+      .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [model, parent]);
   useEffect(() => {

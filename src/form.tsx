@@ -18,9 +18,9 @@ export function useForm<T extends object = any>(arg: FormStrategy.View | FormMod
       strategy = FormStrategy.Model;
       model = arg;
     }
-    const { validate$ } = model;
+    const { validateChildren$ } = model;
     const ctx = {
-      validate$,
+      validate$: validateChildren$,
       strategy,
       form: model,
       parent: model,

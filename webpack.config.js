@@ -1,7 +1,6 @@
 const HtmlPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
   entry: './dev.jsx',
   module: {
     rules: [
