@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { IValidator, ValidateStrategy, IMaybeErrors } from './validate';
+import { IValidator, ValidateStrategy, IMaybeError } from './validate';
 
 export enum FormStrategy {
   Model,
@@ -16,7 +16,7 @@ export abstract class BasicModel<Value> {
   abstract getRawValue(): Value;
   attached = false;
 
-  readonly error$ = new BehaviorSubject<IMaybeErrors<Value>>(null);
+  readonly error$ = new BehaviorSubject<IMaybeError<Value>>(null);
 
   abstract isValid(): boolean;
   abstract patchValue(value: Value): void;
@@ -26,7 +26,7 @@ export abstract class BasicModel<Value> {
     return this.error$.getValue();
   }
 
-  set error(error: IMaybeErrors<Value>) {
+  set error(error: IMaybeError<Value>) {
     this.error$.next(error);
   }
 

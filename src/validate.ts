@@ -16,15 +16,14 @@ import { isPromise } from './utils';
 export type ValidateEvent<T> = [ValidateStrategy, T];
 
 export interface IValidateResult<T> {
+  name: string;
   message?: string;
   expect?: T;
   actual?: T;
   [key: string]: any;
 }
 
-export type IMaybeErrors<T> = {
-  [key: string]: IValidateResult<T>;
-} | null;
+export type IMaybeError<T> = IValidateResult<T> | null;
 
 export enum ValidateStrategy {
   Normal = 0b0000,
@@ -39,8 +38,6 @@ export interface IValidateContext {
 
 export interface IValidator<Value> {
   (input: Value): ValidatorResult<Value> | null;
-  name: string;
-  displayName?: string;
   isAsync?: boolean;
 }
 
@@ -55,7 +52,6 @@ class ValidatorResultSubscriber<T> implements Observer<IValidateResult<T> | null
 
   constructor(
     private readonly subscriber: ValidateSubscriber<T>,
-    private readonly validator: IValidator<T>,
     readonly original$: Observable<IValidateResult<T> | null>,
   ) {}
 
@@ -63,7 +59,7 @@ class ValidatorResultSubscriber<T> implements Observer<IValidateResult<T> | null
     if (this.closed) {
       return;
     }
-    this.subscriber.childResult(this.validator, result);
+    this.subscriber.childResult(result);
   }
 
   error(err?: unknown) {
@@ -83,10 +79,10 @@ class ValidatorResultSubscriber<T> implements Observer<IValidateResult<T> | null
   }
 }
 
-class ValidateOperator<T> implements Operator<ValidateEvent<T>, IMaybeErrors<T>> {
+class ValidateOperator<T> implements Operator<ValidateEvent<T>, IMaybeError<T>> {
   constructor(private readonly model: BasicModel<T>, private readonly form: FormModel) {}
 
-  call(subscriber: Subscriber<IMaybeErrors<T>>, source: Observable<ValidateEvent<T>>) {
+  call(subscriber: Subscriber<IMaybeError<T>>, source: Observable<ValidateEvent<T>>) {
     return source.subscribe(new ValidateSubscriber(subscriber, this.model, this.form));
   }
 }
@@ -94,26 +90,23 @@ class ValidateOperator<T> implements Operator<ValidateEvent<T>, IMaybeErrors<T>>
 class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
   private readonly $validators = new Map<ValidatorResultSubscriber<T>, Subscription>();
 
-  private errors: IMaybeErrors<T> = null;
-
   constructor(
-    destination: Subscriber<IMaybeErrors<T>>,
+    destination: Subscriber<IMaybeError<T>>,
     private readonly model: BasicModel<T>,
     private readonly form: FormModel,
   ) {
     super(destination);
   }
 
-  childResult(validator: IValidator<T>, error: IValidateResult<T> | null) {
-    if (error === null || !this.destination) {
+  childResult(error: IValidateResult<T> | null) {
+    if (this.error !== null || error === null || !this.destination) {
       return;
     }
-    if (!this.errors) {
-      this.errors = {};
-    }
-    const name = validator.displayName || validator.name;
-    this.errors[name] = error;
-    this._destinationNext();
+    /**
+     * one error returned, stop the others
+     */
+    this._clear();
+    this._destinationNext(error);
   }
 
   childComplete(child: ValidatorResultSubscriber<T>) {
@@ -138,6 +131,7 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
 
   protected _next([strategy, value]: ValidateEvent<T>) {
     this._clear();
+    this._destinationNext(null);
     const { validators, touched } = this.model;
     if (!touched && !(strategy & ValidateStrategy.IgnoreTouched)) {
       return;
@@ -157,7 +151,7 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
           continue;
         }
         const result$ = from(result);
-        const subscriber = new ValidatorResultSubscriber(this, validator, result$);
+        const subscriber = new ValidatorResultSubscriber(this, result$);
         const $ = result$.subscribe(subscriber);
         this.$validators.set(subscriber, $);
         this.form.addWorkingValidator(result$);
@@ -165,35 +159,25 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
         if (ignoreAsync) {
           continue;
         }
-        const subscriber = new ValidatorResultSubscriber(this, validator, result);
+        const subscriber = new ValidatorResultSubscriber(this, result);
         const $ = result.subscribe(subscriber);
         this.$validators.set(subscriber, $);
         this.form.addWorkingValidator(result);
       } else {
-        this.childResult(validator, result);
+        this._clear();
+        this._destinationNext(result);
+        return;
       }
-    }
-    /**
-     * this._clear set this.errors to null
-     * and if this.$validators is empty
-     * means no error is returned
-     */
-    if (this.errors === null) {
-      this._destinationNext();
     }
   }
 
   private _clear() {
-    this.$validators.forEach($ => {
-      $.unsubscribe();
-    });
+    this.$validators.forEach($ => $.unsubscribe());
     this.$validators.clear();
-    this.errors = null;
-    this._destinationNext();
   }
 
-  private _destinationNext() {
-    this.destination.next && this.destination.next(this.errors);
+  private _destinationNext(error: IMaybeError<T>) {
+    this.destination.next && this.destination.next(error);
   }
 
   unsubscribe() {
@@ -202,19 +186,16 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
   }
 }
 
-export function validate<T>(
-  model: BasicModel<T>,
-  form: FormModel,
-): OperatorFunction<ValidateEvent<T>, IMaybeErrors<T>> {
-  return function validateOperation(source: Observable<ValidateEvent<T>>): Observable<IMaybeErrors<T>> {
+export function validate<T>(model: BasicModel<T>, form: FormModel): OperatorFunction<ValidateEvent<T>, IMaybeError<T>> {
+  return function validateOperation(source: Observable<ValidateEvent<T>>): Observable<IMaybeError<T>> {
     return source.lift(new ValidateOperator(model, form));
   };
 }
 
-export class ErrorSubscriber<T> implements NextObserver<IMaybeErrors<T>> {
+export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
   constructor(private readonly model: BasicModel<T>) {}
 
-  next(error: IMaybeErrors<T>) {
+  next(error: IMaybeError<T>) {
     this.model.error = error;
   }
 }
