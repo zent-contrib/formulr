@@ -1,10 +1,11 @@
 import { merge } from 'rxjs';
-import { concatAll } from 'rxjs/operators';
+import { concatAll, takeWhile } from 'rxjs/operators';
 import { useEffect, useMemo } from 'react';
 import { FieldArrayModel, BasicModel, IFieldArrayChildFactory, FormStrategy, FieldSetModel } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber } from './validate';
+import { isNull } from './utils';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [Array<Child>, FieldArrayModel<Item>];
 
@@ -65,6 +66,7 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
       .pipe(
         validate(model, form, parent),
         concatAll(),
+        takeWhile(isNull),
       )
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);

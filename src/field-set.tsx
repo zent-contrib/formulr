@@ -4,7 +4,8 @@ import { useFormContext, IFormContext } from './context';
 import { FieldSetModel, BasicModel, FormStrategy } from './models';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber } from './validate';
-import { concatAll } from 'rxjs/operators';
+import { concatAll, takeWhile } from 'rxjs/operators';
+import { isNull } from './utils';
 
 export type IUseFieldSet<T> = [IFormContext, FieldSetModel<T>];
 
@@ -62,6 +63,7 @@ export function useFieldSet<T extends object>(
       .pipe(
         validate(model, form, parent),
         concatAll(),
+        takeWhile(isNull),
       )
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
