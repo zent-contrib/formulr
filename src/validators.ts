@@ -137,13 +137,13 @@ export function maxLength<T extends IWithLength>(length: number, message?: strin
 export function pattern(regexp: RegExp, message?: string): IValidator<string> {
   function pattern(input: string) {
     return regexp.test(input)
-      ? {
+      ? null
+      : {
           name: 'pattern',
           message,
           actual: input,
           pattern: regexp,
-        }
-      : null;
+        };
   }
   return pattern;
 }
