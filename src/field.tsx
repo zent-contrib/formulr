@@ -1,9 +1,8 @@
 import { useEffect, useRef, useMemo } from 'react';
-import { merge, NextObserver } from 'rxjs';
-import { debounceTime, filter, withLatestFrom, map, tap } from 'rxjs/operators';
+import { merge } from 'rxjs';
+import { debounceTime, filter, mapTo } from 'rxjs/operators';
 import { FieldModel, BasicModel, FormStrategy, FieldSetModel } from './models';
 import { useValue$ } from './hooks';
-import { withLeft } from './utils';
 import { useFormContext } from './context';
 import { ValidateStrategy, validate, ErrorSubscriber, filterWithCompositing, IValidator } from './validate';
 
@@ -77,14 +76,6 @@ function useModelAndChildProps<Value>(
   return ret;
 }
 
-class NotifyParentValidate<Value> implements NextObserver<[ValidateStrategy, Value]> {
-  constructor(private readonly parent: FieldSetModel) {}
-
-  next([strategy, _]: [ValidateStrategy, Value]) {
-    this.parent.validate(strategy);
-  }
-}
-
 export function useField<Value>(
   field: string,
   defaultValue: Value,
@@ -101,7 +92,7 @@ export function useField<Value>(
   const { parent, strategy, validate$, form } = useFormContext();
   const compositingRef = useRef(false);
   const { childProps, model } = useModelAndChildProps(field, parent, strategy, defaultValue as Value, compositingRef);
-  const { value$, error$, validate$: localValidate$ } = model;
+  const { value$, error$, validateSelf$ } = model;
   const value = useValue$(value$, value$.getValue());
   /**
    * ignore returned value
@@ -114,18 +105,17 @@ export function useField<Value>(
   }
   useEffect(() => {
     const $ = merge(
-      validate$.pipe(withLatestFrom(value$)),
-      localValidate$.pipe(withLatestFrom(value$)),
+      validate$,
+      validateSelf$,
       value$.pipe(
         debounceTime(100),
         filter(filterWithCompositing(compositingRef)),
-        map(withLeft(ValidateStrategy.IgnoreAsync)),
-        tap<[ValidateStrategy, Value]>(new NotifyParentValidate(parent)),
+        mapTo(ValidateStrategy.IgnoreAsync),
       ),
     )
-      .pipe(validate(model, form))
+      .pipe(validate(model, form, parent))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
-  }, [value$, validate$, localValidate$, model, form]);
+  }, [value$, validate$, validateSelf$, model, form, parent]);
   return [childProps, model];
 }

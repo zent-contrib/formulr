@@ -11,7 +11,7 @@ export type Model<Value> = FieldModel<Value> | FieldArrayModel<Value> | FieldSet
 export abstract class BasicModel<Value> {
   pristine = true;
   touched = false;
-  readonly validate$ = new Subject<ValidateStrategy>();
+  readonly validateSelf$ = new Subject<ValidateStrategy>();
   protected abstract initialValue: Value;
   abstract getRawValue(): Value;
   attached = false;
@@ -21,6 +21,7 @@ export abstract class BasicModel<Value> {
   abstract isValid(): boolean;
   abstract patchValue(value: Value): void;
   abstract resetValue(): void;
+  abstract validate(strategy: ValidateStrategy): void;
 
   get error() {
     return this.error$.getValue();
@@ -34,10 +35,6 @@ export abstract class BasicModel<Value> {
     this.initialValue = value;
     this.touched = false;
     this.pristine = true;
-  }
-
-  validate(strategy: ValidateStrategy = ValidateStrategy.Normal) {
-    this.validate$.next(strategy);
   }
 
   validators: ReadonlyArray<IValidator<Value>> = [];
@@ -80,12 +77,18 @@ export class FieldModel<Value> extends BasicModel<Value> {
 
   resetValue() {
     this.pristine = true;
+    this.touched = false;
     this.value$.next(this.initialValue);
+  }
+
+  validate(strategy = ValidateStrategy.Normal) {
+    this.validateSelf$.next(strategy);
   }
 }
 
 export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<Value> {
   readonly children: Record<string, BasicModel<unknown>>;
+  readonly validateChildren$ = new Subject<ValidateStrategy>();
   protected initialValue: Value;
 
   constructor(defaultValue: Value = {} as Value) {
@@ -138,6 +141,7 @@ export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<V
 
   resetValue() {
     this.pristine = true;
+    this.touched = false;
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
@@ -145,6 +149,13 @@ export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<V
       if (child) {
         child.resetValue();
       }
+    }
+  }
+
+  validate(strategy = ValidateStrategy.Normal) {
+    this.validateSelf$.next(strategy);
+    if (strategy & ValidateStrategy.IncludeChildren) {
+      this.validateChildren$.next(strategy);
     }
   }
 }
@@ -155,6 +166,7 @@ export interface IFieldArrayChildFactory<Item> {
 
 export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
   readonly models$: BehaviorSubject<ReadonlyArray<BasicModel<Item>>>;
+  readonly validateChildren$ = new Subject<ValidateStrategy>();
   protected initialValue: ReadonlyArray<Item>;
 
   constructor(private readonly factory: IFieldArrayChildFactory<Item>, defaultValue: ReadonlyArray<Item> = []) {
@@ -249,6 +261,13 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
     const ret = models.splice(start, deleteCount, ...items.map(this.factory));
     this.models$.next(models);
     return ret;
+  }
+
+  validate(strategy = ValidateStrategy.Normal) {
+    this.validateSelf$.next(strategy);
+    if (strategy & ValidateStrategy.IncludeChildren) {
+      this.validateChildren$.next(strategy);
+    }
   }
 }
 

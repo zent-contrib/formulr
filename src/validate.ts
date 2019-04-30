@@ -10,10 +10,8 @@ import {
   from,
   NextObserver,
 } from 'rxjs';
-import { BasicModel, FormModel } from './models';
+import { BasicModel, FormModel, FieldSetModel } from './models';
 import { isPromise } from './utils';
-
-export type ValidateEvent<T> = [ValidateStrategy, T];
 
 export interface IValidateResult<T> {
   name: string;
@@ -29,6 +27,7 @@ export enum ValidateStrategy {
   Normal = 0b0000,
   IgnoreAsync = 0b0010,
   IgnoreTouched = 0b0100,
+  IncludeChildren = 0b1000,
 }
 
 export interface IValidateContext {
@@ -37,7 +36,7 @@ export interface IValidateContext {
 }
 
 export interface IValidator<Value> {
-  (input: Value): ValidatorResult<Value> | null;
+  (input: Value, ctx: ValidatorContext): ValidatorResult<Value> | null;
   isAsync?: boolean;
 }
 
@@ -79,27 +78,32 @@ class ValidatorResultSubscriber<T> implements Observer<IValidateResult<T> | null
   }
 }
 
-class ValidateOperator<T> implements Operator<ValidateEvent<T>, IMaybeError<T>> {
-  constructor(private readonly model: BasicModel<T>, private readonly form: FormModel) {}
+class ValidateOperator<T> implements Operator<ValidateStrategy, IMaybeError<T>> {
+  constructor(
+    private readonly model: BasicModel<T>,
+    private readonly form: FormModel,
+    private readonly ctx: ValidatorContext,
+  ) {}
 
-  call(subscriber: Subscriber<IMaybeError<T>>, source: Observable<ValidateEvent<T>>) {
-    return source.subscribe(new ValidateSubscriber(subscriber, this.model, this.form));
+  call(subscriber: Subscriber<IMaybeError<T>>, source: Observable<ValidateStrategy>) {
+    return source.subscribe(new ValidateSubscriber(subscriber, this.model, this.form, this.ctx));
   }
 }
 
-class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
+class ValidateSubscriber<T> extends Subscriber<ValidateStrategy> {
   private readonly $validators = new Map<ValidatorResultSubscriber<T>, Subscription>();
 
   constructor(
     destination: Subscriber<IMaybeError<T>>,
     private readonly model: BasicModel<T>,
     private readonly form: FormModel,
+    private readonly ctx: ValidatorContext,
   ) {
     super(destination);
   }
 
   childResult(error: IValidateResult<T> | null) {
-    if (this.error !== null || error === null || !this.destination) {
+    if (error === null || !this.destination) {
       return;
     }
     /**
@@ -129,9 +133,10 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
     }
   }
 
-  protected _next([strategy, value]: ValidateEvent<T>) {
+  protected _next(strategy: ValidateStrategy) {
     this._clear();
     this._destinationNext(null);
+    const value = this.model.getRawValue();
     const { validators, touched } = this.model;
     if (!touched && !(strategy & ValidateStrategy.IgnoreTouched)) {
       return;
@@ -142,7 +147,7 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
       if (ignoreAsync && validator.isAsync) {
         continue;
       }
-      const result = validator(value);
+      const result = validator(value, this.ctx);
       if (result === null) {
         continue;
       }
@@ -186,9 +191,14 @@ class ValidateSubscriber<T> extends Subscriber<ValidateEvent<T>> {
   }
 }
 
-export function validate<T>(model: BasicModel<T>, form: FormModel): OperatorFunction<ValidateEvent<T>, IMaybeError<T>> {
-  return function validateOperation(source: Observable<ValidateEvent<T>>): Observable<IMaybeError<T>> {
-    return source.lift(new ValidateOperator(model, form));
+export function validate<T>(
+  model: BasicModel<T>,
+  form: FormModel,
+  parent: FieldSetModel,
+): OperatorFunction<ValidateStrategy, IMaybeError<T>> {
+  const ctx = new ValidatorContext(parent, form);
+  return function validateOperation(source: Observable<ValidateStrategy>): Observable<IMaybeError<T>> {
+    return source.lift(new ValidateOperator(model, form, ctx));
   };
 }
 
@@ -202,4 +212,28 @@ export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
 
 export function filterWithCompositing(compositingRef: RefObject<boolean>) {
   return () => !compositingRef.current;
+}
+
+export class ValidatorContext {
+  constructor(public readonly parent: FieldSetModel, public readonly form: FormModel) {}
+
+  getSectionValue<T extends object = Record<string, unknown>>(...names: string[]): T {
+    if (names.length === 0) {
+      return this.parent.getRawValue() as any;
+    }
+    const { children } = this.parent;
+    const data: Record<string, unknown> = {};
+    for (let i = 0; i < names.length; i += 1) {
+      const name = names[i];
+      const model = children[name];
+      if (model) {
+        data[name] = model.getRawValue();
+      }
+    }
+    return data as any;
+  }
+
+  getFormValue<T extends object = Record<string, unknown>>(): T {
+    return this.form.getRawValue();
+  }
 }
