@@ -1,6 +1,6 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { merge } from 'rxjs';
-import { debounceTime, filter, mapTo } from 'rxjs/operators';
+import { debounceTime, filter, mapTo, concatAll } from 'rxjs/operators';
 import { FieldModel, BasicModel, FormStrategy, FieldSetModel } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
@@ -113,7 +113,10 @@ export function useField<Value>(
         mapTo(ValidateStrategy.IgnoreAsync),
       ),
     )
-      .pipe(validate(model, form, parent))
+      .pipe(
+        validate(model, form, parent),
+        concatAll(),
+      )
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [value$, validate$, validateSelf$, model, form, parent]);

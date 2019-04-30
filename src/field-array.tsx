@@ -1,4 +1,5 @@
 import { merge } from 'rxjs';
+import { concatAll } from 'rxjs/operators';
 import { useEffect, useMemo } from 'react';
 import { FieldArrayModel, BasicModel, IFieldArrayChildFactory, FormStrategy, FieldSetModel } from './models';
 import { useFormContext } from './context';
@@ -61,7 +62,10 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   useValue$(error$, error$.getValue());
   useEffect(() => {
     const $ = merge(parentValidate$, validateSelf$)
-      .pipe(validate(model, form, parent))
+      .pipe(
+        validate(model, form, parent),
+        concatAll(),
+      )
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [model, parent]);
