@@ -1,11 +1,17 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { merge } from 'rxjs';
-import { debounceTime, filter, mapTo, concatAll, takeWhile } from 'rxjs/operators';
+import { debounceTime, filter, mapTo, switchMap } from 'rxjs/operators';
 import { FieldModel, BasicModel, FormStrategy, FieldSetModel } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
-import { ValidateStrategy, validate, ErrorSubscriber, filterWithCompositing, IValidator } from './validate';
-import { isNull } from './utils';
+import {
+  ValidateStrategy,
+  validate,
+  ErrorSubscriber,
+  filterWithCompositing,
+  IValidator,
+  ValidatorContext,
+} from './validate';
 
 export interface IFormFieldChildProps<Value> {
   value: Value;
@@ -106,6 +112,7 @@ export function useField<Value>(
     model.validators = validators;
   }
   useEffect(() => {
+    const ctx = new ValidatorContext(parent, form);
     const $ = merge(
       validate$,
       validateSelf$,
@@ -115,11 +122,7 @@ export function useField<Value>(
         mapTo(ValidateStrategy.IgnoreAsync),
       ),
     )
-      .pipe(
-        validate(model, form, parent),
-        concatAll(),
-        takeWhile(isNull)
-      )
+      .pipe(switchMap(validate(model, ctx)))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [value$, validate$, validateSelf$, model, form, parent]);

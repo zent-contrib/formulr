@@ -1,11 +1,10 @@
 import { merge } from 'rxjs';
-import { concatAll, takeWhile } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { useEffect, useMemo } from 'react';
 import { FieldArrayModel, BasicModel, IFieldArrayChildFactory, FormStrategy, FieldSetModel } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
-import { IValidator, validate, ErrorSubscriber } from './validate';
-import { isNull } from './utils';
+import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [Array<Child>, FieldArrayModel<Item>];
 
@@ -62,12 +61,9 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
    */
   useValue$(error$, error$.getValue());
   useEffect(() => {
+    const ctx = new ValidatorContext(parent, form);
     const $ = merge(parentValidate$, validateSelf$)
-      .pipe(
-        validate(model, form, parent),
-        concatAll(),
-        takeWhile(isNull),
-      )
+      .pipe(switchMap(validate(model, ctx)))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [model, parent]);

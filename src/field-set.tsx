@@ -3,9 +3,8 @@ import { useMemo, useEffect } from 'react';
 import { useFormContext, IFormContext } from './context';
 import { FieldSetModel, BasicModel, FormStrategy } from './models';
 import { useValue$ } from './hooks';
-import { IValidator, validate, ErrorSubscriber } from './validate';
-import { concatAll, takeWhile } from 'rxjs/operators';
-import { isNull } from './utils';
+import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
+import { switchMap } from 'rxjs/operators';
 
 export type IUseFieldSet<T> = [IFormContext, FieldSetModel<T>];
 
@@ -59,12 +58,9 @@ export function useFieldSet<T extends object>(
    */
   useValue$(error$, error$.getValue());
   useEffect(() => {
+    const ctx = new ValidatorContext(parent, form);
     const $ = merge(parentValidate$, validateSelf$)
-      .pipe(
-        validate(model, form, parent),
-        concatAll(),
-        takeWhile(isNull),
-      )
+      .pipe(switchMap(validate(model, ctx)))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [model, parent, form]);

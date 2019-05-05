@@ -1,8 +1,8 @@
 import { RefObject } from 'react';
-import { Observable, Operator, OperatorFunction, Subscriber, isObservable, from, NextObserver, of, empty } from 'rxjs';
+import { Observable, Subscriber, isObservable, from, NextObserver, empty, never } from 'rxjs';
 import { BasicModel, FormModel, FieldSetModel } from './models';
-import { isPromise } from './utils';
-import { catchError } from 'rxjs/operators';
+import { isPromise, notNull } from './utils';
+import { catchError, map, concatAll, filter, startWith, take } from 'rxjs/operators';
 
 export interface IValidateResult<T> {
   name: string;
@@ -33,16 +33,8 @@ export interface IValidator<Value> {
 
 export type ValidatorResult<T> = IMaybeError<T> | Promise<IMaybeError<T>> | Observable<IMaybeError<T>>;
 
-class ValidateOperator<T> implements Operator<ValidateStrategy, Observable<IMaybeError<T>>> {
-  constructor(private readonly model: BasicModel<T>, private readonly ctx: ValidatorContext) {}
-
-  call(subscriber: Subscriber<Observable<IMaybeError<T>>>, source: Observable<ValidateStrategy>) {
-    return source.subscribe(new ValidateSubscriber(subscriber, this.model, this.ctx));
-  }
-}
-
 function resultToSubscriber<T>(
-  subscriber: Subscriber<IValidateResult<T> | null>,
+  subscriber: Subscriber<IMaybeError<T>>,
   validator: IValidator<T>,
   ctx: ValidatorContext,
   value: T,
@@ -89,51 +81,6 @@ function resultToSubscriber<T>(
   }
 }
 
-class ValidateSubscriber<T> extends Subscriber<ValidateStrategy> {
-  constructor(
-    destination: Subscriber<Observable<IMaybeError<T>>>,
-    private readonly model: BasicModel<T>,
-    private readonly ctx: ValidatorContext,
-  ) {
-    super(destination);
-  }
-
-  protected _next(strategy: ValidateStrategy) {
-    this._destinationNext(of(null));
-    const { validators, touched } = this.model;
-    if (!touched && !(strategy & ValidateStrategy.IncludeUntouched)) {
-      return;
-    }
-    const ignoreAsync = strategy & ValidateStrategy.IgnoreAsync;
-    const value = this.model.getRawValue();
-    for (let i = 0; i < validators.length; i += 1) {
-      const validator = validators[i];
-      if (ignoreAsync && validator.isAsync) {
-        continue;
-      }
-      const validate$ = new Observable<IMaybeError<T>>(subscriber =>
-        resultToSubscriber(subscriber, validator, this.ctx, value),
-      );
-      this._destinationNext(validate$);
-    }
-  }
-
-  private _destinationNext(next: Observable<IMaybeError<T>>) {
-    this.destination.next && this.destination.next(next);
-  }
-}
-
-export function validate<T>(
-  model: BasicModel<T>,
-  form: FormModel,
-  parent: FieldSetModel,
-): OperatorFunction<ValidateStrategy, Observable<IMaybeError<T>>> {
-  const ctx = new ValidatorContext(parent, form);
-  return function validateOperation(source: Observable<ValidateStrategy>): Observable<Observable<IMaybeError<T>>> {
-    return source.lift(new ValidateOperator(model, ctx));
-  };
-}
-
 export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
   constructor(private readonly model: BasicModel<T>) {}
 
@@ -168,4 +115,35 @@ export class ValidatorContext {
   getFormValue<T extends object = Record<string, unknown>>(): T {
     return this.form.getRawValue();
   }
+}
+
+function filterAsync<T>(skipAsync: boolean, validator: IValidator<T>) {
+  return skipAsync ? !validator.isAsync : true;
+}
+
+class ValidatorExecutor<T> {
+  constructor(private readonly model: BasicModel<T>, private readonly ctx: ValidatorContext) {}
+
+  call(strategy: ValidateStrategy): Observable<IMaybeError<T>> {
+    if (!this.model.touched && !(strategy & ValidateStrategy.IncludeUntouched)) {
+      return never();
+    }
+    const value = this.model.getRawValue();
+    const skipAsync = (strategy & ValidateStrategy.IgnoreAsync) > 0;
+    return from(this.model.validators).pipe(
+      filter(validator => filterAsync(skipAsync, validator)),
+      map(validator => {
+        return new Observable<IMaybeError<T>>(subscriber => resultToSubscriber(subscriber, validator, this.ctx, value));
+      }),
+      concatAll(),
+      filter(notNull),
+      take(1),
+      startWith(null),
+    );
+  }
+}
+
+export function validate<T>(model: BasicModel<T>, ctx: ValidatorContext) {
+  const executor = new ValidatorExecutor(model, ctx);
+  return (strategy: ValidateStrategy) => executor.call(strategy);
 }
