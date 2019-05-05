@@ -1,17 +1,18 @@
-import { useEffect, useRef, useMemo } from 'react';
-import { merge } from 'rxjs';
-import { debounceTime, filter, mapTo, switchMap } from 'rxjs/operators';
+import { useEffect, useRef, useMemo, RefObject } from 'react';
+import { Subject, Observable, Subscriber, NextObserver, BehaviorSubject } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import * as Scheduler from 'scheduler';
+
 import { FieldModel, BasicModel, FormStrategy, FieldSetModel } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
-import {
-  ValidateStrategy,
-  validate,
-  ErrorSubscriber,
-  filterWithCompositing,
-  IValidator,
-  ValidatorContext,
-} from './validate';
+import { ValidateStrategy, validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
+
+const {
+  unstable_scheduleCallback: scheduleCallback,
+  unstable_IdlePriority: IdlePriority,
+  unstable_cancelCallback: cancelCallback,
+} = Scheduler;
 
 export interface IFormFieldChildProps<Value> {
   value: Value;
@@ -84,6 +85,66 @@ function useModelAndChildProps<Value>(
   return ret;
 }
 
+class ScheduledSubsciber<T> implements NextObserver<T> {
+  private node: Scheduler.CallbackNode | null = null;
+
+  constructor(
+    private readonly subscriber: Subscriber<ValidateStrategy>,
+    private readonly compositingRef: RefObject<boolean>,
+  ) {}
+
+  private _notifyNext = () => {
+    this.subscriber.next(ValidateStrategy.IgnoreAsync);
+  };
+
+  next() {
+    this.cancel();
+    if (this.compositingRef.current) {
+      return;
+    }
+    this.node = scheduleCallback(IdlePriority, this._notifyNext);
+  }
+
+  cancel() {
+    if (this.node !== null) {
+      cancelCallback(this.node);
+      this.node = null;
+    }
+  }
+}
+
+class ValidateSubscriber<T> implements NextObserver<ValidateStrategy> {
+  constructor(
+    private readonly subscriber: Subscriber<ValidateStrategy>,
+    private readonly sched: ScheduledSubsciber<T>,
+  ) {}
+
+  next(strategy: ValidateStrategy) {
+    this.sched.cancel();
+    this.subscriber.next(strategy);
+  }
+}
+
+function mergeValidate$WithValue$<T>(
+  validate1$: Subject<ValidateStrategy>,
+  validate2$: Subject<ValidateStrategy>,
+  value$: BehaviorSubject<T>,
+  compositingRef: RefObject<boolean>,
+) {
+  return new Observable<ValidateStrategy>(subscriber => {
+    const sched = new ScheduledSubsciber(subscriber, compositingRef);
+    const validateSubscriber = new ValidateSubscriber(subscriber, sched);
+    const $1 = validate1$.subscribe(validateSubscriber);
+    const $2 = validate2$.subscribe(validateSubscriber);
+    const $value = value$.subscribe(sched);
+    return () => {
+      $1.unsubscribe();
+      $2.unsubscribe();
+      $value.unsubscribe();
+    };
+  });
+}
+
 export function useField<Value>(
   field: string,
   defaultValue: Value,
@@ -113,15 +174,7 @@ export function useField<Value>(
   }
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
-    const $ = merge(
-      validate$,
-      validateSelf$,
-      value$.pipe(
-        debounceTime(100),
-        filter(filterWithCompositing(compositingRef)),
-        mapTo(ValidateStrategy.IgnoreAsync),
-      ),
-    )
+    const $ = mergeValidate$WithValue$(validate$, validateSelf$, value$, compositingRef)
       .pipe(switchMap(validate(model, ctx)))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);

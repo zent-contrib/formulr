@@ -40,6 +40,7 @@
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "rxjs": "^6.4.0",
+    "scheduler": "0.14.0",
     "tslib": "^1.9.3",
     "utility-types": "^3.5.0"
   },
@@ -52,6 +53,7 @@
     "rimraf": "^2.6.3",
     "typescript": "^3.3.3",
     "webpack": "^4.29.6",
+    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.2.1"
   }
