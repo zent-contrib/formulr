@@ -3,8 +3,20 @@ import ReactDOM from 'react-dom';
 
 import { useForm, useField, FormStrategy, FormProvider, Validators, useFieldSet } from './src';
 
+function asyncValidator() {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve({
+        name: 'async',
+        message: 'async',
+      });
+    }, 100);
+  });
+}
+asyncValidator.isAsync = true;
+
 const Input = ({ name }) => {
-  const [input, { error }] = useField(name, '', [Validators.required('required')]);
+  const [input, { error }] = useField(name, '', [Validators.required('required'), asyncValidator]);
   const onChange = useCallback(
     e => {
       input.onChange(e.target.value);

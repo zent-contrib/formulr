@@ -1,4 +1,5 @@
 const HtmlPlugin = require('html-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 module.exports = {
   entry: './dev.jsx',
@@ -21,5 +22,5 @@ module.exports = {
     new HtmlPlugin({
       template: './dev.html',
     }),
-  ],
+  ].concat(process.env.BUNDLE_ANALYZER ? [new BundleAnalyzerPlugin()] : []),
 };
