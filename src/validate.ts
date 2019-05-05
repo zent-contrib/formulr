@@ -1,4 +1,3 @@
-import { RefObject } from 'react';
 import { Observable, Subscriber, isObservable, from, NextObserver, empty, never } from 'rxjs';
 import { BasicModel, FormModel, FieldSetModel } from './models';
 import { isPromise, notNull } from './utils';
@@ -46,17 +45,17 @@ function resultToSubscriber<T>(
     }
     let observable: Observable<IMaybeError<T>>;
     if (isPromise<IMaybeError<T>>(a)) {
-      observable = from(
-        a.catch((error: unknown) => {
-          ctx.form.removeWorkingValidator(observable);
-          setTimeout(() => {
-            throw error;
-          });
-          return null;
-        }),
-      );
+      observable = from(a);
     } else if (isObservable<IMaybeError<T>>(a)) {
-      observable = a.pipe(
+      observable = a;
+    } else {
+      subscriber.next(a);
+      subscriber.complete();
+      return;
+    }
+    ctx.form.addWorkingValidator(observable);
+    const $ = observable
+      .pipe(
         catchError(error => {
           ctx.form.removeWorkingValidator(observable);
           setTimeout(() => {
@@ -64,14 +63,8 @@ function resultToSubscriber<T>(
           });
           return empty();
         }),
-      );
-    } else {
-      subscriber.next(a);
-      subscriber.complete();
-      return;
-    }
-    ctx.form.addWorkingValidator(observable);
-    const $ = observable.subscribe(subscriber);
+      )
+      .subscribe(subscriber);
     return () => {
       ctx.form.removeWorkingValidator(observable);
       $.unsubscribe();
@@ -87,10 +80,6 @@ export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
   next(error: IMaybeError<T>) {
     this.model.error = error;
   }
-}
-
-export function filterWithCompositing(compositingRef: RefObject<boolean>) {
-  return () => !compositingRef.current;
 }
 
 export class ValidatorContext {
