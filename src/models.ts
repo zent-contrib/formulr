@@ -6,8 +6,6 @@ export enum FormStrategy {
   View,
 }
 
-export type Model<Value> = FieldModel<Value> | FieldArrayModel<Value> | FieldSetModel<Value>;
-
 export abstract class BasicModel<Value> {
   pristine = true;
   touched = false;

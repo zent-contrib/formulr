@@ -94,6 +94,7 @@ class ScheduledSubsciber<T> implements NextObserver<T> {
   ) {}
 
   private _notifyNext = () => {
+    this.node = null;
     this.subscriber.next(ValidateStrategy.IgnoreAsync);
   };
 

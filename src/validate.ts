@@ -20,11 +20,6 @@ export enum ValidateStrategy {
   IncludeChildren = 0b1000,
 }
 
-export interface IValidateContext {
-  strategy: number;
-  form: FormModel;
-}
-
 export interface IValidator<Value> {
   (input: Value, ctx: ValidatorContext): ValidatorResult<Value> | null;
   isAsync?: boolean;

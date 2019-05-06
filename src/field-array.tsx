@@ -54,11 +54,12 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   if (typeof field === 'string') {
     model.validators = validators;
   }
-  const { error$, validateSelf$ } = model;
+  const { error$, validateSelf$, models$ } = model;
   /**
    * ignore returned value
    * user can get the value from model
    */
+  useValue$(models$, models$.getValue());
   useValue$(error$, error$.getValue());
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
