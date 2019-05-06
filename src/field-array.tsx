@@ -23,6 +23,10 @@ function useArrayModel<Item>(
       const m = parent.children[field];
       if (!m || !(m instanceof FieldArrayModel)) {
         model = new FieldArrayModel(factory as IFieldArrayChildFactory<Item>);
+        const initialValue = parent.initialValue[name];
+        if (Array.isArray(initialValue)) {
+          model.initialize(initialValue);
+        }
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
@@ -37,7 +41,7 @@ function useArrayModel<Item>(
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string,
   factory: IFieldArrayChildFactory<Item>,
-  validators?: ReadonlyArray<IValidator<ReadonlyArray<Item>>>,
+  validators?: Array<IValidator<Array<Item>>>,
 ): IUseFieldArray<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
@@ -47,7 +51,7 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item>,
   factory?: IFieldArrayChildFactory<Item>,
-  validators: ReadonlyArray<IValidator<ReadonlyArray<Item>>> = [],
+  validators: Array<IValidator<Array<Item>>> = [],
 ): IUseFieldArray<Item, Child> {
   const { parent, strategy, validate$: parentValidate$, form } = useFormContext();
   const model = useArrayModel(field, parent, strategy, factory as IFieldArrayChildFactory<Item>);

@@ -45,16 +45,11 @@
     "utility-types": "^3.5.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.3.4",
-    "@babel/preset-react": "^7.0.0",
-    "awesome-typescript-loader": "^5.2.1",
-    "babel-loader": "^8.0.5",
+    "docz": "^1.1.0",
+    "docz-theme-default": "^1.1.0",
     "html-webpack-plugin": "^3.2.0",
+    "jest": "^24.8.0",
     "rimraf": "^2.6.3",
-    "typescript": "^3.3.3",
-    "webpack": "^4.29.6",
-    "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.2.1"
+    "typescript": "^3.4.0"
   }
 }

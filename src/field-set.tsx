@@ -21,7 +21,8 @@ function useFieldSetModel<T extends object>(
       }
       const m = parent.children[field];
       if (!m || !(m instanceof FieldSetModel)) {
-        model = new FieldSetModel();
+        const initialValue = parent.initialValue[name];
+        model = new FieldSetModel(initialValue as T);
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
@@ -35,7 +36,7 @@ function useFieldSetModel<T extends object>(
 
 export function useFieldSet<T extends object>(
   field: string | FieldSetModel<T>,
-  validators: ReadonlyArray<IValidator<T>> = [],
+  validators: Array<IValidator<T>> = [],
 ): IUseFieldSet<T> {
   const { parent, strategy, form, validate$: parentValidate$ } = useFormContext();
   const model = useFieldSetModel(field, parent, strategy);

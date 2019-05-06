@@ -10,7 +10,7 @@ export abstract class BasicModel<Value> {
   pristine = true;
   touched = false;
   readonly validateSelf$ = new Subject<ValidateStrategy>();
-  protected abstract initialValue: Value;
+  abstract initialValue: Value;
   abstract getRawValue(): Value;
   attached = false;
 
@@ -35,12 +35,12 @@ export abstract class BasicModel<Value> {
     this.pristine = true;
   }
 
-  validators: ReadonlyArray<IValidator<Value>> = [];
+  validators: Array<IValidator<Value>> = [];
 }
 
 export class FieldModel<Value> extends BasicModel<Value> {
   readonly value$: BehaviorSubject<Value>;
-  protected initialValue: Value;
+  initialValue: Value;
 
   constructor(defaultValue: Value) {
     super();
@@ -87,7 +87,7 @@ export class FieldModel<Value> extends BasicModel<Value> {
 export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<Value> {
   readonly children: Record<string, BasicModel<unknown>>;
   readonly validateChildren$ = new Subject<ValidateStrategy>();
-  protected initialValue: Value;
+  initialValue: Value;
 
   constructor(defaultValue: Value = {} as Value) {
     super();
@@ -162,18 +162,18 @@ export interface IFieldArrayChildFactory<Item> {
   (value: Item): BasicModel<Item>;
 }
 
-export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
-  readonly models$: BehaviorSubject<ReadonlyArray<BasicModel<Item>>>;
+export class FieldArrayModel<Item> extends BasicModel<Array<Item>> {
+  readonly models$: BehaviorSubject<Array<BasicModel<Item>>>;
   readonly validateChildren$ = new Subject<ValidateStrategy>();
-  protected initialValue: ReadonlyArray<Item>;
+  initialValue: Array<Item>;
 
-  constructor(private readonly factory: IFieldArrayChildFactory<Item>, defaultValue: ReadonlyArray<Item> = []) {
+  constructor(private readonly factory: IFieldArrayChildFactory<Item>, defaultValue: Array<Item> = []) {
     super();
-    this.models$ = new BehaviorSubject<ReadonlyArray<BasicModel<Item>>>(defaultValue.map(factory));
+    this.models$ = new BehaviorSubject<Array<BasicModel<Item>>>(defaultValue.map(factory));
     this.initialValue = defaultValue;
   }
 
-  initialize(values: ReadonlyArray<Item>) {
+  initialize(values: Array<Item>) {
     super.initialize(values);
     this.models$.next(values.map(this.factory));
   }
@@ -182,7 +182,7 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
     return this.models$.getValue();
   }
 
-  set models(models: ReadonlyArray<BasicModel<Item>>) {
+  set models(models: Array<BasicModel<Item>>) {
     this.models$.next(models);
   }
 
@@ -228,8 +228,8 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
     this.initialize(this.initialValue);
   }
 
-  push(...items: ReadonlyArray<Item>) {
-    const nextModels: ReadonlyArray<BasicModel<Item>> = this.models$.getValue().concat(items.map(this.factory));
+  push(...items: Array<Item>) {
+    const nextModels: Array<BasicModel<Item>> = this.models$.getValue().concat(items.map(this.factory));
     this.models$.next(nextModels);
   }
 
@@ -247,14 +247,14 @@ export class FieldArrayModel<Item> extends BasicModel<ReadonlyArray<Item>> {
     return model;
   }
 
-  unshift(...items: ReadonlyArray<Item>) {
+  unshift(...items: Array<Item>) {
     const nextModels = items.map(this.factory).concat(this.models$.getValue());
     this.models$.next(nextModels);
   }
 
   splice(start: number, deleteCount?: number): BasicModel<Item>[];
 
-  splice(start: number, deleteCount: number, ...items: ReadonlyArray<Item>) {
+  splice(start: number, deleteCount: number, ...items: Array<Item>) {
     const models = this.models$.getValue().slice();
     const ret = models.splice(start, deleteCount, ...items.map(this.factory));
     this.models$.next(models);

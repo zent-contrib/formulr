@@ -40,7 +40,8 @@ function useModelAndChildProps<Value>(
       }
       const m = parent.children[field];
       if (!m || !(m instanceof FieldModel)) {
-        model = new FieldModel<Value>(defaultValue as Value);
+        const initialValue = parent.initialValue[name] as Value;
+        model = new FieldModel<Value>(initialValue || defaultValue);
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
@@ -157,7 +158,7 @@ export function useField<Value>(field: FieldModel<Value>): IUseField<Value>;
 export function useField<Value>(
   field: FieldModel<Value> | string,
   defaultValue?: Value,
-  validators: ReadonlyArray<IValidator<Value>> = [],
+  validators: Array<IValidator<Value>> = [],
 ): IUseField<Value> {
   const { parent, strategy, validate$, form } = useFormContext();
   const compositingRef = useRef(false);
