@@ -8,6 +8,8 @@
         "strict": true,
         "outDir": "esm",
         "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
         "importHelpers": true,
         "lib": ["dom", "es2017"]
     },
