@@ -217,7 +217,7 @@ export class FieldArrayModel<Item> extends BasicModel<Array<Item>> {
       model.patchValue(item);
     }
     if (value.length <= models.length) {
-      this.splice(models.length - 1, models.length - value.length);
+      this.splice(value.length, models.length - value.length);
       return;
     }
     for (let i = models.length; i < value.length; i += 1) {
