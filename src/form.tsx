@@ -7,16 +7,18 @@ export interface IForm {
   model: FormModel;
 }
 
-export function useForm<T extends object = any>(arg: FormStrategy.View | FormModel<T>): IForm {
+export function useForm<T extends object = any>(arg: FormStrategy.View | (() => FormModel<T>)): IForm {
   return useMemo(() => {
     let strategy: FormStrategy;
     let model: FormModel;
     if (arg === FormStrategy.View) {
       strategy = arg;
       model = new FormModel();
-    } else {
+    } else if (typeof arg === 'function') {
       strategy = FormStrategy.Model;
-      model = arg;
+      model = arg();
+    } else {
+      throw new Error('invalid argument for useForm');
     }
     const { validateChildren$ } = model;
     const ctx = {
