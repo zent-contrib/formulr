@@ -88,6 +88,7 @@ export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<V
   readonly children: Record<string, BasicModel<unknown>>;
   readonly validateChildren$ = new Subject<ValidateStrategy>();
   initialValue: Value;
+  patchedValue: Value | null = null;
 
   constructor(defaultValue: Value = {} as Value) {
     super();
@@ -127,6 +128,7 @@ export class FieldSetModel<Value = Record<string, unknown>> extends BasicModel<V
   }
 
   patchValue(value: Value) {
+    this.patchedValue = value;
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
@@ -215,7 +217,7 @@ export class FieldArrayModel<Item> extends BasicModel<Array<Item>> {
       model.patchValue(item);
     }
     if (value.length <= models.length) {
-      this.splice(models.length - 1, value.length - models.length);
+      this.splice(models.length - 1, models.length - value.length);
       return;
     }
     for (let i = models.length; i < value.length; i += 1) {

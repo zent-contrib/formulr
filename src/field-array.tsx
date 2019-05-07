@@ -5,6 +5,7 @@ import { FieldArrayModel, BasicModel, IFieldArrayChildFactory, FormStrategy, Fie
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
+import { getValueFromParentOrDefault } from './utils';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [Array<Child>, FieldArrayModel<Item>];
 
@@ -23,9 +24,9 @@ function useArrayModel<Item>(
       const m = parent.children[field];
       if (!m || !(m instanceof FieldArrayModel)) {
         model = new FieldArrayModel(factory as IFieldArrayChildFactory<Item>);
-        const initialValue = parent.initialValue[name];
-        if (Array.isArray(initialValue)) {
-          model.initialize(initialValue);
+        const v = getValueFromParentOrDefault(parent, field, []);
+        if (Array.isArray(v)) {
+          model.initialize(v);
         }
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {

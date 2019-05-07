@@ -5,6 +5,7 @@ import { FieldSetModel, BasicModel, FormStrategy } from './models';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
 import { switchMap } from 'rxjs/operators';
+import { getValueFromParentOrDefault, isPlainObject } from './utils';
 
 export type IUseFieldSet<T> = [IFormContext, FieldSetModel<T>];
 
@@ -21,8 +22,12 @@ function useFieldSetModel<T extends object>(
       }
       const m = parent.children[field];
       if (!m || !(m instanceof FieldSetModel)) {
-        const initialValue = parent.initialValue[name];
-        model = new FieldSetModel(initialValue as T);
+        const v = getValueFromParentOrDefault<T>(parent, field, {} as T);
+        if (isPlainObject(v)) {
+          model = new FieldSetModel(v);
+        } else {
+          model = new FieldSetModel();
+        }
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;

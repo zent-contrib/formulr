@@ -1,7 +1,38 @@
 ---
 name: Basic
+route: '/'
 ---
 
-# Basic
+# Basic Usage
 
-Hello, I'm a mdx file!
+import { useCallback } from 'react';
+import { useForm, useField, FormStrategy, FormProvider, Validators, useFieldSet } from '../src/index.ts';
+
+<Playground>
+  {() => {
+    const Input = ({ name }) => {
+      const [input, { error }] = useField(name, '', [Validators.required('required'), asyncValidator]);
+      const onChange = useCallback(
+        e => {
+          input.onChange(e.target.value);
+        },
+        [input.onChange],
+      );
+      return (
+        <>
+          <input {...input} onChange={onChange} style={{ color: error ? 'red' : undefined }} />
+          {error ? error.message : null}
+        </>
+      );
+    };
+
+    const App = () => {
+      const form = useForm(FormStrategy.View);
+      return (
+        <FormProvider value={form.ctx}>
+          <Input name="input" />
+        </FormProvider>
+      );
+    }
+  }}
+</Playground>

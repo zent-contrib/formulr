@@ -7,6 +7,7 @@ import { FieldModel, BasicModel, FormStrategy, FieldSetModel } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { ValidateStrategy, validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
+import { getValueFromParentOrDefault } from './utils';
 
 const {
   unstable_scheduleCallback: scheduleCallback,
@@ -40,8 +41,8 @@ function useModelAndChildProps<Value>(
       }
       const m = parent.children[field];
       if (!m || !(m instanceof FieldModel)) {
-        const initialValue = parent.initialValue[name] as Value;
-        model = new FieldModel<Value>(initialValue || defaultValue);
+        const v = getValueFromParentOrDefault(parent, field, defaultValue);
+        model = new FieldModel<Value>(v);
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
