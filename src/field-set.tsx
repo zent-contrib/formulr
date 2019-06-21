@@ -1,10 +1,10 @@
 import { merge } from 'rxjs';
 import { useMemo, useEffect } from 'react';
+import { switchMap } from 'rxjs/operators';
 import { useFormContext, IFormContext } from './context';
 import { FieldSetModel, BasicModel, FormStrategy } from './models';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
-import { switchMap } from 'rxjs/operators';
 import { getValueFromParentOrDefault } from './utils';
 
 export type IUseFieldSet<T> = [IFormContext, FieldSetModel<T>];

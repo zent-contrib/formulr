@@ -191,11 +191,6 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends Basic
     super();
   }
 
-  initialize(values: Item[]) {
-    this.initialValue = values;
-    this.children$.next(values.map(this.factory));
-  }
-
   reset() {
     this.children$.next((this.initialValue || this.defaultValue).map(this.factory));
   }
@@ -251,8 +246,9 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends Basic
     }
   }
 
-  resetValue() {
-    // this.initialize(this.initialValue);
+  initialize(values: Item[]) {
+    this.initialValue = values;
+    this.children$.next(values.map(this.factory));
   }
 
   push(...items: Array<Item>) {
