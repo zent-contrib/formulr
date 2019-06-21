@@ -37,6 +37,7 @@ export abstract class BasicModel<Value> {
   abstract validate(strategy: ValidateStrategy): void;
   abstract reset(): void;
   abstract clear(): void;
+  abstract initialize(value: Value): void;
 
   get error() {
     return this.error$.getValue();
@@ -106,6 +107,18 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
     this.children = {
       ...defaultValue,
     };
+  }
+
+  initialize(values: FieldSetValue<Children>) {
+    this.initialValue = values;
+    const keys = Object.keys(values);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      const child = (this.children as any)[key] as BasicModel<unknown>;
+      if (child instanceof BasicModel) {
+        child.initialize((values as any)[key]);
+      }
+    }
   }
 
   getRawValue(): FieldSetValue<Children> {
