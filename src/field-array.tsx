@@ -1,29 +1,29 @@
 import { merge } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { useEffect, useMemo } from 'react';
-import { FieldArrayModel, BasicModel, IFieldArrayChildFactory, FormStrategy, FieldSetModel } from './models';
+import { FieldArrayModel, BasicModel, FormStrategy, FieldSetModel } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
 import { getValueFromParentOrDefault } from './utils';
 
-export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [Array<Child>, FieldArrayModel<Item>];
+export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [Child[], FieldArrayModel<Item, Child>];
 
-function useArrayModel<Item>(
-  field: string | FieldArrayModel<Item>,
+function useArrayModel<Item, Child extends BasicModel<Item>>(
+  field: string | FieldArrayModel<Item, Child>,
   parent: FieldSetModel,
   strategy: FormStrategy,
-  factory: IFieldArrayChildFactory<Item>,
+  factory: (item: Item) => Child,
 ) {
   return useMemo(() => {
-    let model: FieldArrayModel<Item>;
+    let model: FieldArrayModel<Item, Child>;
     if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
         throw new Error();
       }
       const m = parent.children[field];
       if (!m || !(m instanceof FieldArrayModel)) {
-        model = new FieldArrayModel(factory as IFieldArrayChildFactory<Item>);
+        model = new FieldArrayModel(factory);
         const v = getValueFromParentOrDefault(parent, field, []);
         if (Array.isArray(v)) {
           model.initialize(v);
@@ -41,30 +41,30 @@ function useArrayModel<Item>(
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string,
-  factory: IFieldArrayChildFactory<Item>,
+  factory: (item: Item) => Child,
   validators?: Array<IValidator<Array<Item>>>,
 ): IUseFieldArray<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
-  field: FieldArrayModel<Item>,
+  field: FieldArrayModel<Item, Child>,
 ): IUseFieldArray<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
-  field: string | FieldArrayModel<Item>,
-  factory?: IFieldArrayChildFactory<Item>,
+  field: string | FieldArrayModel<Item, Child>,
+  factory?: (item: Item) => Child,
   validators: Array<IValidator<Array<Item>>> = [],
 ): IUseFieldArray<Item, Child> {
   const { parent, strategy, validate$: parentValidate$, form } = useFormContext();
-  const model = useArrayModel(field, parent, strategy, factory as IFieldArrayChildFactory<Item>);
+  const model = useArrayModel(field, parent, strategy, factory as (item: Item) => Child);
   if (typeof field === 'string') {
     model.validators = validators;
   }
-  const { error$, validateSelf$, models$ } = model;
+  const { error$, validateSelf$, children$ } = model;
   /**
    * ignore returned value
    * user can get the value from model
    */
-  useValue$(models$, models$.getValue());
+  useValue$(children$, children$.getValue());
   useValue$(error$, error$.getValue());
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
@@ -73,11 +73,5 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [model, parent]);
-  useEffect(() => {
-    model.attached = true;
-    return () => {
-      model.attached = false;
-    };
-  }, [model]);
-  return [model.models$.getValue() as Array<Child>, model];
+  return [model.children$.getValue(), model];
 }

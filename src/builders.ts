@@ -1,36 +1,30 @@
-import { BasicModel, FieldSetModel, FieldModel, IFieldArrayChildFactory, FieldArrayModel, FormModel } from './models';
+import { BasicModel, FieldSetModel, FieldModel, FieldArrayModel, FormModel, FieldSetValue } from './models';
 import { IValidator } from './validate';
 
-type Children<T extends object> = { [key in keyof T]: BasicModel<T[key]> };
-
-export function set<T extends object>(children: Children<T>, validators: IValidator<T>[] = []) {
-  const fieldSet = new FieldSetModel<T>();
-  Object.assign(fieldSet.children, children);
-  fieldSet.validators = validators;
-  return fieldSet;
-}
-
 export function field<T>(defaultValue: T, validators: IValidator<T>[] = []) {
-  const field = new FieldModel(defaultValue);
-  field.validators = validators;
-  return field;
-}
-
-export interface IFieldArrayBuilderOptions<T> {
-  factory: IFieldArrayChildFactory<T>;
-  validators?: IValidator<T[]>[];
-  defaultValue?: T[];
-}
-
-export function array<T>({ factory, validators = [], defaultValue }: IFieldArrayBuilderOptions<T>) {
-  const model = new FieldArrayModel(factory, defaultValue);
+  const model = new FieldModel(defaultValue);
   model.validators = validators;
   return model;
 }
 
-export function form<T extends object>(children: Children<T>, validators: IValidator<T>[] = []) {
-  const form = new FormModel<T>();
-  Object.assign(form.children, children);
-  form.validators = validators;
-  return form;
+export function set<Children>(children: Children, validators: IValidator<FieldSetValue<Children>>[] = []) {
+  const model = new FieldSetModel<Children>(children);
+  model.validators = validators;
+  return model;
+}
+
+export function array<Item, Child extends BasicModel<Item>>(
+  factory: (item: Item) => Child,
+  validators: IValidator<Item[]>[] = [],
+  defaultChildren: Item[] = [],
+) {
+  const model = new FieldArrayModel(factory, defaultChildren);
+  model.validators = validators;
+  return model;
+}
+
+export function form<Children>(children: Children, validators: IValidator<FieldSetValue<Children>>[] = []) {
+  const model = new FormModel<Children>(children);
+  model.validators = validators;
+  return model;
 }

@@ -33,7 +33,7 @@ function useModelAndChildProps<Value>(
   defaultValue: Value,
   compositingRef: React.MutableRefObject<boolean>,
 ) {
-  const ret = useMemo(() => {
+  return useMemo(() => {
     let model: FieldModel<Value>;
     if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
@@ -77,14 +77,6 @@ function useModelAndChildProps<Value>(
       model,
     };
   }, [field, parent, strategy]);
-  const { model } = ret;
-  useEffect(() => {
-    model.attached = true;
-    return () => {
-      model.attached = false;
-    };
-  }, [model]);
-  return ret;
 }
 
 class ScheduledSubsciber<T> implements NextObserver<T> {

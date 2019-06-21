@@ -39,9 +39,5 @@ export function getValueFromParentOrDefault<T>(parent: FieldSetModel, name: stri
       return patchedValue as T;
     }
   }
-  const initialValue = parent.initialValue[name];
-  if (initialValue) {
-    return initialValue as T;
-  }
   return defaultValue;
 }

@@ -5,7 +5,7 @@ import { FieldSetModel, BasicModel, FormStrategy } from './models';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
 import { switchMap } from 'rxjs/operators';
-import { getValueFromParentOrDefault, isPlainObject } from './utils';
+import { getValueFromParentOrDefault } from './utils';
 
 export type IUseFieldSet<T> = [IFormContext, FieldSetModel<T>];
 
@@ -15,19 +15,16 @@ function useFieldSetModel<T extends object>(
   strategy: FormStrategy,
 ) {
   return useMemo(() => {
-    let model: FieldSetModel<T>;
+    let model: FieldSetModel<any>;
     if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
         throw new Error();
       }
       const m = parent.children[field];
       if (!m || !(m instanceof FieldSetModel)) {
+        model = new FieldSetModel({});
         const v = getValueFromParentOrDefault<T>(parent, field, {} as T);
-        if (isPlainObject(v)) {
-          model = new FieldSetModel(v);
-        } else {
-          model = new FieldSetModel();
-        }
+        model.patchedValue = v;
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
@@ -70,11 +67,5 @@ export function useFieldSet<T extends object>(
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [model, parent, form]);
-  useEffect(() => {
-    model.attached = true;
-    return () => {
-      model.attached = false;
-    };
-  }, [model]);
   return [childContext, model];
 }
