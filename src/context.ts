@@ -6,7 +6,7 @@ import { ValidateStrategy } from './validate';
 export interface IFormContext {
   validate$: Subject<ValidateStrategy>;
   strategy: FormStrategy;
-  form: FormModel;
+  form: FormModel<any>;
   parent: FieldSetModel;
 }
 

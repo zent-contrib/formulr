@@ -1,7 +1,7 @@
 import { Observable, Subscriber, isObservable, from, NextObserver, empty, never } from 'rxjs';
+import { catchError, map, concatAll, filter, startWith, take } from 'rxjs/operators';
 import { BasicModel, FormModel, FieldSetModel } from './models';
 import { isPromise, notNull } from './utils';
-import { catchError, map, concatAll, filter, startWith, take } from 'rxjs/operators';
 
 export interface IValidateResult<T> {
   name: string;
@@ -78,7 +78,7 @@ export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
 }
 
 export class ValidatorContext {
-  constructor(public readonly parent: FieldSetModel, public readonly form: FormModel) {}
+  constructor(public readonly parent: FieldSetModel, public readonly form: FormModel<any>) {}
 
   getSectionValue<T extends object = Record<string, unknown>>(...names: string[]): T {
     if (names.length === 0) {

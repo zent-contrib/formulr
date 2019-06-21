@@ -2,18 +2,18 @@ import { useMemo } from 'react';
 import { FormStrategy, FormModel } from './models';
 import { IFormContext } from './context';
 
-export interface IForm {
+export interface IForm<T> {
   ctx: IFormContext;
-  model: FormModel;
+  model: FormModel<T>;
 }
 
-export function useForm<T extends object = any>(arg: FormStrategy.View | (() => FormModel<T>)): IForm {
+export function useForm(arg: FormStrategy.View | (() => FormModel<any>)): IForm<any> {
   return useMemo(() => {
     let strategy: FormStrategy;
-    let model: FormModel;
+    let model: FormModel<any>;
     if (arg === FormStrategy.View) {
       strategy = arg;
-      model = new FormModel();
+      model = new FormModel({});
     } else if (typeof arg === 'function') {
       strategy = FormStrategy.Model;
       model = arg();
