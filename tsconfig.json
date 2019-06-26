@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "es5",
     "module": "es2015",
-    "stripInternal": true,
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "jsx": "react",
