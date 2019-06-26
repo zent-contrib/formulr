@@ -1,10 +1,6 @@
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { IValidator, ValidateStrategy, IMaybeError } from './validate';
-
-/** @internal */
-export type FieldSetValue<Children> = {
-  [key in keyof Children]: Children[key] extends BasicModel<any> ? Children[key]['$$value'] : never
-};
+import { FieldSetValue } from './utils';
 
 export enum FormStrategy {
   Model,
