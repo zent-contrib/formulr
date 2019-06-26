@@ -3,7 +3,7 @@ import { IValidator, ValidateStrategy, IMaybeError } from './validate';
 
 /** @internal */
 export type FieldSetValue<Children> = {
-  [key in keyof Children]: Children[key] extends BasicModel<any> ? Children[key]['$value'] : never
+  [key in keyof Children]: Children[key] extends BasicModel<any> ? Children[key]['$$value'] : never
 };
 
 export enum FormStrategy {
@@ -13,7 +13,7 @@ export enum FormStrategy {
 
 export abstract class BasicModel<Value> {
   /** @internal */
-  $value: Value = (undefined as unknown) as Value;
+  $$value: Value = (undefined as unknown) as Value;
   /** @internal */
   readonly validateSelf$ = new Subject<ValidateStrategy>();
   /** @internal */
@@ -21,18 +21,14 @@ export abstract class BasicModel<Value> {
   /** @internal */
   initialValue: Value | undefined = undefined;
 
-  pristine = true;
-  touched = false;
-
-  get dirty() {
-    return !this.pristine;
-  }
-
   abstract getRawValue(): Value;
 
   readonly error$ = new BehaviorSubject<IMaybeError<Value>>(null);
 
-  abstract isValid(): boolean;
+  abstract pristine(): boolean;
+  abstract touched(): boolean;
+  abstract dirty(): boolean;
+  abstract valid(): boolean;
   abstract patchValue(value: Value): void;
   abstract validate(strategy: ValidateStrategy): void;
   abstract reset(): void;
@@ -50,7 +46,10 @@ export abstract class BasicModel<Value> {
 
 export class FieldModel<Value> extends BasicModel<Value> {
   readonly value$: BehaviorSubject<Value>;
+  /** @internal */
+  _touched = false;
 
+  /** @internal */
   constructor(private readonly defaultValue: Value) {
     super();
     this.value$ = new BehaviorSubject(defaultValue);
@@ -82,7 +81,7 @@ export class FieldModel<Value> extends BasicModel<Value> {
     return this.value$.getValue();
   }
 
-  isValid() {
+  valid() {
     return this.error$.getValue() === null;
   }
 
@@ -93,6 +92,22 @@ export class FieldModel<Value> extends BasicModel<Value> {
   validate(strategy = ValidateStrategy.Normal) {
     this.validateSelf$.next(strategy);
   }
+
+  pristine() {
+    const value = this.value$.getValue();
+    if (this.initialValue !== undefined) {
+      return value === this.initialValue;
+    }
+    return value === this.defaultValue;
+  }
+
+  dirty() {
+    return !this.pristine();
+  }
+
+  touched() {
+    return this._touched;
+  }
 }
 
 export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> extends BasicModel<FieldSetValue<Children>> {
@@ -102,6 +117,7 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
   /** @internal */
   patchedValue: FieldSetValue<Children> | null = null;
 
+  /** @internal */
   constructor(defaultValue: Children) {
     super();
     this.children = {
@@ -138,7 +154,7 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
     (this.children as any)[name] = model;
   }
 
-  isValid() {
+  valid() {
     if (this.error$.getValue() !== null) {
       return false;
     }
@@ -193,6 +209,34 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
       this.validateChildren$.next(strategy);
     }
   }
+
+  pristine() {
+    const keys = Object.keys(this.children);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      const child = (this.children as any)[key];
+      if (!child.pristine()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  dirty() {
+    return !this.pristine();
+  }
+
+  touched() {
+    const keys = Object.keys(this.children);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      const child = (this.children as any)[key];
+      if (child.touched()) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends BasicModel<Item[]> {
@@ -200,7 +244,12 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends Basic
   /** @internal */
   readonly validateChildren$ = new Subject<ValidateStrategy>();
 
-  constructor(private readonly factory: (item: Item) => Child, private readonly defaultValue: Item[] = []) {
+  /** @internal */
+  constructor(
+    /** @internal */
+    private readonly factory: (item: Item) => Child,
+    private readonly defaultValue: Item[] = [],
+  ) {
     super();
   }
 
@@ -221,14 +270,14 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends Basic
     this.children$.next(models);
   }
 
-  isValid() {
+  valid() {
     if (this.error$.getValue() !== null) {
       return false;
     }
     const children = this.children$.getValue();
     for (let i = 0; i < children.length; i += 1) {
       const model = children[i];
-      if (!model.isValid()) {
+      if (!model.valid()) {
         return false;
       }
     }
@@ -303,12 +352,39 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends Basic
       this.validateChildren$.next(strategy);
     }
   }
+
+  pristine() {
+    const children = this.children$.getValue();
+    for (let i = 0; i < children.length; i += 1) {
+      const child = children[i];
+      if (child.dirty()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  dirty() {
+    return !this.pristine();
+  }
+
+  touched() {
+    const children = this.children$.getValue();
+    for (let i = 0; i < children.length; i += 1) {
+      const child = children[i];
+      if (child.touched()) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 export class FormModel<T> extends FieldSetModel<T> {
   /** @internal */
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);
+  readonly change$ = new Subject<void>();
 
   /** @internal */
   addWorkingValidator(v: Observable<unknown>) {

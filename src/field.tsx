@@ -3,7 +3,7 @@ import { Subject, Observable, Subscriber, NextObserver, BehaviorSubject } from '
 import { switchMap } from 'rxjs/operators';
 import * as Scheduler from 'scheduler';
 
-import { FieldModel, BasicModel, FormStrategy, FieldSetModel } from './models';
+import { FieldModel, BasicModel, FormStrategy, FieldSetModel, FormModel } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { ValidateStrategy, validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
@@ -32,6 +32,7 @@ function useModelAndChildProps<Value>(
   strategy: FormStrategy,
   defaultValue: Value,
   compositingRef: React.MutableRefObject<boolean>,
+  form: FormModel<unknown>,
 ) {
   return useMemo(() => {
     let model: FieldModel<Value>;
@@ -54,9 +55,8 @@ function useModelAndChildProps<Value>(
     const childProps: IFormFieldChildProps<Value> = {
       value,
       onChange(value: Value) {
-        model.pristine = false;
-        model.touched = true;
-        model.value = value;
+        model.value$.next(value);
+        form.change$.next();
       },
       onCompositionStart() {
         compositingRef.current = true;
@@ -69,14 +69,14 @@ function useModelAndChildProps<Value>(
         parent.validate();
       },
       onFocus() {
-        model.touched = true;
+        model._touched = true;
       },
     };
     return {
       childProps,
       model,
     };
-  }, [field, parent, strategy]);
+  }, [field, parent, strategy, form]);
 }
 
 class ScheduledSubsciber<T> implements NextObserver<T> {
@@ -155,7 +155,14 @@ export function useField<Value>(
 ): IUseField<Value> {
   const { parent, strategy, validate$, form } = useFormContext();
   const compositingRef = useRef(false);
-  const { childProps, model } = useModelAndChildProps(field, parent, strategy, defaultValue as Value, compositingRef);
+  const { childProps, model } = useModelAndChildProps(
+    field,
+    parent,
+    strategy,
+    defaultValue as Value,
+    compositingRef,
+    form,
+  );
   const { value$, error$, validateSelf$ } = model;
   const value = useValue$(value$, value$.getValue());
   /**
