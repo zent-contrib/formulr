@@ -1,6 +1,5 @@
-import { BasicModel, FieldSetModel, FieldModel, FieldArrayModel, FormModel } from './models';
+import { BasicModel, FieldSetModel, FieldModel, FieldArrayModel, FormModel, FieldSetValue } from './models';
 import { IValidator } from './validate';
-import { FieldSetValue } from './utils';
 
 export function field<T>(defaultValue: T, validators: IValidator<T>[] = []) {
   const model = new FieldModel(defaultValue);

@@ -1,6 +1,9 @@
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { IValidator, ValidateStrategy, IMaybeError } from './validate';
-import { FieldSetValue } from './utils';
+
+export type FieldSetValue<Children> = {
+  [key in keyof Children]: Children[key] extends BasicModel<any> ? Children[key]['$$value'] : never
+};
 
 export enum FormStrategy {
   Model,
@@ -16,6 +19,7 @@ export abstract class BasicModel<Value> {
   validators: Array<IValidator<Value>> = [];
   /** @internal */
   initialValue: Value | undefined = undefined;
+  destroyOnUnmount = false;
 
   abstract getRawValue(): Value;
 
@@ -148,6 +152,11 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
   /** @internal */
   registerChild(name: string, model: BasicModel<unknown>) {
     (this.children as any)[name] = model;
+  }
+
+  /** @internal */
+  removeChild(name: string) {
+    delete (this.children as any)[name];
   }
 
   valid() {

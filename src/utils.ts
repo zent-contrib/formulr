@@ -1,9 +1,5 @@
 import { IMaybeError } from './validate';
-import { FieldSetModel, BasicModel } from './models';
-
-export type FieldSetValue<Children> = {
-  [key in keyof Children]: Children[key] extends BasicModel<any> ? Children[key]['$$value'] : never
-};
+import { FieldSetModel } from './models';
 
 /**
  * same algorithm as lodash.isPlainObject
