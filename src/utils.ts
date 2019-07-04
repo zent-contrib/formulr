@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { IMaybeError } from './validate';
-import { FieldSetModel } from './models';
+import { FieldSetModel, BasicModel } from './models';
 
 /**
  * same algorithm as lodash.isPlainObject
@@ -40,4 +41,19 @@ export function getValueFromParentOrDefault<T>(parent: FieldSetModel, name: stri
     }
   }
   return defaultValue;
+}
+
+export function removeOnUnmount(
+  field: string | BasicModel<any>,
+  model: BasicModel<any>,
+  parent: FieldSetModel<unknown>,
+) {
+  useEffect(
+    () => () => {
+      if (typeof field === 'string' && model.destroyOnUnmount) {
+        parent.removeChild(field);
+      }
+    },
+    [],
+  );
 }

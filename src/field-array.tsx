@@ -5,7 +5,7 @@ import { FieldArrayModel, BasicModel, FormStrategy, FieldSetModel } from './mode
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
-import { getValueFromParentOrDefault } from './utils';
+import { getValueFromParentOrDefault, removeOnUnmount } from './utils';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [Child[], FieldArrayModel<Item, Child>];
 
@@ -73,5 +73,6 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [model, parent]);
+  removeOnUnmount(field, model, parent);
   return [model.children$.getValue(), model];
 }

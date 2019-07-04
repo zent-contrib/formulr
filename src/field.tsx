@@ -7,7 +7,7 @@ import { FieldModel, BasicModel, FormStrategy, FieldSetModel, FormModel } from '
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { ValidateStrategy, validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
-import { getValueFromParentOrDefault } from './utils';
+import { getValueFromParentOrDefault, removeOnUnmount } from './utils';
 
 const {
   unstable_scheduleCallback: scheduleCallback,
@@ -181,5 +181,6 @@ export function useField<Value>(
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [value$, validate$, validateSelf$, model, form, parent]);
+  removeOnUnmount(field, model, parent);
   return [childProps, model];
 }
