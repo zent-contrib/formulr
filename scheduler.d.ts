@@ -8,13 +8,17 @@ declare module 'scheduler' {
     prev: CallbackNode | null;
   }
 
+  export interface IScheduleCallbackOptions {
+    delay?: number;
+  }
+
   export const unstable_ImmediatePriority: number;
   export const unstable_UserBlockingPriority: number;
   export const unstable_NormalPriority: number;
   export const unstable_IdlePriority: number;
   export const unstable_LowPriority: number;
   export function unstable_runWithPriority<T>(priorityLevel: number, eventHandler: () => T): T | undefined;
-  export function unstable_scheduleCallback(priorityLevel: number, callback: FrameCallbackType): CallbackNode;
+  export function unstable_scheduleCallback(priorityLevel: number, callback: FrameCallbackType, options?: IScheduleCallbackOptions): CallbackNode;
   export function unstable_cancelCallback(callbackNode: CallbackNode): void;
   export function unstable_wrapCallback(callback: FrameCallbackType): () => FrameCallbackType | undefined;
   export function unstable_getCurrentPriorityLevel(): number;
