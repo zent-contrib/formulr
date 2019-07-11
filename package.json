@@ -6,7 +6,7 @@
   "module": "./esm/index.js",
   "types": "./esm/index.d.ts",
   "scripts": {
-    "dev": "docz dev",
+    "dev": "webpack-dev-server --progress",
     "build:esm": "rimraf ./esm && tsc --module es2015 --outDir esm",
     "build:cmd": "rimraf ./cmd && tsc --module commonjs --outDir cmd",
     "build": "npm run build:esm && npm run build:cmd",
@@ -45,11 +45,17 @@
     "utility-types": "^3.5.0"
   },
   "devDependencies": {
-    "docz": "^1.1.0",
-    "docz-theme-default": "^1.1.0",
+    "@babel/core": "^7.5.0",
+    "@babel/preset-react": "^7.0.0",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.6",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.8.0",
     "rimraf": "^2.6.3",
-    "typescript": "~3.4.0"
+    "typescript": "~3.4.0",
+    "webpack": "^4.35.2",
+    "webpack-bundle-analyzer": "^3.3.2",
+    "webpack-cli": "^3.3.5",
+    "webpack-dev-server": "^3.7.2"
   }
 }
