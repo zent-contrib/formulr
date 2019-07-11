@@ -117,6 +117,9 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
   /** @internal */
   patchedValue: FieldSetValue<Children> | null = null;
 
+  childRegister$ = new Subject();
+  childRemoved$ = new Subject();
+
   /** @internal */
   constructor(defaultValue: Children) {
     super();
@@ -152,11 +155,13 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
   /** @internal */
   registerChild(name: string, model: BasicModel<unknown>) {
     (this.children as any)[name] = model;
+    this.childRegister$.next();
   }
 
   /** @internal */
   removeChild(name: string) {
     delete (this.children as any)[name];
+    this.childRemoved$.next();
   }
 
   valid() {
@@ -242,6 +247,10 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
     }
     return false;
   }
+
+  get<Name extends keyof Children>(name: Name): Children[Name] | undefined | null {
+    return this.children[name];
+  } 
 }
 
 export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends BasicModel<Item[]> {
