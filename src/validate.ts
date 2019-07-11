@@ -1,5 +1,5 @@
 import { Observable, Subscriber, isObservable, from, NextObserver, empty, never } from 'rxjs';
-import { catchError, map, concatAll, filter, startWith, take } from 'rxjs/operators';
+import { catchError, map, concatAll, filter, take } from 'rxjs/operators';
 import { BasicModel, FormModel, FieldSetModel } from './models';
 import { isPromise, notNull } from './utils';
 
@@ -23,6 +23,7 @@ export enum ValidateStrategy {
 export interface IValidator<Value> {
   (input: Value, ctx: ValidatorContext): ValidatorResult<Value> | null;
   isAsync?: boolean;
+  $$id?: symbol;
 }
 
 export type ValidatorResult<T> = IMaybeError<T> | Promise<IMaybeError<T>> | Observable<IMaybeError<T>>;
@@ -106,6 +107,8 @@ function filterAsync<T>(skipAsync: boolean, validator: IValidator<T>) {
 }
 
 class ValidatorExecutor<T> {
+  private prevValue: T | null = null;
+
   constructor(private readonly model: BasicModel<T>, private readonly ctx: ValidatorContext) {}
 
   call(strategy: ValidateStrategy): Observable<IMaybeError<T>> {
@@ -113,6 +116,10 @@ class ValidatorExecutor<T> {
       return never();
     }
     const value = this.model.getRawValue();
+    if (Object.is(value, this.prevValue)) {
+      return never();
+    }
+    this.prevValue = value;
     const skipAsync = (strategy & ValidateStrategy.IgnoreAsync) > 0;
     return from(this.model.validators).pipe(
       filter(validator => filterAsync(skipAsync, validator)),
@@ -122,7 +129,6 @@ class ValidatorExecutor<T> {
       concatAll(),
       filter(notNull),
       take(1),
-      startWith(null),
     );
   }
 }

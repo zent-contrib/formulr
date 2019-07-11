@@ -1,5 +1,5 @@
 import Decimal from 'big.js';
-import { IValidator, IValidateResult } from './validate';
+import { IValidator, IMaybeError } from './validate';
 
 const EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
 
@@ -8,8 +8,10 @@ function isEmptyInputValue(value: any) {
   return value == null || value.length === 0;
 }
 
+export const REQUIRED = Symbol('required');
+
 export function min(limit: number | string, message?: string) {
-  return function min(value: number | string): IValidateResult<number | string> | null {
+  return function min(value: number | string): IMaybeError<number | string> {
     if (isEmptyInputValue(value)) {
       return null;
     }
@@ -36,7 +38,7 @@ export function min(limit: number | string, message?: string) {
 }
 
 export function max(limit: number, message?: string) {
-  return function max(value: number | string): IValidateResult<number | string> | null {
+  return function max(value: number | string): IMaybeError<number | string> | null {
     if (isEmptyInputValue(value)) {
       return null;
     }
@@ -72,6 +74,7 @@ export function required(message?: string): IValidator<any> {
         }
       : null;
   }
+  required.$$id = REQUIRED;
   return required;
 }
 
