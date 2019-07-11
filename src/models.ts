@@ -48,6 +48,8 @@ export class FieldModel<Value> extends BasicModel<Value> {
   readonly value$: BehaviorSubject<Value>;
   /** @internal */
   _touched = false;
+  /** @internal */
+  change$ = new Subject();
 
   /** @internal */
   constructor(private readonly defaultValue: Value) {
