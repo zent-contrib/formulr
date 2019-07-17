@@ -34,7 +34,7 @@ function useModelAndChildProps<Value>(
   field: FieldModel<Value> | string,
   parent: FieldSetModel,
   strategy: FormStrategy,
-  defaultValue: Value,
+  defaultValue: Value | (() => Value),
   compositingRef: React.MutableRefObject<boolean>,
   form: FormModel<unknown>,
 ) {
