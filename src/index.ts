@@ -8,4 +8,5 @@ export * from './models';
 export * from './validate';
 export * from './context';
 export * from './hooks';
+export * from './value-listener';
 export { Validators };

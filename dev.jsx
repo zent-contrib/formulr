@@ -1,7 +1,16 @@
 import React, { useCallback } from 'react';
 import ReactDOM from 'react-dom';
 
-import { useForm, useField, FormStrategy, FormProvider, Validators, useFieldSet } from './src';
+import {
+  useForm,
+  useField,
+  FormStrategy,
+  FormProvider,
+  Validators,
+  useFieldSet,
+  FieldValue,
+  FieldSetValue,
+} from './src';
 
 function asyncValidator() {
   return new Promise(resolve => {
@@ -42,15 +51,19 @@ const App = () => {
   console.log('App render');
   return (
     <FormProvider value={form.ctx}>
-      {Array(1000)
+      {/* {Array(1000)
         .fill()
         .map((_, index) => (
           <Input key={index} name={`input${index}`} />
-        ))}
+        ))} */}
       <FieldSet name="fieldset">
         <Input name="input1" />
+        <FieldValue name="input1" />
         <Input name="input2" />
       </FieldSet>
+      <FieldSetValue name="fieldset">
+        <FieldValue name="input1" />
+      </FieldSetValue>
     </FormProvider>
   );
 };

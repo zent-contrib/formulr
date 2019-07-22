@@ -94,7 +94,7 @@ export function useField<Value>(field: FieldModel<Value>): IUseField<Value>;
 
 export function useField<Value>(
   field: FieldModel<Value> | string,
-  defaultValue?: Value,
+  defaultValue?: Value | (() => Value),
   validators: Array<IValidator<Value>> = [],
 ): IUseField<Value> {
   const { parent, strategy, validate$, form } = useFormContext();
@@ -103,7 +103,7 @@ export function useField<Value>(
     field,
     parent,
     strategy,
-    defaultValue as Value,
+    defaultValue as Value | (() => Value),
     compositingRef,
     form,
   );
@@ -124,7 +124,7 @@ export function useField<Value>(
       validate$,
       validateSelf$,
       model.change$.pipe(
-        mapTo(ValidateStrategy.Normal),
+        mapTo(ValidateStrategy.Default),
         audit(batch),
       ),
     )

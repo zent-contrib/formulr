@@ -14,11 +14,25 @@ export interface IValidateResult<T> {
 export type IMaybeError<T> = IValidateResult<T> | null;
 
 export enum ValidateStrategy {
-  Normal = 0b0000,
-  IgnoreAsync = 0b0010,
+  Default = 0b0000,
+  IncludeAsync = 0b0010,
   IncludeUntouched = 0b0100,
   IncludeChildren = 0b1000,
 }
+
+export enum ValidatePoint {
+  OnChange = 0b0001,
+  // onBl
+// onBlur
+// onFocus
+}
+
+// export enum ValidateStrategy {
+//   Normal = 0b0000,
+//   IgnoreAsync = 0b0010,
+//   IncludeUntouched = 0b0100,
+//   IncludeChildren = 0b1000,
+// }
 
 export interface IValidator<Value> {
   (input: Value, ctx: ValidatorContext): ValidatorResult<Value> | null;
@@ -36,9 +50,6 @@ function resultToSubscriber<T>(
 ) {
   try {
     const a = validator(value, ctx);
-    if (a === null) {
-      subscriber.complete();
-    }
     let observable: Observable<IMaybeError<T>>;
     if (isPromise<IMaybeError<T>>(a)) {
       observable = from(a);
@@ -120,7 +131,7 @@ class ValidatorExecutor<T> {
       return never();
     }
     this.prevValue = value;
-    const skipAsync = (strategy & ValidateStrategy.IgnoreAsync) > 0;
+    const skipAsync = (strategy & ValidateStrategy.IncludeAsync) === 0;
     return from(this.model.validators).pipe(
       filter(validator => filterAsync(skipAsync, validator)),
       map(validator => {

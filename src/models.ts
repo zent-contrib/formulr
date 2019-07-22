@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { IValidator, ValidateStrategy, IMaybeError } from './validate';
 
-export type FieldSetValue<Children> = {
+export type IFieldSetValue<Children> = {
   [key in keyof Children]: Children[key] extends BasicModel<any> ? Children[key]['$$value'] : never
 };
 
@@ -91,7 +91,7 @@ export class FieldModel<Value> extends BasicModel<Value> {
     this.value$.next(value);
   }
 
-  validate(strategy = ValidateStrategy.Normal) {
+  validate(strategy = ValidateStrategy.Default) {
     this.validateSelf$.next(strategy);
   }
 
@@ -112,12 +112,12 @@ export class FieldModel<Value> extends BasicModel<Value> {
   }
 }
 
-export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> extends BasicModel<FieldSetValue<Children>> {
+export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> extends BasicModel<IFieldSetValue<Children>> {
   readonly children: Children;
   /** @internal */
   readonly validateChildren$ = new Subject<ValidateStrategy>();
   /** @internal */
-  patchedValue: FieldSetValue<Children> | null = null;
+  patchedValue: IFieldSetValue<Children> | null = null;
 
   childRegister$ = new Subject<string>();
   childRemoved$ = new Subject<string>();
@@ -130,7 +130,7 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
     };
   }
 
-  initialize(values: FieldSetValue<Children>) {
+  initialize(values: IFieldSetValue<Children>) {
     this.initialValue = values;
     const keys = Object.keys(values);
     for (let i = 0; i < keys.length; i += 1) {
@@ -142,7 +142,7 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
     }
   }
 
-  getRawValue(): FieldSetValue<Children> {
+  getRawValue(): IFieldSetValue<Children> {
     const value: any = {};
     const childrenKeys = Object.keys(this.children);
     for (let i = 0; i < childrenKeys.length; i++) {
@@ -181,7 +181,7 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
     return true;
   }
 
-  patchValue(value: FieldSetValue<Children>) {
+  patchValue(value: IFieldSetValue<Children>) {
     this.patchedValue = value;
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i += 1) {
@@ -215,7 +215,7 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
     }
   }
 
-  validate(strategy = ValidateStrategy.Normal) {
+  validate(strategy = ValidateStrategy.Default) {
     this.validateSelf$.next(strategy);
     if (strategy & ValidateStrategy.IncludeChildren) {
       this.validateChildren$.next(strategy);
@@ -362,7 +362,7 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends Basic
     return ret;
   }
 
-  validate(strategy = ValidateStrategy.Normal) {
+  validate(strategy = ValidateStrategy.Default) {
     this.validateSelf$.next(strategy);
     if (strategy & ValidateStrategy.IncludeChildren) {
       this.validateChildren$.next(strategy);
