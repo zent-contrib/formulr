@@ -1,7 +1,7 @@
 import { Observable, Subscriber, isObservable, from, NextObserver, empty, never } from 'rxjs';
 import { catchError, map, concatAll, filter, take } from 'rxjs/operators';
 import { BasicModel, FormModel, FieldSetModel } from './models';
-import { isPromise, notNull } from './utils';
+import { isPromise } from './utils';
 
 export interface IValidateResult<T> {
   name: string;
@@ -19,20 +19,6 @@ export enum ValidateStrategy {
   IncludeUntouched = 0b0100,
   IncludeChildren = 0b1000,
 }
-
-export enum ValidatePoint {
-  OnChange = 0b0001,
-  // onBl
-  // onBlur
-  // onFocus
-}
-
-// export enum ValidateStrategy {
-//   Normal = 0b0000,
-//   IgnoreAsync = 0b0010,
-//   IncludeUntouched = 0b0100,
-//   IncludeChildren = 0b1000,
-// }
 
 export interface IValidator<Value> {
   (input: Value, ctx: ValidatorContext): ValidatorResult<Value> | null;

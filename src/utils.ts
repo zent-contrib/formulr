@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { IMaybeError } from './validate';
 import { FieldSetModel, BasicModel } from './models';
 
 export function isPromise<T>(maybePromise: any): maybePromise is Promise<T> {
@@ -7,10 +6,6 @@ export function isPromise<T>(maybePromise: any): maybePromise is Promise<T> {
     return false;
   }
   return typeof maybePromise.then === 'function';
-}
-
-export function notNull<T>(value: IMaybeError<T>) {
-  return value !== null;
 }
 
 export function getValueFromParentOrDefault<T>(parent: FieldSetModel, name: string, defaultValue: T | (() => T)): T {
