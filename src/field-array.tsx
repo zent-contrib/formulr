@@ -21,7 +21,7 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
       if (strategy !== FormStrategy.View) {
         throw new Error();
       }
-      const m = parent.children[field];
+      const m = parent.get(field);
       if (!m || !(m instanceof FieldArrayModel)) {
         model = new FieldArrayModel(factory);
         const v = getValueFromParentOrDefault(parent, field, []);

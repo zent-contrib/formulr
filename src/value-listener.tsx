@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ReactNode, useEffect, useState, useMemo } from 'react';
 import { merge, empty } from 'rxjs';
-import { useFormContext, FormContext } from './context';
+import { useFormContext, FormContext, IFormContext } from './context';
 import { useValue$ } from './hooks';
 import { FieldModel, FieldSetModel, FieldArrayModel, BasicModel } from './models';
 
@@ -12,26 +12,26 @@ export interface IFieldSetValueProps {
 
 function subscribeParent(parent: FieldSetModel<any>, model: BasicModel<any> | null | undefined, name: unknown) {
   const [, setModel] = useState(model);
-  useEffect(() => {
+  const $ = useMemo(() => {
     if (typeof name !== 'string') {
-      return () => {};
+      return null;
     }
-    const $ = merge(parent.childRegister$, parent.childRemoved$).subscribe(changedName => {
+    return merge(parent.childRegister$, parent.childRemove$).subscribe(changedName => {
       if (changedName === name) {
         setModel(parent.get(name));
       }
     });
-    return $.unsubscribe.bind($);
-  }, [parent, name]);
+  }, [name]);
+  useEffect(() => ($ !== null ? $.unsubscribe.bind($) : () => {}), [parent, $]);
 }
 
 export function FieldSetValue({ name, children }: IFieldSetValueProps) {
   const { parent, strategy, form } = useFormContext();
   const model = parent.get(name) as FieldSetModel<any>;
   subscribeParent(parent, model, name);
-  const childContext = useMemo(
+  const childContext = useMemo<IFormContext>(
     () => ({
-      validate$: model.validateChildren$,
+      validate$: empty(),
       strategy,
       form,
       parent: model as FieldSetModel,

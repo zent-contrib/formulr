@@ -82,11 +82,10 @@ export class ValidatorContext {
     if (names.length === 0) {
       return this.parent.getRawValue() as any;
     }
-    const { children } = this.parent;
     const data: Record<string, unknown> = {};
     for (let i = 0; i < names.length; i += 1) {
       const name = names[i];
-      const model = children[name];
+      const model = this.parent.get(name);
       if (model) {
         data[name] = model.getRawValue();
       }

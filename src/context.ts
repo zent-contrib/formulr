@@ -1,10 +1,10 @@
 import { createContext, useContext } from 'react';
-import { Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { FormStrategy, FormModel, FieldSetModel } from './models';
 import { ValidateStrategy } from './validate';
 
 export interface IFormContext {
-  validate$: Subject<ValidateStrategy>;
+  validate$: Observable<ValidateStrategy>;
   strategy: FormStrategy;
   form: FormModel<any>;
   parent: FieldSetModel;

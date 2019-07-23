@@ -44,7 +44,7 @@ function useModelAndChildProps<Value>(
       if (strategy !== FormStrategy.View) {
         throw new Error();
       }
-      const m = parent.children[field];
+      const m = parent.get(field);
       if (!m || !(m instanceof FieldModel)) {
         const v = getValueFromParentOrDefault(parent, field, defaultValue);
         model = new FieldModel<Value>(v);

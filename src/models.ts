@@ -113,14 +113,14 @@ export class FieldModel<Value> extends BasicModel<Value> {
 }
 
 export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> extends BasicModel<IFieldSetValue<Children>> {
-  readonly children: Children;
+  private readonly children: Children;
   /** @internal */
   readonly validateChildren$ = new Subject<ValidateStrategy>();
   /** @internal */
   patchedValue: IFieldSetValue<Children> | null = null;
 
   childRegister$ = new Subject<string>();
-  childRemoved$ = new Subject<string>();
+  childRemove$ = new Subject<string>();
 
   /** @internal */
   constructor(defaultValue: Children) {
@@ -163,7 +163,7 @@ export class FieldSetModel<Children = Record<string, BasicModel<unknown>>> exten
   /** @internal */
   removeChild(name: string) {
     delete (this.children as any)[name];
-    this.childRemoved$.next(name);
+    this.childRemove$.next(name);
   }
 
   valid() {

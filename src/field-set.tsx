@@ -20,7 +20,7 @@ function useFieldSetModel<T extends object>(
       if (strategy !== FormStrategy.View) {
         throw new Error();
       }
-      const m = parent.children[field];
+      const m = parent.get(field);
       if (!m || !(m instanceof FieldSetModel)) {
         model = new FieldSetModel({});
         const v = getValueFromParentOrDefault<T>(parent, field, {} as T);
