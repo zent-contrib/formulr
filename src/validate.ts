@@ -23,8 +23,8 @@ export enum ValidateStrategy {
 export enum ValidatePoint {
   OnChange = 0b0001,
   // onBl
-// onBlur
-// onFocus
+  // onBlur
+  // onFocus
 }
 
 // export enum ValidateStrategy {
@@ -134,11 +134,11 @@ class ValidatorExecutor<T> {
     const skipAsync = (strategy & ValidateStrategy.IncludeAsync) === 0;
     return from(this.model.validators).pipe(
       filter(validator => filterAsync(skipAsync, validator)),
-      map(validator => {
-        return new Observable<IMaybeError<T>>(subscriber => resultToSubscriber(subscriber, validator, this.ctx, value));
-      }),
+      map(
+        validator =>
+          new Observable<IMaybeError<T>>(subscriber => resultToSubscriber(subscriber, validator, this.ctx, value)),
+      ),
       concatAll(),
-      filter(notNull),
       take(1),
     );
   }
