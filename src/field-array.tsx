@@ -1,19 +1,21 @@
 import { merge } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { useEffect, useMemo } from 'react';
-import { FieldArrayModel, BasicModel, FormStrategy, FieldSetModel } from './models';
+import { FieldArrayModel, BasicModel, FormStrategy, FieldSetModel, FieldArrayChild } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
 import { getValueFromParentOrDefault, removeOnUnmount } from './utils';
 
-export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [Child[], FieldArrayModel<Item, Child>];
+export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
+  FieldArrayChild<Item, Child>[],
+  FieldArrayModel<Item, Child>,
+];
 
 function useArrayModel<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item, Child>,
   parent: FieldSetModel,
   strategy: FormStrategy,
-  factory: (item: Item) => Child,
 ) {
   return useMemo(() => {
     let model: FieldArrayModel<Item, Child>;
@@ -23,7 +25,7 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
       }
       const m = parent.get(field);
       if (!m || !(m instanceof FieldArrayModel)) {
-        model = new FieldArrayModel(factory);
+        model = new FieldArrayModel<Item, Child>(null, []);
         const v = getValueFromParentOrDefault(parent, field, []);
         if (Array.isArray(v)) {
           model.initialize(v);
@@ -36,13 +38,12 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
       model = field;
     }
     return model;
-  }, [field, parent, strategy, factory]);
+  }, [field, parent, strategy]);
 }
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string,
-  factory: (item: Item) => Child,
-  validators?: Array<IValidator<Array<Item>>>,
+  validators?: Array<IValidator<Array<Item | null>>>,
 ): IUseFieldArray<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
@@ -51,11 +52,10 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item, Child>,
-  factory?: (item: Item) => Child,
-  validators: Array<IValidator<Array<Item>>> = [],
+  validators: Array<IValidator<Array<Item | null>>> = [],
 ): IUseFieldArray<Item, Child> {
   const { parent, strategy, validate$: parentValidate$, form } = useFormContext();
-  const model = useArrayModel(field, parent, strategy, factory as (item: Item) => Child);
+  const model = useArrayModel(field, parent, strategy);
   if (typeof field === 'string') {
     model.validators = validators;
   }

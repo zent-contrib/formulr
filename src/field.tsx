@@ -36,7 +36,7 @@ function useModelAndChildProps<Value>(
   strategy: FormStrategy,
   defaultValue: Value | (() => Value),
   compositingRef: React.MutableRefObject<boolean>,
-  form: FormModel<unknown>,
+  form: FormModel,
 ) {
   return useMemo(() => {
     let model: FieldModel<Value>;

@@ -7,9 +7,9 @@ import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
 import { getValueFromParentOrDefault, removeOnUnmount } from './utils';
 
-export type IUseFieldSet<T> = [IFormContext, FieldSetModel<T>];
+export type IUseFieldSet<T extends Record<string, BasicModel<any>>> = [IFormContext, FieldSetModel<T>];
 
-function useFieldSetModel<T extends object>(
+function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
   field: string | FieldSetModel<T>,
   parent: FieldSetModel,
   strategy: FormStrategy,
@@ -36,7 +36,7 @@ function useFieldSetModel<T extends object>(
   }, [field, parent, strategy]);
 }
 
-export function useFieldSet<T extends object>(
+export function useFieldSet<T extends Record<string, BasicModel<any>>>(
   field: string | FieldSetModel<T>,
   validators: Array<IValidator<T>> = [],
 ): IUseFieldSet<T> {
