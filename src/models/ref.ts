@@ -15,7 +15,7 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
    */
   constructor(
     private current: Model | null = null,
-    public initialValue: Value,
+    public initialValue: Value | null = null,
     private ctx: IModelRefContext<Parent>,
   ) {}
 

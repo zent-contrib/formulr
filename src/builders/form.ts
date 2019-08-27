@@ -1,11 +1,8 @@
 import { BasicBuilder } from './basic';
 import { FieldSetModel, $FieldSetValue } from '../models';
+import { $FieldSetBuilderChildren } from './set';
 
-export type $FieldSetBuilderChildren<ChildBuilders extends Record<string, BasicBuilder<any, any>>> = {
-  [Key in keyof ChildBuilders]: ChildBuilders[Key]['phantomModel']
-};
-
-export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<any, any>>> extends BasicBuilder<
+export class FormBuilder<ChildBuilders extends Record<string, BasicBuilder<any, any>>> extends BasicBuilder<
   $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
   FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>
 > {

@@ -1,12 +1,13 @@
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { FieldSetModel } from './set';
+import { BasicModel } from './basic';
 
 export enum FormStrategy {
   Model,
   View,
 }
 
-export class FormModel<T> extends FieldSetModel<T> {
+export class FormModel<Children extends Record<string, BasicModel<any>>> extends FieldSetModel<Children> {
   /** @internal */
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);

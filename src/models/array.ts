@@ -2,28 +2,41 @@ import { Subject, BehaviorSubject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
 import { ValidateStrategy } from '../validate';
 import { ModelRef, isModelRef } from './ref';
+import { BasicBuilder } from '../builders/basic';
 
 export type FieldArrayChild<Item, Child extends BasicModel<Item>> =
   | Child
-  | ModelRef<Item, FieldArrayModel<Item, Child>>;
+  | ModelRef<Item, FieldArrayModel<Item, Child>, Child>;
 
 export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends BasicModel<Array<Item | null>> {
-  readonly children$ = new BehaviorSubject<FieldArrayChild<Item, Child>>([]);
+  readonly children$: BehaviorSubject<Array<FieldArrayChild<Item, Child>>>;
   /** @internal */
   readonly validateChildren$ = new Subject<ValidateStrategy>();
 
+  private readonly childFactory: (defaultValue: Item | null) => FieldArrayChild<Item, Child>;
+
   /** @internal */
-  constructor(private readonly defaultValue: Item[] = []) {
+  constructor(childBuilder: BasicBuilder<Item, Child> | null, private readonly defaultValue: (Item | null)[]) {
     super();
+    this.childFactory = childBuilder
+      ? (defaultValue: Item | null) => childBuilder.build(defaultValue)
+      : (defaultValue: Item | null) =>
+          new ModelRef<Item, FieldArrayModel<Item, Child>, Child>(null, defaultValue, {
+            owner: this,
+          });
+    const children = this.defaultValue.map(this.childFactory);
+    this.children$ = new BehaviorSubject(children);
   }
 
   reset() {
-    // this.children$.next((this.initialValue || this.defaultValue).map(this.factory));
+    const children = (this.initialValue || this.defaultValue).map(this.childFactory);
+    this.children$.next(children);
   }
 
   clear() {
     this.initialValue = undefined;
-    // this.children$.next(this.defaultValue.map(this.factory));
+    const children = this.defaultValue.map(this.childFactory);
+    this.children$.next(children);
   }
 
   get children() {
@@ -88,12 +101,12 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends Basic
 
   initialize(values: Item[]) {
     this.initialValue = values;
-    // this.children$.next(values.map(this.factory));
+    this.children$.next(values.map(this.childFactory));
   }
 
-  push(...items: Array<Item>) {
-    // const nextChildren: Child[] = this.children$.getValue().concat(items.map(this.factory));
-    // this.children$.next(nextChildren);
+  push(...items: Item[]) {
+    const nextChildren: FieldArrayChild<Item, Child>[] = this.children$.getValue().concat(items.map(this.childFactory));
+    this.children$.next(nextChildren);
   }
 
   pop() {
@@ -110,19 +123,16 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends Basic
     return child;
   }
 
-  unshift(...items: Array<Item>) {
-    // const nextChildren = items.map(this.factory).concat(this.children$.getValue());
-    // this.children$.next(nextChildren);
+  unshift(...items: Item[]) {
+    const nextChildren = items.map(this.childFactory).concat(this.children$.getValue());
+    this.children$.next(nextChildren);
   }
 
-  splice(start: number, deleteCount?: number): BasicModel<Item | null>[];
-
-  splice(start: number, deleteCount: number, ...items: Array<Item>): BasicModel<Item | null>[] {
-    // const children = this.children$.getValue().slice();
-    // const ret = children.splice(start, deleteCount, ...items.map(this.factory));
-    // this.children$.next(children);
-    // return ret;
-    return [];
+  splice(start: number, deleteCount: number = 0, ...items: Array<Item>): FieldArrayChild<Item, Child>[] {
+    const children = this.children$.getValue().slice();
+    const ret = children.splice(start, deleteCount, ...items.map(this.childFactory));
+    this.children$.next(children);
+    return ret;
   }
 
   validate(strategy = ValidateStrategy.Default) {

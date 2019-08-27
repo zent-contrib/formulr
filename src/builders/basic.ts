@@ -12,7 +12,7 @@ export abstract class BasicBuilder<Value, Model extends BasicModel<Value>> {
   readonly phantomModel!: Model;
   protected _validators: Array<IValidator<Value>> = [];
 
-  abstract build(): Model;
+  abstract build(defaultValue?: Value | null): Model;
 
   validators(validators: Array<IValidator<Value>>) {
     this._validators = validators;

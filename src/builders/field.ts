@@ -6,8 +6,8 @@ export class FieldBuilder<Value> extends BasicBuilder<Value, FieldModel<Value>> 
     super();
   }
 
-  build() {
-    const model = new FieldModel(this._defaultValue);
+  build(defaultValue?: Value | null) {
+    const model = new FieldModel(defaultValue || this._defaultValue);
     model.validators = this._validators;
     return model;
   }

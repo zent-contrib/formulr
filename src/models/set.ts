@@ -6,8 +6,6 @@ export type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue']
 };
 
-export type $FieldSetChildren<Values> = { [Key in keyof Values]: BasicModel<Values[Key]> };
-
 export class FieldSetModel<Children extends Record<string, BasicModel<any>>> extends BasicModel<
   $FieldSetValue<Children>
 > {
