@@ -8,7 +8,9 @@ export type FieldArrayChild<Item, Child extends BasicModel<Item>> =
   | Child
   | ModelRef<Item, FieldArrayModel<Item, Child>, Child>;
 
-export class FieldArrayModel<Item, Child extends BasicModel<Item>> extends BasicModel<Array<Item | null>> {
+export class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> extends BasicModel<
+  Array<Item | null>
+> {
   readonly children$: BehaviorSubject<Array<FieldArrayChild<Item, Child>>>;
   /** @internal */
   readonly validateChildren$ = new Subject<ValidateStrategy>();

@@ -7,7 +7,9 @@ export enum FormStrategy {
   View,
 }
 
-export class FormModel<Children extends Record<string, BasicModel<any>>> extends FieldSetModel<Children> {
+export class FormModel<
+  Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
+> extends FieldSetModel<Children> {
   /** @internal */
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);

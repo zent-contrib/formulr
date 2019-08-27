@@ -3,12 +3,12 @@ import { BasicModel, isModel } from './basic';
 import { ValidateStrategy } from '../validate';
 
 export type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
-  [Key in keyof Children]: Children[Key]['phantomValue']
+  [Key in keyof Children]: Children[Key]['phantomValue'];
 };
 
-export class FieldSetModel<Children extends Record<string, BasicModel<any>>> extends BasicModel<
-  $FieldSetValue<Children>
-> {
+export class FieldSetModel<
+  Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
+> extends BasicModel<$FieldSetValue<Children>> {
   /** @internal */
   readonly validateChildren$ = new Subject<ValidateStrategy>();
   /** @internal */
