@@ -1,11 +1,19 @@
 import { merge } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { useEffect, useMemo } from 'react';
-import { FieldArrayModel, BasicModel, FormStrategy, FieldSetModel, FieldArrayChild } from './models';
+import {
+  FieldArrayModel,
+  BasicModel,
+  FormStrategy,
+  FieldSetModel,
+  FieldArrayChild,
+  ModelRef,
+  isModelRef,
+} from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
-import { getValueFromParentOrDefault, removeOnUnmount } from './utils';
+import { removeOnUnmount, orElse } from './utils';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
   FieldArrayChild<Item, Child>[],
@@ -13,9 +21,10 @@ export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
 ];
 
 function useArrayModel<Item, Child extends BasicModel<Item>>(
-  field: string | FieldArrayModel<Item, Child>,
+  field: string | FieldArrayModel<Item, Child> | ModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>,
   parent: FieldSetModel,
   strategy: FormStrategy,
+  defaultValue: readonly (Item | Child)[],
 ) {
   return useMemo(() => {
     let model: FieldArrayModel<Item, Child>;
@@ -25,12 +34,18 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
       }
       const m = parent.get(field);
       if (!m || !(m instanceof FieldArrayModel)) {
-        model = new FieldArrayModel<Item, Child>(null, []);
-        const v = getValueFromParentOrDefault(parent, field, []);
-        if (Array.isArray(v)) {
-          model.initialize(v);
-        }
+        const v = orElse(Array.isArray, parent.getPatchedValue(field), defaultValue);
+        model = new FieldArrayModel<Item, Child>(null, v);
         parent.registerChild(field, model as BasicModel<unknown>);
+      } else {
+        model = m;
+      }
+    } else if (isModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>(field)) {
+      const m = field.getModel();
+      if (!m || !(m instanceof FieldArrayModel)) {
+        const v = orElse(Array.isArray, field.patchedValue, field.initialValue, []);
+        model = new FieldArrayModel(null, v);
+        field.setModel(model);
       } else {
         model = m;
       }
@@ -42,8 +57,9 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
 }
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
-  field: string,
-  validators?: Array<IValidator<Array<Item | null>>>,
+  field: string | ModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>,
+  validators?: readonly IValidator<readonly (Item | null)[]>[],
+  defaultValue?: Item[],
 ): IUseFieldArray<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
@@ -51,11 +67,12 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
 ): IUseFieldArray<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
-  field: string | FieldArrayModel<Item, Child>,
-  validators: Array<IValidator<Array<Item | null>>> = [],
+  field: string | FieldArrayModel<Item, Child> | ModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>,
+  validators: readonly IValidator<readonly (Item | null)[]>[] = [],
+  defaultValue: readonly Item[] = [],
 ): IUseFieldArray<Item, Child> {
   const { parent, strategy, validate$: parentValidate$, form } = useFormContext();
-  const model = useArrayModel(field, parent, strategy);
+  const model = useArrayModel(field, parent, strategy, defaultValue);
   if (typeof field === 'string') {
     model.validators = validators;
   }

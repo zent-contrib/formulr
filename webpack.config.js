@@ -2,7 +2,7 @@ const HtmlPlugin = require('html-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 module.exports = {
-  entry: './dev.jsx',
+  entry: './dev.tsx',
   module: {
     rules: [
       {

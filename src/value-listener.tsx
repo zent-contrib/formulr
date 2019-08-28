@@ -45,7 +45,7 @@ export function FieldSetValue({ name, children }: IFieldSetValueProps) {
 }
 
 export interface IFieldValueCommonProps<T> {
-  children?: (value: T | null) => ReactNode;
+  children?: (value: T | null) => React.ReactElement | null;
 }
 
 export interface IFieldValueModelDrivenProps<T> extends IFieldValueCommonProps<T> {
@@ -58,7 +58,7 @@ export interface IFieldValueViewDrivenProps<T> extends IFieldValueCommonProps<T>
 
 export type IFieldValueProps<T> = IFieldValueModelDrivenProps<T> | IFieldValueViewDrivenProps<T>;
 
-export function FieldValue<T>(props: IFieldValueProps<T>) {
+export function FieldValue<T extends React.ReactElement | null>(props: IFieldValueProps<T>): React.ReactElement | null {
   const { name, model, children } = props as Partial<IFieldValueModelDrivenProps<T> & IFieldValueViewDrivenProps<T>>;
   let field: FieldModel<T> | null | undefined = null;
   const { parent } = useFormContext();

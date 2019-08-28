@@ -2,21 +2,21 @@ import { BasicBuilder } from './basic';
 import { FieldArrayModel } from '../models';
 
 export class FieldArrayBuilder<ChildBuilder extends BasicBuilder<any, any>> extends BasicBuilder<
-  Array<ChildBuilder['phantomValue'] | null>,
+  readonly (ChildBuilder['phantomValue'] | null)[],
   FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']>
 > {
-  private _defaultValue: ChildBuilder['phantomValue'][] = [];
+  private _defaultValue: readonly ChildBuilder['phantomValue'][] = [];
 
   constructor(private readonly childBuilder: ChildBuilder) {
     super();
   }
 
-  defaultValue(defaultValue: ChildBuilder['phantomValue'][]) {
+  defaultValue(defaultValue: readonly ChildBuilder['phantomValue'][]) {
     this._defaultValue = defaultValue;
   }
 
   build(
-    defaultValue?: (ChildBuilder['phantomValue'] | null)[],
+    defaultValue?: readonly (ChildBuilder['phantomValue'] | null)[],
   ): FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']> {
     const model = new FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']>(
       this.childBuilder,

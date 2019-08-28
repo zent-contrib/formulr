@@ -9,16 +9,16 @@ export type FieldArrayChild<Item, Child extends BasicModel<Item>> =
   | ModelRef<Item, FieldArrayModel<Item, Child>, Child>;
 
 export class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> extends BasicModel<
-  Array<Item | null>
+  readonly (Item | null)[]
 > {
-  readonly children$: BehaviorSubject<Array<FieldArrayChild<Item, Child>>>;
+  readonly children$: BehaviorSubject<FieldArrayChild<Item, Child>[]>;
   /** @internal */
   readonly validateChildren$ = new Subject<ValidateStrategy>();
 
   private readonly childFactory: (defaultValue: Item | null) => FieldArrayChild<Item, Child>;
 
   /** @internal */
-  constructor(childBuilder: BasicBuilder<Item, Child> | null, private readonly defaultValue: (Item | null)[]) {
+  constructor(childBuilder: BasicBuilder<Item, Child> | null, private readonly defaultValue: readonly (Item | null)[]) {
     super();
     this.childFactory = childBuilder
       ? (defaultValue: Item | null) => childBuilder.build(defaultValue)
@@ -64,7 +64,7 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<I
     return true;
   }
 
-  getRawValue(): Array<Item | null> {
+  getRawValue(): (Item | null)[] {
     return this.children$.getValue().map(child => {
       if (isModelRef<Item, this, Child>(child)) {
         const model = child.getModel();
@@ -130,7 +130,7 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<I
     this.children$.next(nextChildren);
   }
 
-  splice(start: number, deleteCount: number = 0, ...items: Array<Item>): FieldArrayChild<Item, Child>[] {
+  splice(start: number, deleteCount: number = 0, ...items: readonly Item[]): FieldArrayChild<Item, Child>[] {
     const children = this.children$.getValue().slice();
     const ret = children.splice(start, deleteCount, ...items.map(this.childFactory));
     this.children$.next(children);

@@ -21,12 +21,12 @@ export enum ValidateStrategy {
 }
 
 export interface IValidator<Value> {
-  (input: Value, ctx: ValidatorContext): ValidatorResult<Value> | null;
+  (input: Value, ctx: ValidatorContext): ValidatorResult<Value>;
   isAsync?: boolean;
   $$id?: symbol;
 }
 
-export type ValidatorResult<T> = IMaybeError<T> | Promise<IMaybeError<T>> | Observable<IMaybeError<T>>;
+export type ValidatorResult<T> = null | Observable<IMaybeError<T>> | Promise<IMaybeError<T>> | IMaybeError<T>;
 
 function resultToSubscriber<T>(
   subscriber: Subscriber<IMaybeError<T>>,

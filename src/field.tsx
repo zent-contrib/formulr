@@ -3,11 +3,11 @@ import { merge } from 'rxjs';
 import { switchMap, audit, mapTo } from 'rxjs/operators';
 import * as Scheduler from 'scheduler';
 
-import { FieldModel, BasicModel, FormStrategy, FieldSetModel, FormModel } from './models';
+import { FieldModel, BasicModel, FormStrategy, FieldSetModel, FormModel, ModelRef, isModelRef } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { ValidateStrategy, validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
-import { getValueFromParentOrDefault, removeOnUnmount } from './utils';
+import { removeOnUnmount, getValueFromModelRefOrDefault, orElse, notUndefined } from './utils';
 
 const { unstable_scheduleCallback: scheduleCallback, unstable_IdlePriority: IdlePriority } = Scheduler;
 
@@ -31,7 +31,7 @@ function batch() {
 export type IUseField<Value> = [IFormFieldChildProps<Value>, FieldModel<Value>];
 
 function useModelAndChildProps<Value>(
-  field: FieldModel<Value> | string,
+  field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>> | string,
   parent: FieldSetModel,
   strategy: FormStrategy,
   defaultValue: Value | (() => Value),
@@ -46,9 +46,18 @@ function useModelAndChildProps<Value>(
       }
       const m = parent.get(field);
       if (!m || !(m instanceof FieldModel)) {
-        const v = getValueFromParentOrDefault(parent, field, defaultValue);
+        const v = orElse<any>(notUndefined, parent.getPatchedValue(field), defaultValue);
         model = new FieldModel<Value>(v);
         parent.registerChild(field, model as BasicModel<unknown>);
+      } else {
+        model = m;
+      }
+    } else if (isModelRef<Value, any, FieldModel<Value>>(field)) {
+      const m = field.getModel();
+      if (!m) {
+        const v = getValueFromModelRefOrDefault(field, defaultValue);
+        model = new FieldModel<Value>(v);
+        field.setModel(model);
       } else {
         model = m;
       }
@@ -87,15 +96,15 @@ function useModelAndChildProps<Value>(
 export function useField<Value>(
   field: string,
   defaultValue: Value,
-  validators?: Array<IValidator<Value>>,
+  validators?: readonly IValidator<Value>[],
 ): IUseField<Value>;
 
-export function useField<Value>(field: FieldModel<Value>): IUseField<Value>;
+export function useField<Value>(field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>>): IUseField<Value>;
 
 export function useField<Value>(
-  field: FieldModel<Value> | string,
+  field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>> | string,
   defaultValue?: Value | (() => Value),
-  validators: Array<IValidator<Value>> = [],
+  validators: readonly IValidator<Value>[] = [],
 ): IUseField<Value> {
   const { parent, strategy, validate$, form } = useFormContext();
   const compositingRef = useRef(false);

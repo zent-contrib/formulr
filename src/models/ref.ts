@@ -13,6 +13,11 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
   /**
    * @internal
    */
+  patchedValue: Value | null = null;
+
+  /**
+   * @internal
+   */
   constructor(
     private current: Model | null = null,
     public initialValue: Value | null = null,
@@ -23,7 +28,7 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
     return this.current;
   }
 
-  setModel(model: Model) {
+  setModel(model: Model | null) {
     this.current = model;
   }
 

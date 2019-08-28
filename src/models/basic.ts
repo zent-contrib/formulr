@@ -7,7 +7,7 @@ abstract class BasicModel<Value> {
   /** @internal */
   readonly validateSelf$ = new Subject<ValidateStrategy>();
   /** @internal */
-  validators: Array<IValidator<Value>> = [];
+  validators: readonly IValidator<Value>[] = [];
   /** @internal */
   initialValue: Value | undefined = undefined;
   destroyOnUnmount = false;

@@ -34,6 +34,16 @@ export class FieldSetModel<
     }
   }
 
+  /**
+   * @internal
+   */
+  getPatchedValue(name: string) {
+    if (this.patchedValue) {
+      return this.patchedValue[name];
+    }
+    return null;
+  }
+
   getRawValue(): $FieldSetValue<Children> {
     const value: any = {};
     const childrenKeys = Object.keys(this.children);

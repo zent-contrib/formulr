@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { FormStrategy, FormModel } from './models';
+import { FormStrategy, FormModel, BasicModel } from './models';
 import { IFormContext } from './context';
 
-export interface IForm<T> {
+export interface IForm<T extends Record<string, BasicModel<unknown>>> {
   ctx: IFormContext;
   model: FormModel<T>;
 }

@@ -1,5 +1,5 @@
 import Decimal from 'big.js';
-import { IValidator, IMaybeError } from './validate';
+import { IValidator, IMaybeError, ValidatorResult } from './validate';
 
 const EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
 
@@ -65,7 +65,7 @@ export function max(limit: number, message?: string) {
 }
 
 export function required(message?: string): IValidator<any> {
-  function required(input: any) {
+  function required(input: any): ValidatorResult<string> {
     return isEmptyInputValue(input)
       ? {
           name: 'required',
