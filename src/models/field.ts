@@ -1,8 +1,13 @@
 import { BehaviorSubject, Subject } from 'rxjs';
 import { BasicModel } from './basic';
-import { ValidateStrategy } from '../validate';
+import { ValidateOption } from '../validate';
 
-export class FieldModel<Value> extends BasicModel<Value> {
+class FieldModel<Value> extends BasicModel<Value> {
+  /**
+   * @internal
+   */
+  isFieldModel!: boolean;
+
   readonly value$: BehaviorSubject<Value>;
   /** @internal */
   _touched = false;
@@ -49,8 +54,8 @@ export class FieldModel<Value> extends BasicModel<Value> {
     this.value$.next(value);
   }
 
-  validate(strategy = ValidateStrategy.Default) {
-    this.validateSelf$.next(strategy);
+  validate(option = ValidateOption.Default) {
+    this.validate$.next(option);
   }
 
   pristine() {
@@ -69,3 +74,11 @@ export class FieldModel<Value> extends BasicModel<Value> {
     return this._touched;
   }
 }
+
+FieldModel.prototype.isFieldModel = true;
+
+function isFieldModel<T>(maybeModel: any): maybeModel is FieldModel<T> {
+  return !!maybeModel.isFieldModel;
+}
+
+export { FieldModel, isFieldModel };

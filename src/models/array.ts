@@ -1,19 +1,22 @@
-import { Subject, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
-import { ValidateStrategy } from '../validate';
+import { ValidateOption } from '../validate';
 import { ModelRef, isModelRef } from './ref';
 import { BasicBuilder } from '../builders/basic';
 
-export type FieldArrayChild<Item, Child extends BasicModel<Item>> =
+type FieldArrayChild<Item, Child extends BasicModel<Item>> =
   | Child
   | ModelRef<Item, FieldArrayModel<Item, Child>, Child>;
 
-export class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> extends BasicModel<
+class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> extends BasicModel<
   readonly (Item | null)[]
 > {
+  /**
+   * @internal
+   */
+  isFieldArrayModel!: boolean;
+
   readonly children$: BehaviorSubject<FieldArrayChild<Item, Child>[]>;
-  /** @internal */
-  readonly validateChildren$ = new Subject<ValidateStrategy>();
 
   private readonly childFactory: (defaultValue: Item | null) => FieldArrayChild<Item, Child>;
 
@@ -137,10 +140,15 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<I
     return ret;
   }
 
-  validate(strategy = ValidateStrategy.Default) {
-    this.validateSelf$.next(strategy);
-    if (strategy & ValidateStrategy.IncludeChildren) {
-      this.validateChildren$.next(strategy);
+  validate(option = ValidateOption.Default) {
+    this.validate$.next(option);
+    if (option & ValidateOption.IncludeChildren) {
+      const children = this.children$.getValue();
+      const childOption = option | ValidateOption.FromParent;
+      for (let i = 0; i < children.length; i += 1) {
+        const child = children[i];
+        child.validate(childOption);
+      }
     }
   }
 
@@ -170,3 +178,13 @@ export class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<I
     return false;
   }
 }
+
+FieldArrayModel.prototype.isFieldArrayModel = true;
+
+function isFieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>>(
+  maybeModel: any,
+): maybeModel is FieldArrayModel<Item, Child> {
+  return !!maybeModel.isFieldArrayModel;
+}
+
+export { FieldArrayChild, FieldArrayModel, isFieldArrayModel };

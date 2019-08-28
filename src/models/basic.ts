@@ -1,11 +1,11 @@
 import { Subject, BehaviorSubject } from 'rxjs';
-import { ValidateStrategy, IValidator, IMaybeError } from '../validate';
+import { ValidateOption, IValidator, IMaybeError } from '../validate';
 
 abstract class BasicModel<Value> {
   /** @internal */
   phantomValue!: Value;
   /** @internal */
-  readonly validateSelf$ = new Subject<ValidateStrategy>();
+  readonly validate$ = new Subject<ValidateOption>();
   /** @internal */
   validators: readonly IValidator<Value>[] = [];
   /** @internal */
@@ -24,7 +24,7 @@ abstract class BasicModel<Value> {
   abstract dirty(): boolean;
   abstract valid(): boolean;
   abstract patchValue(value: Value): void;
-  abstract validate(strategy: ValidateStrategy): void;
+  abstract validate(strategy: ValidateOption): void;
   abstract reset(): void;
   abstract clear(): void;
   abstract initialize(value: Value): void;

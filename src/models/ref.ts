@@ -1,4 +1,6 @@
+import { Subject } from 'rxjs';
 import { BasicModel } from './basic';
+import { ValidateOption } from '../validate';
 
 interface IModelRefContext<Parent> {
   owner: Parent;
@@ -14,6 +16,8 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
    * @internal
    */
   patchedValue: Value | null = null;
+
+  readonly validate$ = new Subject<ValidateOption>();
 
   /**
    * @internal
@@ -48,6 +52,10 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
       return false;
     }
     return this.current.touched();
+  }
+
+  validate(option: ValidateOption = ValidateOption.Default) {
+    this.validate$.next(option);
   }
 }
 

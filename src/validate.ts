@@ -1,6 +1,6 @@
-import { Observable, Subscriber, isObservable, from, NextObserver, empty, never } from 'rxjs';
+import { Observable, Subscriber, isObservable, from, NextObserver, empty, never, of } from 'rxjs';
 import { catchError, map, concatAll, filter, take } from 'rxjs/operators';
-import { BasicModel, FormModel, FieldSetModel } from './models';
+import { BasicModel, FormModel, FieldSetModel, isModelRef } from './models';
 import { isPromise } from './utils';
 
 export interface IValidateResult<T> {
@@ -13,11 +13,25 @@ export interface IValidateResult<T> {
 
 export type IMaybeError<T> = IValidateResult<T> | null;
 
-export enum ValidateStrategy {
-  Default = 0b0000,
-  IncludeAsync = 0b0010,
-  IncludeUntouched = 0b0100,
-  IncludeChildren = 0b1000,
+// prettier-ignore
+export enum ValidateOption {
+  Default           =       0b000000000,
+  IncludeAsync      =       0b000000010,
+  IncludeUntouched  =       0b000000100,
+  IncludeChildren   =       0b000001000,
+
+  FromParent        =       0b100000000,
+}
+
+function shouldValidate(option: ValidateOption) {
+  return !!((option & ValidateOption.FromParent) === 0 || (option & ValidateOption.IncludeChildren) > 0);
+}
+
+export function fromMaybeModelRef(maybeModelRef: any): Observable<ValidateOption> {
+  if (isModelRef<any, any, any>(maybeModelRef)) {
+    return maybeModelRef.validate$.pipe(filter(shouldValidate));
+  }
+  return never();
 }
 
 export interface IValidator<Value> {
@@ -103,20 +117,14 @@ function filterAsync<T>(skipAsync: boolean, validator: IValidator<T>) {
 }
 
 class ValidatorExecutor<T> {
-  private prevValue: T | null = null;
-
   constructor(private readonly model: BasicModel<T>, private readonly ctx: ValidatorContext) {}
 
-  call(strategy: ValidateStrategy): Observable<IMaybeError<T>> {
-    if (!this.model.touched && !(strategy & ValidateStrategy.IncludeUntouched)) {
-      return never();
+  call(strategy: ValidateOption): Observable<IMaybeError<T>> {
+    if (!this.model.touched && !(strategy & ValidateOption.IncludeUntouched)) {
+      return of(null);
     }
     const value = this.model.getRawValue();
-    if (Object.is(value, this.prevValue)) {
-      return never();
-    }
-    this.prevValue = value;
-    const skipAsync = (strategy & ValidateStrategy.IncludeAsync) === 0;
+    const skipAsync = (strategy & ValidateOption.IncludeAsync) === 0;
     return from(this.model.validators).pipe(
       filter(validator => filterAsync(skipAsync, validator)),
       map(
@@ -131,5 +139,5 @@ class ValidatorExecutor<T> {
 
 export function validate<T>(model: BasicModel<T>, ctx: ValidatorContext) {
   const executor = new ValidatorExecutor(model, ctx);
-  return (strategy: ValidateStrategy) => executor.call(strategy);
+  return (strategy: ValidateOption) => executor.call(strategy);
 }

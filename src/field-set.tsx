@@ -4,7 +4,7 @@ import { switchMap } from 'rxjs/operators';
 import { useFormContext, IFormContext } from './context';
 import { FieldSetModel, BasicModel, FormStrategy, ModelRef, $FieldSetValue, isModelRef } from './models';
 import { useValue$ } from './hooks';
-import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
+import { IValidator, validate, ErrorSubscriber, ValidatorContext, fromMaybeModelRef } from './validate';
 import { removeOnUnmount, orElse, isPlainObject } from './utils';
 
 export type IUseFieldSet<T extends Record<string, BasicModel<any>>> = [IFormContext, FieldSetModel<T>];
@@ -50,15 +50,15 @@ export function useFieldSet<T extends Record<string, BasicModel<any>>>(
   field: string | FieldSetModel<T> | ModelRef<$FieldSetValue<T>, any, FieldSetModel<T>>,
   validators: readonly IValidator<T>[] = [],
 ): IUseFieldSet<T> {
-  const { parent, strategy, form, validate$: parentValidate$ } = useFormContext();
+  const { parent, strategy, form } = useFormContext();
   const model = useFieldSetModel(field, parent, strategy);
   if (typeof field === 'string') {
     model.validators = validators;
   }
-  const { validateSelf$, error$ } = model;
+  const { validate$, error$ } = model;
   const childContext = useMemo(
     () => ({
-      validate$: model.validateChildren$,
+      validate$,
       strategy,
       form,
       parent: model as FieldSetModel,
@@ -72,7 +72,7 @@ export function useFieldSet<T extends Record<string, BasicModel<any>>>(
   useValue$(error$, error$.getValue());
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
-    const $ = merge(parentValidate$, validateSelf$)
+    const $ = merge(validate$, fromMaybeModelRef(field))
       .pipe(switchMap(validate(model, ctx)))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);

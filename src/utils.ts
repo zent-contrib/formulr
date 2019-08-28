@@ -38,19 +38,6 @@ export function orElse<T>(check: (value: unknown) => value is T, ...values: read
   throw new Error('last value or `orElse` must match `check`');
 }
 
-// export function getValueFromParentOrDefault<T>(parent: FieldSetModel, name: string, defaultValue: T | (() => T)): T {
-//   if (parent.patchedValue !== null) {
-//     const patchedValue = parent.patchedValue[name];
-//     if (patchedValue) {
-//       return patchedValue as T;
-//     }
-//   }
-//   if (typeof defaultValue === 'function') {
-//     return (defaultValue as () => T)();
-//   }
-//   return defaultValue as T;
-// }
-
 export function getValueFromModelRefOrDefault<Value, Model extends BasicModel<Value> = BasicModel<Value>>(
   ref: ModelRef<Value, any, Model>,
   defaultValue: Value | (() => Value),

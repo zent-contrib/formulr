@@ -20,9 +20,7 @@ export function useForm(arg: FormStrategy.View | (() => FormModel<any>)): IForm<
     } else {
       throw new Error('invalid argument for useForm');
     }
-    const { validateChildren$ } = model;
     const ctx = {
-      validate$: validateChildren$,
       strategy,
       form: model,
       parent: model,

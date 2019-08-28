@@ -2,14 +2,19 @@ import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { FieldSetModel } from './set';
 import { BasicModel } from './basic';
 
-export enum FormStrategy {
+enum FormStrategy {
   Model,
   View,
 }
 
-export class FormModel<
+class FormModel<
   Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
 > extends FieldSetModel<Children> {
+  /**
+   * @internal
+   */
+  isFormModel!: boolean;
+
   /** @internal */
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);
@@ -35,3 +40,13 @@ export class FormModel<
     }
   }
 }
+
+FormModel.prototype.isFormModel = true;
+
+function isFormModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
+  maybeModel: any,
+): maybeModel is FormModel<Children> {
+  return !!maybeModel.isFormModel;
+}
+
+export { FormStrategy, FormModel, isFormModel };

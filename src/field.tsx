@@ -1,12 +1,12 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { merge } from 'rxjs';
-import { switchMap, audit, mapTo } from 'rxjs/operators';
+import { switchMap, audit, mapTo, tap } from 'rxjs/operators';
 import * as Scheduler from 'scheduler';
 
 import { FieldModel, BasicModel, FormStrategy, FieldSetModel, FormModel, ModelRef, isModelRef } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
-import { ValidateStrategy, validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
+import { ValidateOption, validate, ErrorSubscriber, IValidator, ValidatorContext, fromMaybeModelRef } from './validate';
 import { removeOnUnmount, getValueFromModelRefOrDefault, orElse, notUndefined } from './utils';
 
 const { unstable_scheduleCallback: scheduleCallback, unstable_IdlePriority: IdlePriority } = Scheduler;
@@ -106,7 +106,7 @@ export function useField<Value>(
   defaultValue?: Value | (() => Value),
   validators: readonly IValidator<Value>[] = [],
 ): IUseField<Value> {
-  const { parent, strategy, validate$, form } = useFormContext();
+  const { parent, strategy, form } = useFormContext();
   const compositingRef = useRef(false);
   const { childProps, model } = useModelAndChildProps(
     field,
@@ -116,7 +116,7 @@ export function useField<Value>(
     compositingRef,
     form,
   );
-  const { value$, error$, validateSelf$ } = model;
+  const { value$, error$, validate$ } = model;
   const value = useValue$(value$, value$.getValue());
   /**
    * ignore returned value
@@ -131,16 +131,18 @@ export function useField<Value>(
     const ctx = new ValidatorContext(parent, form);
     const $ = merge(
       validate$,
-      validateSelf$,
+      fromMaybeModelRef(field).pipe(        tap(() => console.log('field array validate') as any)),
       model.change$.pipe(
-        mapTo(ValidateStrategy.Default),
+        mapTo(ValidateOption.Default),
         audit(batch),
       ),
     )
-      .pipe(switchMap(validate(model, ctx)))
+      .pipe(
+        tap(() => console.log('field array validate') as any),
+        switchMap(validate(model, ctx)))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
-  }, [value$, validate$, validateSelf$, model, form, parent]);
+  }, [value$, validate$, model, form, parent]);
   removeOnUnmount(field, model, parent);
   return [childProps, model];
 }

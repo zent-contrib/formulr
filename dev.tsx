@@ -15,6 +15,7 @@ import {
   ValidatorResult,
   ModelRef,
   FieldSetModel,
+  ValidateOption,
 } from './src';
 
 function asyncValidator(): ValidatorResult<string> {
@@ -56,7 +57,7 @@ const List = () => {
   );
 };
 
-const Input = ({ field }: { field: any }) => {
+const Input = ({ field }: { field: any, validators?: any[] }) => {
   const [input, { error }] = useField(field, '', [Validators.required('required'), asyncValidator]);
   const onChange = useCallback(
     e => {
@@ -65,10 +66,10 @@ const Input = ({ field }: { field: any }) => {
     [input.onChange],
   );
   return (
-    <>
+    <div style={{ background: '#eee', padding: '10px' }}>
       <input {...input} onChange={onChange} style={{ color: error ? 'red' : undefined }} />
       {error ? error.message : null}
-    </>
+    </div>
   );
 };
 
@@ -128,7 +129,10 @@ const App = () => {
       </FieldSetValue>
       <List />
       <NestedList1 model="nested-list" />
-      <button onClick={() => console.log(form.model.getRawValue())}>button</button>
+      <div>
+        <button onClick={() => console.log(form.model.getRawValue())}>button</button>
+        <button onClick={() => form.model.validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildren)}>validate</button>
+      </div>
     </FormProvider>
   );
 };

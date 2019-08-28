@@ -12,7 +12,7 @@ import {
 } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
-import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
+import { IValidator, validate, ErrorSubscriber, ValidatorContext, fromMaybeModelRef } from './validate';
 import { removeOnUnmount, orElse } from './utils';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
@@ -71,12 +71,12 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   validators: readonly IValidator<readonly (Item | null)[]>[] = [],
   defaultValue: readonly Item[] = [],
 ): IUseFieldArray<Item, Child> {
-  const { parent, strategy, validate$: parentValidate$, form } = useFormContext();
+  const { parent, strategy, form } = useFormContext();
   const model = useArrayModel(field, parent, strategy, defaultValue);
   if (typeof field === 'string') {
     model.validators = validators;
   }
-  const { error$, validateSelf$, children$ } = model;
+  const { error$, validate$, children$ } = model;
   /**
    * ignore returned value
    * user can get the value from model
@@ -85,7 +85,7 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   useValue$(error$, error$.getValue());
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
-    const $ = merge(parentValidate$, validateSelf$)
+    const $ = merge(validate$, fromMaybeModelRef(field))
       .pipe(switchMap(validate(model, ctx)))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);

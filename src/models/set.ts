@@ -1,16 +1,21 @@
 import { Subject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
-import { ValidateStrategy } from '../validate';
+import { ValidateOption } from '../validate';
 
-export type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
+type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
 };
 
-export class FieldSetModel<
+class FieldSetModel<
   Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
 > extends BasicModel<$FieldSetValue<Children>> {
+  /**
+   * @internal
+   */
+  isFieldSetModel!: boolean;
+
   /** @internal */
-  readonly validateChildren$ = new Subject<ValidateStrategy>();
+  readonly validate$ = new Subject<ValidateOption>();
   /** @internal */
   patchedValue: $FieldSetValue<Children> | null = null;
 
@@ -117,10 +122,16 @@ export class FieldSetModel<
     }
   }
 
-  validate(strategy = ValidateStrategy.Default) {
-    this.validateSelf$.next(strategy);
-    if (strategy & ValidateStrategy.IncludeChildren) {
-      this.validateChildren$.next(strategy);
+  validate(option = ValidateOption.Default) {
+    this.validate$.next(option);
+    if (option & ValidateOption.IncludeChildren) {
+      const keys = Object.keys(this.children);
+      const childOption = option | ValidateOption.FromParent;
+      for (let i = 0; i < keys.length; i += 1) {
+        const key = keys[i];
+        const child = this.children[key];
+        child.validate(childOption);
+      }
     }
   }
 
@@ -156,3 +167,11 @@ export class FieldSetModel<
     return this.children[name];
   }
 }
+
+function isFieldSet<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
+  maybeModel: any,
+): maybeModel is FieldSetModel<Children> {
+  return !!maybeModel.isFieldSet;
+}
+
+export { FieldSetModel, $FieldSetValue, isFieldSet };
