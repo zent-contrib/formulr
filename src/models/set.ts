@@ -168,10 +168,10 @@ class FieldSetModel<
   }
 }
 
-function isFieldSet<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
+function isFieldSetModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
   maybeModel: any,
 ): maybeModel is FieldSetModel<Children> {
   return !!maybeModel.isFieldSet;
 }
 
-export { FieldSetModel, $FieldSetValue, isFieldSet };
+export { FieldSetModel, $FieldSetValue, isFieldSetModel };

@@ -28,30 +28,21 @@ export function isPromise<T>(maybePromise: any): maybePromise is Promise<T> {
   return typeof maybePromise.then === 'function';
 }
 
-export function orElse<T>(check: (value: unknown) => value is T, ...values: readonly unknown[]): T {
+export function orElse<T>(
+  defaultValue: T | (() => T),
+  check: (value: unknown) => value is T,
+  ...values: readonly unknown[]
+): T {
   for (let i = 0; i < values.length; i += 1) {
     const value = values[i];
     if (check(value)) {
       return value;
     }
   }
-  throw new Error('last value or `orElse` must match `check`');
-}
-
-export function getValueFromModelRefOrDefault<Value, Model extends BasicModel<Value> = BasicModel<Value>>(
-  ref: ModelRef<Value, any, Model>,
-  defaultValue: Value | (() => Value),
-): Value {
-  if (ref.patchedValue) {
-    return ref.patchedValue;
-  }
-  if (ref.initialValue) {
-    return ref.initialValue;
-  }
   if (typeof defaultValue === 'function') {
-    return (defaultValue as () => Value)();
+    return (defaultValue as (() => T))();
   }
-  return defaultValue as Value;
+  return defaultValue;
 }
 
 export function removeOnUnmount(

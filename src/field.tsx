@@ -1,11 +1,20 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { switchMap } from 'rxjs/operators';
 
-import { FieldModel, BasicModel, FormStrategy, FieldSetModel, FormModel, ModelRef, isModelRef } from './models';
+import {
+  FieldModel,
+  BasicModel,
+  FormStrategy,
+  FieldSetModel,
+  FormModel,
+  ModelRef,
+  isModelRef,
+  isFieldModel,
+} from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
-import { removeOnUnmount, getValueFromModelRefOrDefault, orElse, notUndefined } from './utils';
+import { removeOnUnmount, orElse, notUndefined } from './utils';
 import Scheduler from './scheduler';
 
 export interface IFormFieldChildProps<Value> {
@@ -34,8 +43,8 @@ function useModelAndChildProps<Value>(
         throw new Error();
       }
       const m = parent.get(field);
-      if (!m || !(m instanceof FieldModel)) {
-        const v = orElse<any>(notUndefined, parent.getPatchedValue(field), defaultValue);
+      if (!m || !isFieldModel<Value>(m)) {
+        const v = orElse<any>(defaultValue, notUndefined, parent.getPatchedValue(field));
         model = new FieldModel<Value>(v);
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
@@ -43,8 +52,8 @@ function useModelAndChildProps<Value>(
       }
     } else if (isModelRef<Value, any, FieldModel<Value>>(field)) {
       const m = field.getModel();
-      if (!m) {
-        const v = getValueFromModelRefOrDefault(field, defaultValue);
+      if (!m || isFieldModel<Value>(m)) {
+        const v = orElse(defaultValue, notUndefined, field.patchedValue, field.initialValue);
         model = new FieldModel<Value>(v);
         field.setModel(model);
       } else {
@@ -102,7 +111,7 @@ export function useField<Value>(
     field,
     parent,
     strategy,
-    defaultValue as Value | (() => Value),
+    defaultValue!,
     compositingRef,
     form,
   );

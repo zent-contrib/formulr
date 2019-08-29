@@ -8,6 +8,7 @@ import {
   FieldArrayChild,
   ModelRef,
   isModelRef,
+  isFieldArrayModel,
 } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
@@ -23,7 +24,7 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item, Child> | ModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>,
   parent: FieldSetModel,
   strategy: FormStrategy,
-  defaultValue: readonly (Item | Child)[],
+  defaultValue: readonly Item[],
 ) {
   return useMemo(() => {
     let model: FieldArrayModel<Item, Child>;
@@ -32,8 +33,8 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
         throw new Error();
       }
       const m = parent.get(field);
-      if (!m || !(m instanceof FieldArrayModel)) {
-        const v = orElse(Array.isArray, parent.getPatchedValue(field), defaultValue);
+      if (!m || !isFieldArrayModel<Item, Child>(m)) {
+        const v = orElse<readonly Item[]>(defaultValue, Array.isArray, parent.getPatchedValue(field));
         model = new FieldArrayModel<Item, Child>(null, v);
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
@@ -41,8 +42,8 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
       }
     } else if (isModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>(field)) {
       const m = field.getModel();
-      if (!m || !(m instanceof FieldArrayModel)) {
-        const v = orElse(Array.isArray, field.patchedValue, field.initialValue, []);
+      if (!m || !isFieldArrayModel(m)) {
+        const v = orElse<readonly Item[]>(defaultValue, Array.isArray, field.patchedValue, field.initialValue);
         model = new FieldArrayModel(null, v);
         field.setModel(model);
       } else {

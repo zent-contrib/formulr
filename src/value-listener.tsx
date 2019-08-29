@@ -1,13 +1,22 @@
 import * as React from 'react';
-import { ReactNode, useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { merge, empty } from 'rxjs';
 import { useFormContext, FormContext, IFormContext } from './context';
 import { useValue$ } from './hooks';
-import { FieldModel, FieldSetModel, FieldArrayModel, BasicModel } from './models';
+import {
+  FieldModel,
+  FieldSetModel,
+  FieldArrayModel,
+  BasicModel,
+  isFieldSetModel,
+  isFieldModel,
+  isFieldArrayModel,
+} from './models';
+import { noop } from './utils';
 
 export interface IFieldSetValueProps {
   name: string;
-  children?: ReactNode;
+  children?: React.ReactNode;
 }
 
 function subscribeParent(parent: FieldSetModel<any>, model: BasicModel<any> | null | undefined, name: unknown) {
@@ -22,7 +31,12 @@ function subscribeParent(parent: FieldSetModel<any>, model: BasicModel<any> | nu
       }
     });
   }, [name]);
-  useEffect(() => ($ !== null ? $.unsubscribe.bind($) : () => {}), [parent, $]);
+  useEffect(() => {
+    if ($ === null) {
+      return noop;
+    }
+    return () => $.unsubscribe();
+  }, [parent, $]);
 }
 
 export function FieldSetValue({ name, children }: IFieldSetValueProps) {
@@ -38,7 +52,7 @@ export function FieldSetValue({ name, children }: IFieldSetValueProps) {
     }),
     [strategy, form, model],
   );
-  if (model instanceof FieldSetModel) {
+  if (isFieldSetModel(model)) {
     return <FormContext.Provider value={childContext}>{children}</FormContext.Provider>;
   }
   return null;
@@ -66,16 +80,19 @@ export function FieldValue<T extends React.ReactElement | null>(props: IFieldVal
     field = model;
   } else if (name) {
     const m = parent.get(name) as FieldModel<T>;
-    if (m instanceof FieldModel) {
+    if (isFieldModel(m)) {
       field = m;
     }
   }
   subscribeParent(parent, field, name);
-  const value = useValue$(field ? field.value$ : empty(), field ? field.value : null);
-  if (children) {
-    return children(value);
+  if (field) {
+    const value = useValue$(field.value$, field.value);
+    if (children) {
+      return children(value);
+    }
+    return <>{value}</>;
   }
-  return value;
+  return null;
 }
 
 export function useFieldArrayValue<Item, Child extends BasicModel<Item>>(field: string | FieldArrayModel<Item, Child>) {
@@ -86,7 +103,7 @@ export function useFieldArrayValue<Item, Child extends BasicModel<Item>>(field: 
     if (m instanceof FieldArrayModel) {
       model = m;
     }
-  } else if (field instanceof FieldArrayModel) {
+  } else if (isFieldArrayModel(model)) {
     model = field;
   }
   subscribeParent(parent, model, field);

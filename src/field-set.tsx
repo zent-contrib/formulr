@@ -1,7 +1,15 @@
 import { useMemo, useEffect } from 'react';
 import { switchMap } from 'rxjs/operators';
 import { useFormContext, IFormContext } from './context';
-import { FieldSetModel, BasicModel, FormStrategy, ModelRef, $FieldSetValue, isModelRef } from './models';
+import {
+  FieldSetModel,
+  BasicModel,
+  FormStrategy,
+  ModelRef,
+  $FieldSetValue,
+  isModelRef,
+  isFieldSetModel,
+} from './models';
 import { useValue$ } from './hooks';
 import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
 import { removeOnUnmount, orElse, isPlainObject } from './utils';
@@ -20,9 +28,9 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
         throw new Error();
       }
       const m = parent.get(field);
-      if (!m || !(m instanceof FieldSetModel)) {
+      if (!m || !isFieldSetModel<T>(m)) {
         model = new FieldSetModel({});
-        const v = orElse(isPlainObject, parent.getPatchedValue(field), {});
+        const v = orElse<Partial<T>>({}, isPlainObject, parent.getPatchedValue(field));
         model.patchedValue = v;
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
@@ -30,9 +38,9 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
       }
     } else if (isModelRef<$FieldSetValue<T>, any, FieldSetModel<T>>(field)) {
       const m = field.getModel();
-      if (!m || !(m instanceof FieldSetModel)) {
+      if (!m || !isFieldSetModel<T>(m)) {
         model = new FieldSetModel({});
-        const v = orElse(isPlainObject, field.patchedValue, field.initialValue, {});
+        const v = orElse<Partial<T>>({}, isPlainObject, field.patchedValue, field.initialValue);
         model.patchedValue = v;
         field.setModel(model);
       } else {
