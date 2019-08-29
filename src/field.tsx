@@ -17,7 +17,7 @@ import { validate, ErrorSubscriber, IValidator, ValidatorContext } from './valid
 import { removeOnUnmount, orElse, notUndefined } from './utils';
 import Scheduler from './scheduler';
 
-export function makeFieldProps<Value>(model: FieldModel<Value>) {
+export function makeDefaultFieldProps<Value>(model: FieldModel<Value>) {
   const { form, parent } = useFormContext();
   const { value } = model;
   const validateOnChangeScheduler = useMemo(() => new Scheduler(() => model.validate()), [model]);
