@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
 import {
   FieldModel,
@@ -112,7 +112,7 @@ export function useField<Value>(
   }
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
-    const $ = validate$.pipe(tap(() => console.log('validate')), switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
+    const $ = validate$.pipe(switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
     return () => $.unsubscribe();
   }, [value$, validate$, model, form, parent]);
   removeOnUnmount(field, model, parent);
