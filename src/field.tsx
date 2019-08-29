@@ -1,12 +1,12 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { merge } from 'rxjs';
-import { switchMap, audit, mapTo, tap } from 'rxjs/operators';
+import { switchMap, audit, mapTo } from 'rxjs/operators';
 import * as Scheduler from 'scheduler';
 
 import { FieldModel, BasicModel, FormStrategy, FieldSetModel, FormModel, ModelRef, isModelRef } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
-import { ValidateOption, validate, ErrorSubscriber, IValidator, ValidatorContext, fromMaybeModelRef } from './validate';
+import { ValidateOption, validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
 import { removeOnUnmount, getValueFromModelRefOrDefault, orElse, notUndefined } from './utils';
 
 const { unstable_scheduleCallback: scheduleCallback, unstable_IdlePriority: IdlePriority } = Scheduler;
@@ -131,15 +131,12 @@ export function useField<Value>(
     const ctx = new ValidatorContext(parent, form);
     const $ = merge(
       validate$,
-      fromMaybeModelRef(field).pipe(        tap(() => console.log('field array validate') as any)),
       model.change$.pipe(
         mapTo(ValidateOption.Default),
         audit(batch),
       ),
     )
-      .pipe(
-        tap(() => console.log('field array validate') as any),
-        switchMap(validate(model, ctx)))
+      .pipe(switchMap(validate(model, ctx)))
       .subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [value$, validate$, model, form, parent]);

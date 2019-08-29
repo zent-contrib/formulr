@@ -1,4 +1,3 @@
-import { merge } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { useEffect, useMemo } from 'react';
 import {
@@ -12,7 +11,7 @@ import {
 } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
-import { IValidator, validate, ErrorSubscriber, ValidatorContext, fromMaybeModelRef } from './validate';
+import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
 import { removeOnUnmount, orElse } from './utils';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
@@ -85,9 +84,7 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   useValue$(error$, error$.getValue());
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
-    const $ = merge(validate$, fromMaybeModelRef(field))
-      .pipe(switchMap(validate(model, ctx)))
-      .subscribe(new ErrorSubscriber(model));
+    const $ = validate$.pipe(switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [model, parent]);
   removeOnUnmount(field, model, parent);

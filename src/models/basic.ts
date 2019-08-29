@@ -1,7 +1,21 @@
 import { Subject, BehaviorSubject } from 'rxjs';
 import { ValidateOption, IValidator, IMaybeError } from '../validate';
 
-abstract class BasicModel<Value> {
+interface IModel<Value> {
+  getRawValue(): Value;
+  pristine(): boolean;
+  touched(): boolean;
+  dirty(): boolean;
+  valid(): boolean;
+  patchValue(value: Value): void;
+  validate(strategy: ValidateOption): void;
+  reset(): void;
+  clear(): void;
+  initialize(value: Value): void;
+  error: IMaybeError<Value>;
+}
+
+abstract class BasicModel<Value> implements IModel<Value> {
   /** @internal */
   phantomValue!: Value;
   /** @internal */
@@ -44,4 +58,4 @@ function isModel<T>(maybeModel: any): maybeModel is BasicModel<T> {
   return !!maybeModel.isFormulrModel;
 }
 
-export { BasicModel, isModel };
+export { IModel, BasicModel, isModel };

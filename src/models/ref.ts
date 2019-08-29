@@ -1,12 +1,11 @@
-import { Subject } from 'rxjs';
-import { BasicModel } from './basic';
-import { ValidateOption } from '../validate';
+import { BasicModel, IModel } from './basic';
+import { ValidateOption, IMaybeError } from '../validate';
 
 interface IModelRefContext<Parent> {
   owner: Parent;
 }
 
-class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value>> {
+class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value>> implements IModel<Value | null> {
   /**
    * @internal
    */
@@ -16,8 +15,6 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
    * @internal
    */
   patchedValue: Value | null = null;
-
-  readonly validate$ = new Subject<ValidateOption>();
 
   /**
    * @internal
@@ -55,7 +52,68 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
   }
 
   validate(option: ValidateOption = ValidateOption.Default) {
-    this.validate$.next(option);
+    if ((option & ValidateOption.FromParent) === 0 || (option & ValidateOption.IncludeChildren) > 0) {
+      const model = this.current;
+      model && model.validate(option);
+    }
+  }
+
+  getRawValue() {
+    if (this.current) {
+      return this.current.getRawValue();
+    }
+    return null;
+  }
+
+  pristine() {
+    if (this.current) {
+      return this.current.pristine();
+    }
+    return true;
+  }
+
+  valid() {
+    if (this.current) {
+      return this.current.valid();
+    }
+    return true;
+  }
+
+  get error() {
+    if (this.current) {
+      return this.current.error;
+    }
+    return null;
+  }
+
+  set error(error: IMaybeError<Value>) {
+    if (this.current) {
+      this.current.error = error;
+    }
+  }
+
+  patchValue(value: Value) {
+    if (this.current) {
+      this.current.patchValue(value);
+    }
+  }
+
+  initialize(value: Value) {
+    if (this.current) {
+      this.current.initialize(value);
+    }
+  }
+
+  reset() {
+    if (this.current) {
+      this.current.reset();
+    }
+  }
+
+  clear() {
+    if (this.current) {
+      this.current.clear();
+    }
   }
 }
 

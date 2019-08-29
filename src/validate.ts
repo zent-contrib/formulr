@@ -1,6 +1,6 @@
-import { Observable, Subscriber, isObservable, from, NextObserver, empty, never, of } from 'rxjs';
+import { Observable, Subscriber, isObservable, from, NextObserver, empty, of } from 'rxjs';
 import { catchError, map, concatAll, filter, take } from 'rxjs/operators';
-import { BasicModel, FormModel, FieldSetModel, isModelRef } from './models';
+import { BasicModel, FormModel, FieldSetModel } from './models';
 import { isPromise } from './utils';
 
 export interface IValidateResult<T> {
@@ -21,17 +21,6 @@ export enum ValidateOption {
   IncludeChildren   =       0b000001000,
 
   FromParent        =       0b100000000,
-}
-
-function shouldValidate(option: ValidateOption) {
-  return !!((option & ValidateOption.FromParent) === 0 || (option & ValidateOption.IncludeChildren) > 0);
-}
-
-export function fromMaybeModelRef(maybeModelRef: any): Observable<ValidateOption> {
-  if (isModelRef<any, any, any>(maybeModelRef)) {
-    return maybeModelRef.validate$.pipe(filter(shouldValidate));
-  }
-  return never();
 }
 
 export interface IValidator<Value> {

@@ -1,10 +1,9 @@
-import { merge } from 'rxjs';
 import { useMemo, useEffect } from 'react';
 import { switchMap } from 'rxjs/operators';
 import { useFormContext, IFormContext } from './context';
 import { FieldSetModel, BasicModel, FormStrategy, ModelRef, $FieldSetValue, isModelRef } from './models';
 import { useValue$ } from './hooks';
-import { IValidator, validate, ErrorSubscriber, ValidatorContext, fromMaybeModelRef } from './validate';
+import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
 import { removeOnUnmount, orElse, isPlainObject } from './utils';
 
 export type IUseFieldSet<T extends Record<string, BasicModel<any>>> = [IFormContext, FieldSetModel<T>];
@@ -72,9 +71,7 @@ export function useFieldSet<T extends Record<string, BasicModel<any>>>(
   useValue$(error$, error$.getValue());
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
-    const $ = merge(validate$, fromMaybeModelRef(field))
-      .pipe(switchMap(validate(model, ctx)))
-      .subscribe(new ErrorSubscriber(model));
+    const $ = validate$.pipe(switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [model, parent, form]);
   removeOnUnmount(field, model, parent);
