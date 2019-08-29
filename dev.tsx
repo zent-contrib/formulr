@@ -125,7 +125,7 @@ const App = () => {
         <Input field="input2" />
       </FieldSet>
       <FieldSetValue name="fieldset">
-        <FieldValue name="input1" />
+        <FieldValue name="input2" />
       </FieldSetValue>
       <List />
       <NestedList1 model="nested-list" />

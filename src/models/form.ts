@@ -46,6 +46,9 @@ FormModel.prototype.isFormModel = true;
 function isFormModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
   maybeModel: any,
 ): maybeModel is FormModel<Children> {
+  if (!maybeModel) {
+    return false;
+  }
   return !!maybeModel.isFormModel;
 }
 

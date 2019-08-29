@@ -76,6 +76,9 @@ class FieldModel<Value> extends BasicModel<Value> {
 FieldModel.prototype.isFieldModel = true;
 
 function isFieldModel<T>(maybeModel: any): maybeModel is FieldModel<T> {
+  if (!maybeModel) {
+    return false;
+  }
   return !!maybeModel.isFieldModel;
 }
 

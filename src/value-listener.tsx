@@ -1,17 +1,9 @@
 import * as React from 'react';
-import { useEffect, useState, useMemo } from 'react';
-import { merge, empty } from 'rxjs';
+import { merge, never } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { useFormContext, FormContext, IFormContext } from './context';
 import { useValue$ } from './hooks';
-import {
-  FieldModel,
-  FieldSetModel,
-  FieldArrayModel,
-  BasicModel,
-  isFieldSetModel,
-  isFieldModel,
-  isFieldArrayModel,
-} from './models';
+import { FieldModel, FieldArrayModel, BasicModel, isFieldSetModel, isFieldModel, isFieldArrayModel } from './models';
 import { noop } from './utils';
 
 export interface IFieldSetValueProps {
@@ -19,41 +11,61 @@ export interface IFieldSetValueProps {
   children?: React.ReactNode;
 }
 
-function subscribeParent(parent: FieldSetModel<any>, model: BasicModel<any> | null | undefined, name: unknown) {
-  const [, setModel] = useState(model);
-  const $ = useMemo(() => {
-    if (typeof name !== 'string') {
-      return null;
-    }
-    return merge(parent.childRegister$, parent.childRemove$).subscribe(changedName => {
-      if (changedName === name) {
-        setModel(parent.get(name));
+function getModelFromContext<Model>(
+  ctx: IFormContext,
+  name: string | undefined,
+  model: Model | undefined,
+  check: (m: any) => m is Model,
+): Model | null {
+  const { parent } = ctx;
+  const m = React.useMemo(() => {
+    if (typeof name === 'string') {
+      const m = parent.get(name);
+      if (check(m)) {
+        return m;
       }
-    });
-  }, [name]);
-  useEffect(() => {
-    if ($ === null) {
+    }
+    if (check(model)) {
+      return model;
+    }
+    return null;
+  }, [ctx, name, model, check, parent]);
+  const [maybeModel, setModel] = React.useState(m);
+  React.useEffect(() => {
+    if (!name) {
       return noop;
     }
+    const m = parent.get(name);
+    check(m) && setModel(m);
+    const $ = merge(parent.childRegister$, parent.childRemove$)
+      .pipe(filter(change => change === name))
+      .subscribe(name => {
+        const candidate = parent.get(name);
+        if (check(candidate)) {
+          setModel(candidate);
+        }
+      });
     return () => $.unsubscribe();
-  }, [parent, $]);
+  }, [name, parent, m]);
+  return maybeModel;
 }
 
 export function FieldSetValue({ name, children }: IFieldSetValueProps) {
-  const { parent, strategy, form } = useFormContext();
-  const model = parent.get(name) as FieldSetModel<any>;
-  subscribeParent(parent, model, name);
-  const childContext = useMemo<IFormContext>(
+  const ctx = useFormContext();
+  const model = getModelFromContext(ctx, name, undefined, isFieldSetModel);
+  const childContext = React.useMemo<IFormContext>(
     () => ({
-      validate$: empty(),
-      strategy,
-      form,
-      parent: model as FieldSetModel,
+      ...ctx,
+      parent: model!,
     }),
-    [strategy, form, model],
+    [ctx, model],
   );
-  if (isFieldSetModel(model)) {
-    return <FormContext.Provider value={childContext}>{children}</FormContext.Provider>;
+  if (model) {
+    return (
+      <FormContext.Provider key={model.id} value={childContext}>
+        {children}
+      </FormContext.Provider>
+    );
   }
   return null;
 }
@@ -73,42 +85,34 @@ export interface IFieldValueViewDrivenProps<T> extends IFieldValueCommonProps<T>
 export type IFieldValueProps<T> = IFieldValueModelDrivenProps<T> | IFieldValueViewDrivenProps<T>;
 
 export function FieldValue<T extends React.ReactElement | null>(props: IFieldValueProps<T>): React.ReactElement | null {
-  const { name, model, children } = props as Partial<IFieldValueModelDrivenProps<T> & IFieldValueViewDrivenProps<T>>;
-  let field: FieldModel<T> | null | undefined = null;
-  const { parent } = useFormContext();
+  const { name, model: maybeModel, children } = props as Partial<
+    IFieldValueModelDrivenProps<T> & IFieldValueViewDrivenProps<T>
+  >;
+  const ctx = useFormContext();
+  const model = getModelFromContext(ctx, name, maybeModel, isFieldModel);
   if (model) {
-    field = model;
-  } else if (name) {
-    const m = parent.get(name) as FieldModel<T>;
-    if (isFieldModel(m)) {
-      field = m;
-    }
-  }
-  subscribeParent(parent, field, name);
-  if (field) {
-    const value = useValue$(field.value$, field.value);
+    const value = useValue$(model.value$, model.value);
     if (children) {
       return children(value);
     }
     return <>{value}</>;
   }
+  useValue$(never(), null);
   return null;
 }
 
 export function useFieldArrayValue<Item, Child extends BasicModel<Item>>(field: string | FieldArrayModel<Item, Child>) {
-  const { parent } = useFormContext();
-  let model: FieldArrayModel<Item, Child> | null | undefined = null;
-  if (typeof field === 'string') {
-    let m = parent.get(field);
-    if (m instanceof FieldArrayModel) {
-      model = m;
-    }
-  } else if (isFieldArrayModel(model)) {
-    model = field;
-  }
-  subscribeParent(parent, model, field);
+  const ctx = useFormContext();
+  const model = getModelFromContext(
+    ctx,
+    field as string | undefined,
+    field as FieldArrayModel<Item, Child> | undefined,
+    isFieldArrayModel,
+  );
   if (!model) {
+    useValue$(never(), null);
     return null;
   }
-  return model.children;
+  const children = useValue$(model.children$, model.children);
+  return children;
 }

@@ -44,7 +44,7 @@ function useModelAndChildProps<Value>(
       }
       const m = parent.get(field);
       if (!m || !isFieldModel<Value>(m)) {
-        const v = orElse<any>(defaultValue, notUndefined, parent.getPatchedValue(field));
+        const v = orElse<Value>(defaultValue, notUndefined, parent.getPatchedValue(field));
         model = new FieldModel<Value>(v);
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
@@ -53,7 +53,7 @@ function useModelAndChildProps<Value>(
     } else if (isModelRef<Value, any, FieldModel<Value>>(field)) {
       const m = field.getModel();
       if (!m || isFieldModel<Value>(m)) {
-        const v = orElse(defaultValue, notUndefined, field.patchedValue, field.initialValue);
+        const v = orElse<Value>(defaultValue, notUndefined, field.patchedValue, field.initialValue);
         model = new FieldModel<Value>(v);
         field.setModel(model);
       } else {
@@ -107,14 +107,7 @@ export function useField<Value>(
 ): IUseField<Value> {
   const { parent, strategy, form } = useFormContext();
   const compositingRef = useRef(false);
-  const { childProps, model } = useModelAndChildProps(
-    field,
-    parent,
-    strategy,
-    defaultValue!,
-    compositingRef,
-    form,
-  );
+  const { childProps, model } = useModelAndChildProps(field, parent, strategy, defaultValue!, compositingRef, form);
   const { value$, error$, validate$ } = model;
   const value = useValue$(value$, value$.getValue());
   /**

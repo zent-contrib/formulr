@@ -8,9 +8,7 @@ type FieldArrayChild<Item, Child extends BasicModel<Item>> =
   | Child
   | ModelRef<Item, FieldArrayModel<Item, Child>, Child>;
 
-class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> extends BasicModel<
-  readonly (Item | null)[]
-> {
+class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> extends BasicModel<readonly Item[]> {
   /**
    * @internal
    */
@@ -18,15 +16,15 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
 
   readonly children$: BehaviorSubject<FieldArrayChild<Item, Child>[]>;
 
-  private readonly childFactory: (defaultValue: Item | null) => FieldArrayChild<Item, Child>;
+  private readonly childFactory: (defaultValue: Item) => FieldArrayChild<Item, Child>;
 
   /** @internal */
-  constructor(childBuilder: BasicBuilder<Item, Child> | null, private readonly defaultValue: readonly (Item | null)[]) {
+  constructor(childBuilder: BasicBuilder<Item, Child> | null, private readonly defaultValue: readonly Item[]) {
     super();
     this.childFactory = childBuilder
-      ? (defaultValue: Item | null) => childBuilder.build(defaultValue)
-      : (defaultValue: Item | null) =>
-          new ModelRef<Item, FieldArrayModel<Item, Child>, Child>(null, defaultValue, {
+      ? (defaultValue: Item) => childBuilder.build(defaultValue)
+      : (defaultValue: Item) =>
+          new ModelRef<Item, FieldArrayModel<Item, Child>, Child>(undefined, defaultValue, {
             owner: this,
           });
     const children = this.defaultValue.map(this.childFactory);
@@ -184,6 +182,9 @@ FieldArrayModel.prototype.isFieldArrayModel = true;
 function isFieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>>(
   maybeModel: any,
 ): maybeModel is FieldArrayModel<Item, Child> {
+  if (!maybeModel) {
+    return false;
+  }
   return !!maybeModel.isFieldArrayModel;
 }
 

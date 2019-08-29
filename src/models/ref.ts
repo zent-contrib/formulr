@@ -14,14 +14,14 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
   /**
    * @internal
    */
-  patchedValue: Value | null = null;
+  patchedValue: Value | undefined = undefined;
 
   /**
    * @internal
    */
   constructor(
-    private current: Model | null = null,
-    public initialValue: Value | null = null,
+    private current: Model | undefined = undefined,
+    public initialValue: Value | undefined = undefined,
     private ctx: IModelRefContext<Parent>,
   ) {}
 
@@ -29,7 +29,7 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
     return this.current;
   }
 
-  setModel(model: Model | null) {
+  setModel(model: Model | undefined) {
     this.current = model;
   }
 
@@ -122,6 +122,9 @@ ModelRef.prototype.isFormulrModelRef = true;
 function isModelRef<T, P, M extends BasicModel<T> = BasicModel<T>>(
   maybeModelRef: any,
 ): maybeModelRef is ModelRef<T, P, M> {
+  if (!maybeModelRef) {
+    return false;
+  }
   return !!maybeModelRef.isFormulrModelRef;
 }
 

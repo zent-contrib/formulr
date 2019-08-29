@@ -2,7 +2,7 @@ import { Subject, BehaviorSubject } from 'rxjs';
 import { ValidateOption, IValidator, IMaybeError } from '../validate';
 
 interface IModel<Value> {
-  getRawValue(): Value;
+  getRawValue(): any;
   pristine(): boolean;
   touched(): boolean;
   dirty(): boolean;
@@ -15,7 +15,11 @@ interface IModel<Value> {
   error: IMaybeError<Value>;
 }
 
+let uniqueId = 0;
+
 abstract class BasicModel<Value> implements IModel<Value> {
+  id: string;
+
   /** @internal */
   phantomValue!: Value;
   /** @internal */
@@ -29,9 +33,14 @@ abstract class BasicModel<Value> implements IModel<Value> {
   /** @internal */
   isFormulrModel!: boolean;
 
-  abstract getRawValue(): Value;
+  abstract getRawValue(): any;
 
   readonly error$ = new BehaviorSubject<IMaybeError<Value>>(null);
+
+  constructor() {
+    this.id = `model-${uniqueId}`;
+    uniqueId += 1;
+  }
 
   abstract pristine(): boolean;
   abstract touched(): boolean;

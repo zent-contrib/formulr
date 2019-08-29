@@ -21,7 +21,7 @@ export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
 ];
 
 function useArrayModel<Item, Child extends BasicModel<Item>>(
-  field: string | FieldArrayModel<Item, Child> | ModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>,
+  field: string | FieldArrayModel<Item, Child> | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   parent: FieldSetModel,
   strategy: FormStrategy,
   defaultValue: readonly Item[],
@@ -40,7 +40,7 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
       } else {
         model = m;
       }
-    } else if (isModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>(field)) {
+    } else if (isModelRef<ReadonlyArray<Item>, any, FieldArrayModel<Item, Child>>(field)) {
       const m = field.getModel();
       if (!m || !isFieldArrayModel(m)) {
         const v = orElse<readonly Item[]>(defaultValue, Array.isArray, field.patchedValue, field.initialValue);
@@ -57,7 +57,7 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
 }
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
-  field: string | ModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>,
+  field: string | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   validators?: readonly IValidator<readonly (Item | null)[]>[],
   defaultValue?: Item[],
 ): IUseFieldArray<Item, Child>;
@@ -67,8 +67,8 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
 ): IUseFieldArray<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
-  field: string | FieldArrayModel<Item, Child> | ModelRef<readonly (Item | null)[], any, FieldArrayModel<Item, Child>>,
-  validators: readonly IValidator<readonly (Item | null)[]>[] = [],
+  field: string | FieldArrayModel<Item, Child> | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
+  validators: readonly IValidator<readonly Item[]>[] = [],
   defaultValue: readonly Item[] = [],
 ): IUseFieldArray<Item, Child> {
   const { parent, strategy, form } = useFormContext();

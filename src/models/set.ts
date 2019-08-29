@@ -168,10 +168,15 @@ class FieldSetModel<
   }
 }
 
+FieldSetModel.prototype.isFieldSetModel = true;
+
 function isFieldSetModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
   maybeModel: any,
 ): maybeModel is FieldSetModel<Children> {
-  return !!maybeModel.isFieldSet;
+  if (!maybeModel) {
+    return false;
+  }
+  return !!maybeModel.isFieldSetModel;
 }
 
 export { FieldSetModel, $FieldSetValue, isFieldSetModel };
