@@ -1,6 +1,6 @@
 {
   "name": "formulr",
-  "version": "0.2.0-beta.26",
+  "version": "0.2.0-beta.27",
   "description": "Form toolkit for React",
   "main": "./lib/index.js",
   "module": "./esm/index.js",
