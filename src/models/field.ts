@@ -12,6 +12,8 @@ class FieldModel<Value> extends BasicModel<Value> {
   /** @internal */
   _touched = false;
 
+  isCompositing = false;
+
   /** @internal */
   constructor(private readonly defaultValue: Value) {
     super();

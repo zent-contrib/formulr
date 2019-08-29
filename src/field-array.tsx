@@ -60,20 +60,20 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   validators?: readonly IValidator<readonly (Item | null)[]>[],
   defaultValue?: Item[],
-): IUseFieldArray<Item, Child>;
+): FieldArrayModel<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: FieldArrayModel<Item, Child>,
-): IUseFieldArray<Item, Child>;
+): FieldArrayModel<Item, Child>;
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item, Child> | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   validators: readonly IValidator<readonly Item[]>[] = [],
   defaultValue: readonly Item[] = [],
-): IUseFieldArray<Item, Child> {
+): FieldArrayModel<Item, Child> {
   const { parent, strategy, form } = useFormContext();
   const model = useArrayModel(field, parent, strategy, defaultValue);
-  if (typeof field === 'string') {
+  if (typeof field === 'string' || isModelRef(field)) {
     model.validators = validators;
   }
   const { error$, validate$, children$ } = model;
@@ -86,8 +86,8 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
     const $ = validate$.pipe(switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
-    return $.unsubscribe.bind($);
+    return () => $.unsubscribe();
   }, [model, parent]);
   removeOnUnmount(field, model, parent);
-  return [model.children$.getValue(), model];
+  return model;
 }

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useMemo } from 'react';
-import { switchMap } from 'rxjs/operators';
+import { useEffect, useMemo } from 'react';
+import { switchMap, tap } from 'rxjs/operators';
 
 import {
   FieldModel,
@@ -17,23 +17,46 @@ import { validate, ErrorSubscriber, IValidator, ValidatorContext } from './valid
 import { removeOnUnmount, orElse, notUndefined } from './utils';
 import Scheduler from './scheduler';
 
-export interface IFormFieldChildProps<Value> {
-  value: Value;
-  onChange(value: Value): void;
-  onFocus: React.FocusEventHandler;
-  onBlur: React.FocusEventHandler;
-  onCompositionStart: React.CompositionEventHandler;
-  onCompositionEnd: React.CompositionEventHandler;
+export function makeFieldProps<Value>(model: FieldModel<Value>) {
+  const { form, parent } = useFormContext();
+  const { value } = model;
+  const validateOnChangeScheduler = useMemo(() => new Scheduler(() => model.validate()), [model]);
+  const props = useMemo(
+    () => ({
+      value,
+      onChange(value: Value) {
+        model.value$.next(value);
+        if (model.isCompositing) {
+          return;
+        }
+        validateOnChangeScheduler.schedule();
+        form.change$.next();
+      },
+      onCompositionStart() {
+        model.isCompositing = true;
+      },
+      onCompositionEnd() {
+        model.isCompositing = false;
+      },
+      onBlur() {
+        model.validate();
+        parent.validate();
+      },
+      onFocus() {
+        model._touched = true;
+      },
+    }),
+    [model],
+  );
+  props.value = value;
+  return props;
 }
-
-export type IUseField<Value> = [IFormFieldChildProps<Value>, FieldModel<Value>];
 
 function useModelAndChildProps<Value>(
   field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>> | string,
   parent: FieldSetModel,
   strategy: FormStrategy,
   defaultValue: Value | (() => Value),
-  compositingRef: React.MutableRefObject<boolean>,
   form: FormModel,
 ) {
   return useMemo(() => {
@@ -62,33 +85,7 @@ function useModelAndChildProps<Value>(
     } else {
       model = field;
     }
-    const { value } = model;
-    const validateOnChangeScheduler = new Scheduler(() => model.validate());
-    const childProps: IFormFieldChildProps<Value> = {
-      value,
-      onChange(value: Value) {
-        model.value$.next(value);
-        validateOnChangeScheduler.schedule();
-        form.change$.next();
-      },
-      onCompositionStart() {
-        compositingRef.current = true;
-      },
-      onCompositionEnd() {
-        compositingRef.current = false;
-      },
-      onBlur() {
-        model.validate();
-        parent.validate();
-      },
-      onFocus() {
-        model._touched = true;
-      },
-    };
-    return {
-      childProps,
-      model,
-    };
+    return model;
   }, [field, parent, strategy, form]);
 }
 
@@ -96,34 +93,28 @@ export function useField<Value>(
   field: string,
   defaultValue: Value,
   validators?: readonly IValidator<Value>[],
-): IUseField<Value>;
+): FieldModel<Value>;
 
-export function useField<Value>(field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>>): IUseField<Value>;
+export function useField<Value>(field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>>): FieldModel<Value>;
 
 export function useField<Value>(
   field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>> | string,
   defaultValue?: Value | (() => Value),
   validators: readonly IValidator<Value>[] = [],
-): IUseField<Value> {
+): FieldModel<Value> {
   const { parent, strategy, form } = useFormContext();
-  const compositingRef = useRef(false);
-  const { childProps, model } = useModelAndChildProps(field, parent, strategy, defaultValue!, compositingRef, form);
+  const model = useModelAndChildProps(field, parent, strategy, defaultValue!, form);
   const { value$, error$, validate$ } = model;
-  const value = useValue$(value$, value$.getValue());
-  /**
-   * ignore returned value
-   * user can get the value from model
-   */
+  useValue$(value$, value$.getValue());
   useValue$(error$, error$.getValue());
-  childProps.value = value;
-  if (typeof field === 'string') {
+  if (typeof field === 'string' || isModelRef(field)) {
     model.validators = validators;
   }
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
-    const $ = validate$.pipe(switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
-    return $.unsubscribe.bind($);
+    const $ = validate$.pipe(tap(() => console.log('validate')), switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
+    return () => $.unsubscribe();
   }, [value$, validate$, model, form, parent]);
   removeOnUnmount(field, model, parent);
-  return [childProps, model];
+  return model;
 }

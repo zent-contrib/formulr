@@ -59,7 +59,7 @@ export function useFieldSet<T extends Record<string, BasicModel<any>>>(
 ): IUseFieldSet<T> {
   const { parent, strategy, form } = useFormContext();
   const model = useFieldSetModel(field, parent, strategy);
-  if (typeof field === 'string') {
+  if (typeof field === 'string' || isModelRef(field)) {
     model.validators = validators;
   }
   const { validate$, error$ } = model;
@@ -80,7 +80,7 @@ export function useFieldSet<T extends Record<string, BasicModel<any>>>(
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
     const $ = validate$.pipe(switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
-    return $.unsubscribe.bind($);
+    return () => $.unsubscribe();
   }, [model, parent, form]);
   removeOnUnmount(field, model, parent);
   return [childContext, model];

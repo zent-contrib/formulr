@@ -108,12 +108,12 @@ function filterAsync<T>(skipAsync: boolean, validator: IValidator<T>) {
 class ValidatorExecutor<T> {
   constructor(private readonly model: BasicModel<T>, private readonly ctx: ValidatorContext) {}
 
-  call(strategy: ValidateOption): Observable<IMaybeError<T>> {
-    if (!this.model.touched && !(strategy & ValidateOption.IncludeUntouched)) {
+  call(option: ValidateOption): Observable<IMaybeError<T>> {
+    if (!this.model.touched() && !(option & ValidateOption.IncludeUntouched)) {
       return of(null);
     }
     const value = this.model.getRawValue();
-    const skipAsync = (strategy & ValidateOption.IncludeAsync) === 0;
+    const skipAsync = (option & ValidateOption.IncludeAsync) === 0;
     return from(this.model.validators).pipe(
       filter(validator => filterAsync(skipAsync, validator)),
       map(
@@ -128,5 +128,5 @@ class ValidatorExecutor<T> {
 
 export function validate<T>(model: BasicModel<T>, ctx: ValidatorContext) {
   const executor = new ValidatorExecutor(model, ctx);
-  return (strategy: ValidateOption) => executor.call(strategy);
+  return (option: ValidateOption) => executor.call(option);
 }

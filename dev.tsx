@@ -16,6 +16,7 @@ import {
   ModelRef,
   FieldSetModel,
   ValidateOption,
+  makeFieldProps,
 } from './src';
 
 function asyncValidator(): ValidatorResult<string> {
@@ -31,7 +32,7 @@ function asyncValidator(): ValidatorResult<string> {
 asyncValidator.isAsync = true;
 
 const List2 = () => {
-  const [children] = useFieldArray<any, FieldSetModel>('list', [], ['123', '456']);
+  const { children } = useFieldArray<any, FieldSetModel>('list', [], ['123', '456']);
   return (
     <>
       {children.map((child, index) => (
@@ -42,7 +43,7 @@ const List2 = () => {
 };
 
 const List = () => {
-  const [children] = useFieldArray<any, FieldSetModel>('list', [], [{}, {}]);
+  const { children } = useFieldArray<any, FieldSetModel>('list', [], [{}, {}]);
   return (
     <div style={{ border: '1px solid red', padding: '10px' }}>
       {children.map((child, index) => (
@@ -57,8 +58,10 @@ const List = () => {
   );
 };
 
-const Input = ({ field }: { field: any, validators?: any[] }) => {
-  const [input, { error }] = useField(field, '', [Validators.required('required'), asyncValidator]);
+const Input = ({ field }: { field: any; validators?: any[] }) => {
+  const model = useField(field, '', [Validators.required('required'), asyncValidator]);
+  const { error } = model;
+  const input = makeFieldProps(model);
   const onChange = useCallback(
     e => {
       input.onChange(e.target.value);
@@ -73,11 +76,11 @@ const Input = ({ field }: { field: any, validators?: any[] }) => {
   );
 };
 
-const NestedList1 = ({ model }: { model: any }) => {
-  const [children] = useFieldArray<any, FieldSetModel>(model, [], [['123', '456'], ['654', '321']]);
+const NestedList1 = ({ model: maybeModel }: { model: any }) => {
+  const model = useFieldArray<any, FieldSetModel>(maybeModel, [], [['123', '456'], ['654', '321']]);
   return (
     <>
-      {children.map((child, index) => (
+      {model.children.map((child, index) => (
         <NestedList2 key={index} model={child} />
       ))}
     </>
@@ -85,7 +88,7 @@ const NestedList1 = ({ model }: { model: any }) => {
 };
 
 const NestedList2 = ({ model }: { model: any }) => {
-  const [children] = useFieldArray<any, FieldSetModel>(model, [], ['123', '456']);
+  const { children } = useFieldArray<any, FieldSetModel>(model, [], ['123', '456']);
   return (
     <>
       {children.map((child, index) => (
@@ -131,7 +134,9 @@ const App = () => {
       <NestedList1 model="nested-list" />
       <div>
         <button onClick={() => console.log(form.model.getRawValue())}>button</button>
-        <button onClick={() => form.model.validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildren)}>validate</button>
+        <button onClick={() => form.model.validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildren)}>
+          validate
+        </button>
       </div>
     </FormProvider>
   );
