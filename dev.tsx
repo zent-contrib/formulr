@@ -16,7 +16,7 @@ import {
   ModelRef,
   FieldSetModel,
   ValidateOption,
-  makeFieldProps,
+  makeDefaultFieldProps,
 } from './src';
 
 function asyncValidator(): ValidatorResult<string> {
@@ -61,7 +61,7 @@ const List = () => {
 const Input = ({ field }: { field: any; validators?: any[] }) => {
   const model = useField(field, '', [Validators.required('required'), asyncValidator]);
   const { error } = model;
-  const input = makeFieldProps(model);
+  const input = makeDefaultFieldProps(model);
   const onChange = useCallback(
     e => {
       input.onChange(e.target.value);
