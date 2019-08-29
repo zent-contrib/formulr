@@ -1,4 +1,4 @@
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { BasicModel } from './basic';
 import { ValidateOption } from '../validate';
 
@@ -11,8 +11,6 @@ class FieldModel<Value> extends BasicModel<Value> {
   readonly value$: BehaviorSubject<Value>;
   /** @internal */
   _touched = false;
-  /** @internal */
-  change$ = new Subject();
 
   /** @internal */
   constructor(private readonly defaultValue: Value) {

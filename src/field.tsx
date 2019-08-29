@@ -1,15 +1,12 @@
 import { useEffect, useRef, useMemo } from 'react';
-import { merge } from 'rxjs';
-import { switchMap, audit, mapTo } from 'rxjs/operators';
-import * as Scheduler from 'scheduler';
+import { switchMap } from 'rxjs/operators';
 
 import { FieldModel, BasicModel, FormStrategy, FieldSetModel, FormModel, ModelRef, isModelRef } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
-import { ValidateOption, validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
+import { validate, ErrorSubscriber, IValidator, ValidatorContext } from './validate';
 import { removeOnUnmount, getValueFromModelRefOrDefault, orElse, notUndefined } from './utils';
-
-const { unstable_scheduleCallback: scheduleCallback, unstable_IdlePriority: IdlePriority } = Scheduler;
+import Scheduler from './scheduler';
 
 export interface IFormFieldChildProps<Value> {
   value: Value;
@@ -18,14 +15,6 @@ export interface IFormFieldChildProps<Value> {
   onBlur: React.FocusEventHandler;
   onCompositionStart: React.CompositionEventHandler;
   onCompositionEnd: React.CompositionEventHandler;
-}
-
-function batch() {
-  return new Promise(resolve =>
-    scheduleCallback(IdlePriority, resolve, {
-      delay: 100,
-    }),
-  );
 }
 
 export type IUseField<Value> = [IFormFieldChildProps<Value>, FieldModel<Value>];
@@ -65,11 +54,12 @@ function useModelAndChildProps<Value>(
       model = field;
     }
     const { value } = model;
+    const validateOnChangeScheduler = new Scheduler(() => model.validate());
     const childProps: IFormFieldChildProps<Value> = {
       value,
       onChange(value: Value) {
         model.value$.next(value);
-        model.change$.next(value);
+        validateOnChangeScheduler.schedule();
         form.change$.next();
       },
       onCompositionStart() {
@@ -129,15 +119,7 @@ export function useField<Value>(
   }
   useEffect(() => {
     const ctx = new ValidatorContext(parent, form);
-    const $ = merge(
-      validate$,
-      model.change$.pipe(
-        mapTo(ValidateOption.Default),
-        audit(batch),
-      ),
-    )
-      .pipe(switchMap(validate(model, ctx)))
-      .subscribe(new ErrorSubscriber(model));
+    const $ = validate$.pipe(switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
     return $.unsubscribe.bind($);
   }, [value$, validate$, model, form, parent]);
   removeOnUnmount(field, model, parent);

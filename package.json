@@ -40,7 +40,6 @@
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "rxjs": "^6.4.0",
-    "scheduler": "0.14.0",
     "tslib": "^1.9.3",
     "utility-types": "^3.5.0"
   },
@@ -57,5 +56,8 @@
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.5",
     "webpack-dev-server": "^3.7.2"
+  },
+  "peerDependencies": {
+    "scheduler": "~0.14.0 || ~0.15.0"
   }
 }
