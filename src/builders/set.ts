@@ -2,7 +2,7 @@ import { BasicBuilder } from './basic';
 import { FieldSetModel, $FieldSetValue } from '../models';
 
 export type $FieldSetBuilderChildren<ChildBuilders extends Record<string, BasicBuilder<any, any>>> = {
-  [Key in keyof ChildBuilders]: ChildBuilders[Key]['phantomModel']
+  [Key in keyof ChildBuilders]: ChildBuilders[Key]['phantomModel'];
 };
 
 export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<any, any>>> extends BasicBuilder<
@@ -15,14 +15,14 @@ export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<a
 
   build(defaultValues?: Record<string, any> | null) {
     defaultValues = defaultValues || {};
-    const children = {} as Record<string, any>;
+    const children = {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>;
     const childKeys = Object.keys(this._childBuilders);
     for (let i = 0; i < childKeys.length; i += 1) {
       const key = childKeys[i];
       const childBuilder = this._childBuilders[key];
       children[key] = childBuilder.build(defaultValues[key]);
     }
-    const model = new FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>(children as any);
+    const model = new FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>(children);
     model.validators = this._validators;
     return model;
   }

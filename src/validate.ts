@@ -83,7 +83,7 @@ export class ValidatorContext {
 
   getSectionValue<T extends object = Record<string, unknown>>(...names: string[]): T {
     if (names.length === 0) {
-      return this.parent.getRawValue() as any;
+      return this.parent.getRawValue() as T;
     }
     const data: Record<string, unknown> = {};
     for (let i = 0; i < names.length; i += 1) {
@@ -93,7 +93,7 @@ export class ValidatorContext {
         data[name] = model.getRawValue();
       }
     }
-    return data as any;
+    return data as T;
   }
 
   getFormValue<T extends object = Record<string, unknown>>(): T {
