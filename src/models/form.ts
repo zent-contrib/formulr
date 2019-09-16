@@ -22,6 +22,11 @@ class FormModel<
   readonly isValidating$ = new BehaviorSubject(false);
   readonly change$ = new Subject<void>();
 
+  constructor(public readonly children: Children) {
+    super(children);
+    this.form = this;
+  }
+
   /** @internal */
   addWorkingValidator(v: Observable<unknown>) {
     this.workingValidators.add(v);

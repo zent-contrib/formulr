@@ -1,13 +1,10 @@
 import { BasicModel, IModel } from './basic';
 import { ValidateOption, IMaybeError } from '../validate';
 
-interface IModelRefContext<Parent> {
-  owner: Parent;
-}
-
 const REF = Symbol('ref');
 
-class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value>> implements IModel<Value | null> {
+class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<Value> = BasicModel<Value>>
+  implements IModel<Value | null> {
   /**
    * @internal
    */
@@ -22,21 +19,29 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
    * @internal
    */
   constructor(
-    private current: Model | undefined = undefined,
+    private current: Model | undefined | null = undefined,
     public initialValue: Value | undefined = undefined,
-    private ctx: IModelRefContext<Parent>,
+    private owner: Parent | null,
   ) {}
 
   getModel() {
     return this.current;
   }
 
-  setModel(model: Model | undefined) {
+  setModel(model: Model | undefined | null) {
+    if (this.current) {
+      this.current.form = null;
+      this.current.owner = null;
+    }
     this.current = model;
+    if (model) {
+      model.form = this.owner && this.owner.form;
+      model.owner = this;
+    }
   }
 
   getParent() {
-    return this.ctx.owner;
+    return this.owner;
   }
 
   dirty() {
@@ -124,10 +129,10 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
 
 ModelRef.prototype[REF] = true;
 
-function isModelRef<T, P, M extends BasicModel<T> = BasicModel<T>>(
+function isModelRef<T, P extends BasicModel<any>, M extends BasicModel<T> = BasicModel<T>>(
   maybeModelRef: any,
 ): maybeModelRef is ModelRef<T, P, M> {
   return !!(maybeModelRef && maybeModelRef[REF]);
 }
 
-export { IModelRefContext, ModelRef, isModelRef };
+export { ModelRef, isModelRef };

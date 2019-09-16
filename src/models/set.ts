@@ -62,6 +62,8 @@ class FieldSetModel<
   }
 
   registerChild(name: string, model: BasicModel<unknown>) {
+    model.form = this.form;
+    model.owner = this;
     this.children[name] = model;
     this.childRegister$.next(name);
   }
@@ -69,6 +71,8 @@ class FieldSetModel<
   removeChild(name: string) {
     const model = this.children[name];
     delete this.children[name];
+    model.form = null;
+    model.owner = null;
     this.childRemove$.next(name);
     return model;
   }

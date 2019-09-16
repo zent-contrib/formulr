@@ -25,10 +25,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     super();
     this.childFactory = childBuilder
       ? (defaultValue: Item) => childBuilder.build(defaultValue)
-      : (defaultValue: Item) =>
-          new ModelRef<Item, FieldArrayModel<Item, Child>, Child>(undefined, defaultValue, {
-            owner: this,
-          });
+      : (defaultValue: Item) => new ModelRef<Item, FieldArrayModel<Item, Child>, Child>(undefined, defaultValue, this);
     const children = this.defaultValue.map(this.childFactory);
     this.children$ = new BehaviorSubject(children);
   }
