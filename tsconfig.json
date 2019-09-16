@@ -11,7 +11,9 @@
     "declarationMap": true,
     "sourceMap": true,
     "importHelpers": true,
+    "sourceRoot": "src",
+    "rootDir": "src",
     "lib": ["dom", "es2017"]
   },
-  "exclude": ["node_modules", "esm", "lib", "cmd", "dist"]
+  "exclude": ["node_modules", "esm", "lib", "cmd", "dist", "dev.tsx"]
 }
