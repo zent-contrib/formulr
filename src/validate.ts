@@ -1,7 +1,7 @@
 import { Observable, isObservable, from, NextObserver, empty, of, defer } from 'rxjs';
 import { catchError, map, concatAll, filter, takeWhile, finalize } from 'rxjs/operators';
 import { BasicModel, isFieldSetModel } from './models';
-import { isPromise, notNull } from './utils';
+import { isPromise, isNull } from './utils';
 
 export interface IValidateResult<T> {
   name: string;
@@ -36,45 +36,6 @@ export interface IValidator<Value> {
 }
 
 export type ValidatorResult<T> = null | Observable<IMaybeError<T>> | Promise<IMaybeError<T>> | IMaybeError<T>;
-
-// function resultToSubscriber<T>(
-//   subscriber: Subscriber<IMaybeError<T>>,
-//   validator: IValidator<T>,
-//   ctx: ValidatorContext<T>,
-//   value: T,
-// ) {
-//   try {
-//     const a = validator(value, ctx);
-//     let observable: Observable<IMaybeError<T>>;
-//     if (isPromise<IMaybeError<T>>(a)) {
-//       observable = from(a);
-//     } else if (isObservable<IMaybeError<T>>(a)) {
-//       observable = a;
-//     } else {
-//       subscriber.next(a);
-//       subscriber.complete();
-//       return;
-//     }
-//     ctx.form.addWorkingValidator(observable);
-//     const $ = observable
-//       .pipe(
-//         catchError(error => {
-//           ctx.form.removeWorkingValidator(observable);
-//           setTimeout(() => {
-//             throw error;
-//           });
-//           return empty();
-//         }),
-//       )
-//       .subscribe(subscriber);
-//     return () => {
-//       ctx.form.removeWorkingValidator(observable);
-//       $.unsubscribe();
-//     };
-//   } catch (error) {
-//     subscriber.complete();
-//   }
-// }
 
 export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
   constructor(private readonly model: BasicModel<T>) {}
@@ -158,7 +119,7 @@ class ValidatorExecutor<T> {
       filter(validator => filterAsync(skipAsync, validator)),
       map(validator => defer(() => runValidator(validator, validation, value, this.ctx))),
       concatAll(),
-      takeWhile(notNull, true),
+      takeWhile(isNull, true),
       catchError(error => {
         reject(error);
         return empty();

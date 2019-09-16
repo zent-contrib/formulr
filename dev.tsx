@@ -20,7 +20,8 @@ import {
 } from './src';
 
 function asyncValidator(): ValidatorResult<string> {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
+    reject('111')
     setTimeout(() => {
       resolve({
         name: 'async',
@@ -64,7 +65,12 @@ const Input = ({ field }: { field: any; validators?: any[] }) => {
   const input = makeDefaultFieldProps(model);
   const onChange = useCallback(
     e => {
-      input.onChange(e.target.value);
+      model.value = e.target.value;
+      model.validate(ValidateOption.Default | ValidateOption.IncludeAsync).then(() => {
+        console.log('complete')
+      }, error => {
+        console.log('throws error', error);
+      })
     },
     [input.onChange],
   );
@@ -134,7 +140,7 @@ const App = () => {
       <NestedList1 model="nested-list" />
       <div>
         <button onClick={() => console.log(form.model.getRawValue())}>button</button>
-        <button onClick={() => form.model.validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildren)}>
+        <button onClick={() => form.model.validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildren).then(() => {console.log('form validation complete')})}>
           validate
         </button>
       </div>

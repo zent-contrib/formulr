@@ -5,8 +5,8 @@ export function notUndefined(value: any): value is any {
   return value !== undefined;
 }
 
-export function notNull<T>(value: T) {
-  return value !== null;
+export function isNull<T>(value: T) {
+  return value === null;
 }
 
 export function noop() {}
