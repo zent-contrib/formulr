@@ -6,13 +6,15 @@ type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
 };
 
+const SET = Symbol('set');
+
 class FieldSetModel<
   Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
 > extends BasicModel<$FieldSetValue<Children>> {
   /**
    * @internal
    */
-  isFieldSetModel!: boolean;
+  [SET]!: boolean;
 
   /** @internal */
   readonly validate$ = new Subject<ValidateOption>();
@@ -32,9 +34,9 @@ class FieldSetModel<
     const keys = Object.keys(values);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = (this.children as any)[key] as BasicModel<unknown>;
+      const child = this.children[key] as BasicModel<unknown>;
       if (isModel(child)) {
-        child.initialize((values as any)[key]);
+        child.initialize(values[key]);
       }
     }
   }
@@ -54,23 +56,23 @@ class FieldSetModel<
     const childrenKeys = Object.keys(this.children);
     for (let i = 0; i < childrenKeys.length; i++) {
       const key = childrenKeys[i];
-      const model = (this.children as any)[key] as BasicModel<unknown>;
+      const model = this.children[key] as BasicModel<unknown>;
       const childValue = model.getRawValue();
       value[key] = childValue;
     }
     return value;
   }
 
-  /** @internal */
   registerChild(name: string, model: BasicModel<unknown>) {
-    (this.children as any)[name] = model;
+    this.children[name] = model;
     this.childRegister$.next(name);
   }
 
-  /** @internal */
   removeChild(name: string) {
-    delete (this.children as any)[name];
+    const model = this.children[name];
+    delete this.children[name];
     this.childRemove$.next(name);
+    return model;
   }
 
   valid() {
@@ -80,8 +82,8 @@ class FieldSetModel<
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = (this.children as any)[key];
-      if (!child.isValid()) {
+      const child = this.children[key];
+      if (!child.valid()) {
         return false;
       }
     }
@@ -93,9 +95,9 @@ class FieldSetModel<
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = (this.children as any)[key];
+      const child = this.children[key];
       if (child) {
-        child.patchValue((value as any)[key]);
+        child.patchValue(value[key]);
       }
     }
   }
@@ -104,7 +106,7 @@ class FieldSetModel<
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = (this.children as any)[key];
+      const child = this.children[key];
       if (child) {
         child.clear();
       }
@@ -115,7 +117,7 @@ class FieldSetModel<
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = (this.children as any)[key];
+      const child = this.children[key];
       if (child) {
         child.reset();
       }
@@ -139,7 +141,7 @@ class FieldSetModel<
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = (this.children as any)[key];
+      const child = this.children[key];
       if (!child.pristine()) {
         return false;
       }
@@ -155,7 +157,7 @@ class FieldSetModel<
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = (this.children as any)[key];
+      const child = this.children[key];
       if (child.touched()) {
         return true;
       }
@@ -168,15 +170,12 @@ class FieldSetModel<
   }
 }
 
-FieldSetModel.prototype.isFieldSetModel = true;
+FieldSetModel.prototype[SET] = true;
 
 function isFieldSetModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
   maybeModel: any,
 ): maybeModel is FieldSetModel<Children> {
-  if (!maybeModel) {
-    return false;
-  }
-  return !!maybeModel.isFieldSetModel;
+  return !!(maybeModel && maybeModel[SET]);
 }
 
 export { FieldSetModel, $FieldSetValue, isFieldSetModel };

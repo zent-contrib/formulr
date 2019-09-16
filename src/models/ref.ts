@@ -5,11 +5,13 @@ interface IModelRefContext<Parent> {
   owner: Parent;
 }
 
+const REF = Symbol('ref');
+
 class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value>> implements IModel<Value | null> {
   /**
    * @internal
    */
-  isFormulrModelRef!: boolean;
+  [REF]!: boolean;
 
   /**
    * @internal
@@ -117,15 +119,12 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
   }
 }
 
-ModelRef.prototype.isFormulrModelRef = true;
+ModelRef.prototype[REF] = true;
 
 function isModelRef<T, P, M extends BasicModel<T> = BasicModel<T>>(
   maybeModelRef: any,
 ): maybeModelRef is ModelRef<T, P, M> {
-  if (!maybeModelRef) {
-    return false;
-  }
-  return !!maybeModelRef.isFormulrModelRef;
+  return !!(maybeModelRef && maybeModelRef[REF]);
 }
 
 export { IModelRefContext, ModelRef, isModelRef };

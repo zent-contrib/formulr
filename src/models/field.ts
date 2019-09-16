@@ -2,11 +2,13 @@ import { BehaviorSubject } from 'rxjs';
 import { BasicModel } from './basic';
 import { ValidateOption } from '../validate';
 
+const FIELD = Symbol('field');
+
 class FieldModel<Value> extends BasicModel<Value> {
   /**
    * @internal
    */
-  isFieldModel!: boolean;
+  [FIELD]!: boolean;
 
   readonly value$: BehaviorSubject<Value>;
   /** @internal */
@@ -75,13 +77,10 @@ class FieldModel<Value> extends BasicModel<Value> {
   }
 }
 
-FieldModel.prototype.isFieldModel = true;
+FieldModel.prototype[FIELD] = true;
 
 function isFieldModel<T>(maybeModel: any): maybeModel is FieldModel<T> {
-  if (!maybeModel) {
-    return false;
-  }
-  return !!maybeModel.isFieldModel;
+  return !!(maybeModel && maybeModel[FIELD]);
 }
 
 export { FieldModel, isFieldModel };

@@ -8,11 +8,13 @@ type FieldArrayChild<Item, Child extends BasicModel<Item>> =
   | Child
   | ModelRef<Item, FieldArrayModel<Item, Child>, Child>;
 
+const FIELD_ARRAY = Symbol('field-array');
+
 class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> extends BasicModel<readonly Item[]> {
   /**
    * @internal
    */
-  isFieldArrayModel!: boolean;
+  [FIELD_ARRAY]!: boolean;
 
   readonly children$: BehaviorSubject<FieldArrayChild<Item, Child>[]>;
 
@@ -177,15 +179,12 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   }
 }
 
-FieldArrayModel.prototype.isFieldArrayModel = true;
+FieldArrayModel.prototype[FIELD_ARRAY] = true;
 
 function isFieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>>(
   maybeModel: any,
 ): maybeModel is FieldArrayModel<Item, Child> {
-  if (!maybeModel) {
-    return false;
-  }
-  return !!maybeModel.isFieldArrayModel;
+  return !!(maybeModel && maybeModel[FIELD_ARRAY]);
 }
 
 export { FieldArrayChild, FieldArrayModel, isFieldArrayModel };
