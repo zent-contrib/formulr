@@ -1,5 +1,4 @@
-import { switchMap } from 'rxjs/operators';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   FieldArrayModel,
   BasicModel,
@@ -12,7 +11,7 @@ import {
 } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
-import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
+import { IValidator } from './validate';
 import { removeOnUnmount, orElse } from './utils';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
@@ -71,23 +70,18 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
   validators: readonly IValidator<readonly Item[]>[] = [],
   defaultValue: readonly Item[] = [],
 ): FieldArrayModel<Item, Child> {
-  const { parent, strategy, form } = useFormContext();
+  const { parent, strategy } = useFormContext();
   const model = useArrayModel(field, parent, strategy, defaultValue);
   if (typeof field === 'string' || isModelRef(field)) {
     model.validators = validators;
   }
-  const { error$, validate$, children$ } = model;
+  const { error$, children$ } = model;
   /**
    * ignore returned value
    * user can get the value from model
    */
   useValue$(children$, children$.getValue());
   useValue$(error$, error$.getValue());
-  useEffect(() => {
-    const ctx = new ValidatorContext(parent, form);
-    const $ = validate$.pipe(switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
-    return () => $.unsubscribe();
-  }, [model, parent]);
   removeOnUnmount(field, model, parent);
   return model;
 }

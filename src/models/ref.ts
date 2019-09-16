@@ -53,11 +53,14 @@ class ModelRef<Value, Parent, Model extends BasicModel<Value> = BasicModel<Value
     return this.current.touched();
   }
 
-  validate(option: ValidateOption = ValidateOption.Default) {
-    if ((option & ValidateOption.FromParent) === 0 || (option & ValidateOption.IncludeChildren) > 0) {
-      const model = this.current;
-      model && model.validate(option);
+  validate(option: ValidateOption = ValidateOption.Default): Promise<void> {
+    if ((option & ValidateOption.FromParent) !== 0 && (option & ValidateOption.IncludeChildren) === 0) {
+      return Promise.resolve();
     }
+    if (!this.current) {
+      return Promise.resolve();
+    }
+    return this.current.validate(option);
   }
 
   getRawValue() {

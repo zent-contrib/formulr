@@ -1,5 +1,16 @@
 import { Subject, BehaviorSubject } from 'rxjs';
-import { ValidateOption, IValidator, IMaybeError } from '../validate';
+import {
+  ValidateOption,
+  IValidator,
+  IMaybeError,
+  ErrorSubscriber,
+  IValidation,
+  validate,
+} from '../validate';
+import { switchMap } from 'rxjs/operators';
+import { FieldSetModel } from './set';
+import { ModelRef } from './ref';
+import { FormModel } from './form';
 
 interface IModel<Value> {
   getRawValue(): any;
@@ -20,16 +31,20 @@ let uniqueId = 0;
 const MODEL = Symbol('model');
 
 abstract class BasicModel<Value> implements IModel<Value> {
+  /** @internal */
   id: string;
-
   /** @internal */
   phantomValue!: Value;
   /** @internal */
-  readonly validate$ = new Subject<ValidateOption>();
+  readonly validate$ = new Subject<IValidation>();
   /** @internal */
   validators: readonly IValidator<Value>[] = [];
   /** @internal */
   initialValue: Value | undefined = undefined;
+  /** @internal */
+  owner: FieldSetModel<any> | ModelRef<any, any, any> | null = null;
+  /** @internal */
+  form: FormModel<any> | null = null;
   destroyOnUnmount = false;
 
   /** @internal */
@@ -42,6 +57,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
   constructor() {
     this.id = `model-${uniqueId}`;
     uniqueId += 1;
+    this.validate$.pipe(switchMap(validate(this))).subscribe(new ErrorSubscriber(this));
   }
 
   abstract pristine(): boolean;
@@ -49,10 +65,19 @@ abstract class BasicModel<Value> implements IModel<Value> {
   abstract dirty(): boolean;
   abstract valid(): boolean;
   abstract patchValue(value: Value): void;
-  abstract validate(strategy: ValidateOption): void;
   abstract reset(): void;
   abstract clear(): void;
   abstract initialize(value: Value): void;
+
+  validate(option: ValidateOption = ValidateOption.Default): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.validate$.next({
+        option,
+        resolve,
+        reject,
+      });
+    });
+  }
 
   get error() {
     return this.error$.getValue();

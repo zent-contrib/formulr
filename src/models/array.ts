@@ -140,16 +140,17 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     return ret;
   }
 
-  validate(option = ValidateOption.Default) {
-    this.validate$.next(option);
+  validate(option = ValidateOption.Default): Promise<any> {
     if (option & ValidateOption.IncludeChildren) {
-      const children = this.children$.getValue();
       const childOption = option | ValidateOption.FromParent;
-      for (let i = 0; i < children.length; i += 1) {
-        const child = children[i];
-        child.validate(childOption);
-      }
+      return Promise.all(
+        this.children$
+          .getValue()
+          .map(it => it.validate(childOption))
+          .concat(super.validate(option)),
+      );
     }
+    return super.validate(option);
   }
 
   pristine() {

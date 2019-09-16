@@ -1,6 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
 import { BasicModel } from './basic';
-import { ValidateOption } from '../validate';
 
 const FIELD = Symbol('field');
 
@@ -54,10 +53,6 @@ class FieldModel<Value> extends BasicModel<Value> {
 
   patchValue(value: Value) {
     this.value$.next(value);
-  }
-
-  validate(option = ValidateOption.Default) {
-    this.validate$.next(option);
   }
 
   pristine() {

@@ -17,8 +17,6 @@ class FieldSetModel<
   [SET]!: boolean;
 
   /** @internal */
-  readonly validate$ = new Subject<ValidateOption>();
-  /** @internal */
   patchedValue: $FieldSetValue<Children> | null = null;
 
   childRegister$ = new Subject<string>();
@@ -124,17 +122,16 @@ class FieldSetModel<
     }
   }
 
-  validate(option = ValidateOption.Default) {
-    this.validate$.next(option);
+  validate(option = ValidateOption.Default): Promise<any> {
     if (option & ValidateOption.IncludeChildren) {
-      const keys = Object.keys(this.children);
       const childOption = option | ValidateOption.FromParent;
-      for (let i = 0; i < keys.length; i += 1) {
-        const key = keys[i];
-        const child = this.children[key];
-        child.validate(childOption);
-      }
+      return Promise.all(
+        Object.keys(this.children)
+          .map(key => this.children[key].validate(childOption))
+          .concat(super.validate(option)),
+      );
     }
+    return super.validate(option);
   }
 
   pristine() {

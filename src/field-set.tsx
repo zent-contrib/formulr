@@ -1,5 +1,4 @@
-import { useMemo, useEffect } from 'react';
-import { switchMap } from 'rxjs/operators';
+import { useMemo } from 'react';
 import { useFormContext, IFormContext } from './context';
 import {
   FieldSetModel,
@@ -11,7 +10,7 @@ import {
   isFieldSetModel,
 } from './models';
 import { useValue$ } from './hooks';
-import { IValidator, validate, ErrorSubscriber, ValidatorContext } from './validate';
+import { IValidator } from './validate';
 import { removeOnUnmount, orElse, isPlainObject } from './utils';
 
 export type IUseFieldSet<T extends Record<string, BasicModel<any>>> = [IFormContext, FieldSetModel<T>];
@@ -62,10 +61,8 @@ export function useFieldSet<T extends Record<string, BasicModel<any>>>(
   if (typeof field === 'string' || isModelRef(field)) {
     model.validators = validators;
   }
-  const { validate$, error$ } = model;
   const childContext = useMemo(
     () => ({
-      validate$,
       strategy,
       form,
       parent: model as FieldSetModel,
@@ -76,12 +73,7 @@ export function useFieldSet<T extends Record<string, BasicModel<any>>>(
    * ignore returned value
    * user can get the value from model
    */
-  useValue$(error$, error$.getValue());
-  useEffect(() => {
-    const ctx = new ValidatorContext(parent, form);
-    const $ = validate$.pipe(switchMap(validate(model, ctx))).subscribe(new ErrorSubscriber(model));
-    return () => $.unsubscribe();
-  }, [model, parent, form]);
+  useValue$(model.error$, model.error$.getValue());
   removeOnUnmount(field, model, parent);
   return [childContext, model];
 }
