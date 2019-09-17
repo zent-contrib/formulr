@@ -1,5 +1,6 @@
 import { BasicBuilder } from './basic';
 import { FieldSetModel, $FieldSetValue } from '../models';
+import { Maybe, Some, None, or } from '../maybe';
 
 export type $FieldSetBuilderChildren<ChildBuilders extends Record<string, BasicBuilder<any, any>>> = {
   [Key in keyof ChildBuilders]: ChildBuilders[Key]['phantomModel'];
@@ -13,14 +14,18 @@ export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<a
     super();
   }
 
-  build(defaultValues?: Record<string, any> | null) {
-    defaultValues = defaultValues || {};
+  build(defaultValues?: Maybe<Record<string, any>>) {
+    const defaults = or<Record<string, any>>(defaultValues, {});
     const children = {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>;
     const childKeys = Object.keys(this._childBuilders);
     for (let i = 0; i < childKeys.length; i += 1) {
       const key = childKeys[i];
       const childBuilder = this._childBuilders[key];
-      children[key] = childBuilder.build(defaultValues[key]);
+      if (key in defaults) {
+        children[key] = childBuilder.build(Some(defaults[key]));
+      } else {
+        children[key] = childBuilder.build(None());
+      }
     }
     const model = new FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>(children);
     model.validators = this._validators;

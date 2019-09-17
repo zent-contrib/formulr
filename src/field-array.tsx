@@ -12,7 +12,8 @@ import {
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { IValidator } from './validate';
-import { removeOnUnmount, orElse } from './utils';
+import { removeOnUnmount } from './utils';
+import { isSome, get } from './maybe';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
   FieldArrayChild<Item, Child>[],
@@ -33,7 +34,14 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
       }
       const m = parent.get(field);
       if (!m || !isFieldArrayModel<Item, Child>(m)) {
-        const v = orElse<readonly Item[]>(defaultValue, Array.isArray, parent.getPatchedValue(field));
+        const potential = parent.getPatchedValue(field);
+        let v = defaultValue;
+        if (isSome(potential)) {
+          const inner = get(potential);
+          if (Array.isArray(inner)) {
+            v = inner;
+          }
+        }
         model = new FieldArrayModel<Item, Child>(null, v);
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
@@ -42,7 +50,18 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
     } else if (isModelRef<ReadonlyArray<Item>, any, FieldArrayModel<Item, Child>>(field)) {
       const m = field.getModel();
       if (!m || !isFieldArrayModel(m)) {
-        const v = orElse<readonly Item[]>(defaultValue, Array.isArray, field.patchedValue, field.initialValue);
+        let v = defaultValue;
+        if (isSome(field.patchedValue)) {
+          const inner = get(field.patchedValue);
+          if (Array.isArray(inner)) {
+            v = inner;
+          }
+        } else if (isSome(field.initialValue)) {
+          const inner = get(field.initialValue);
+          if (Array.isArray(inner)) {
+            v = inner;
+          }
+        }
         model = new FieldArrayModel(null, v);
         field.setModel(model);
       } else {

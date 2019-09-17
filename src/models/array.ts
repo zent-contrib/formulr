@@ -3,6 +3,7 @@ import { BasicModel, isModel } from './basic';
 import { ValidateOption } from '../validate';
 import { ModelRef, isModelRef } from './ref';
 import { BasicBuilder } from '../builders/basic';
+import { Some, or } from '../maybe';
 
 type FieldArrayChild<Item, Child extends BasicModel<Item>> =
   | Child
@@ -24,14 +25,14 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   constructor(childBuilder: BasicBuilder<Item, Child> | null, private readonly defaultValue: readonly Item[]) {
     super();
     this.childFactory = childBuilder
-      ? (defaultValue: Item) => childBuilder.build(defaultValue)
-      : (defaultValue: Item) => new ModelRef<Item, FieldArrayModel<Item, Child>, Child>(undefined, defaultValue, this);
+      ? (defaultValue: Item) => childBuilder.build(Some(defaultValue))
+      : (defaultValue: Item) => new ModelRef<Item, FieldArrayModel<Item, Child>, Child>(null, Some(defaultValue), this);
     const children = this.defaultValue.map(this.childFactory);
     this.children$ = new BehaviorSubject(children);
   }
 
   reset() {
-    const children = (this.initialValue || this.defaultValue).map(this.childFactory);
+    const children = or(this.initialValue, this.defaultValue).map(this.childFactory);
     this.children$.next(children);
   }
 
@@ -102,7 +103,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   }
 
   initialize(values: Item[]) {
-    this.initialValue = values;
+    this.initialValue = Some(values);
     this.children$.next(values.map(this.childFactory));
   }
 

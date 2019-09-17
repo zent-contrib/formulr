@@ -11,6 +11,7 @@ import { switchMap } from 'rxjs/operators';
 import { FieldSetModel } from './set';
 import { ModelRef } from './ref';
 import { FormModel } from './form';
+import { Maybe, None } from '../maybe';
 
 interface IModel<Value> {
   getRawValue(): any;
@@ -40,7 +41,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
   /** @internal */
   validators: readonly IValidator<Value>[] = [];
   /** @internal */
-  initialValue: Value | undefined = undefined;
+  initialValue: Maybe<Value> = None();
   /** @internal */
   owner: FieldSetModel<any> | ModelRef<any, any, any> | null = null;
   /** @internal */

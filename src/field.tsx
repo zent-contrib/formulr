@@ -13,8 +13,9 @@ import {
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { IValidator } from './validate';
-import { removeOnUnmount, orElse, notUndefined } from './utils';
+import { removeOnUnmount } from './utils';
 import Scheduler from './scheduler';
+import { or } from './maybe';
 
 export function makeDefaultFieldProps<Value>(model: FieldModel<Value>) {
   const { form, parent } = useFormContext();
@@ -66,7 +67,7 @@ function useModelAndChildProps<Value>(
       }
       const m = parent.get(field);
       if (!m || !isFieldModel<Value>(m)) {
-        const v = orElse<Value>(defaultValue, notUndefined, parent.getPatchedValue(field));
+        const v = or<Value>(parent.getPatchedValue(field), defaultValue);
         model = new FieldModel<Value>(v);
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
@@ -75,7 +76,7 @@ function useModelAndChildProps<Value>(
     } else if (isModelRef<Value, any, FieldModel<Value>>(field)) {
       const m = field.getModel();
       if (!m || isFieldModel<Value>(m)) {
-        const v = orElse<Value>(defaultValue, notUndefined, field.patchedValue, field.initialValue);
+        const v = or<Value>(field.patchedValue, () => or(field.initialValue, defaultValue));
         model = new FieldModel<Value>(v);
         field.setModel(model);
       } else {
@@ -90,7 +91,7 @@ function useModelAndChildProps<Value>(
 
 export function useField<Value>(
   field: string,
-  defaultValue: Value,
+  defaultValue: Value | (() => Value),
   validators?: readonly IValidator<Value>[],
 ): FieldModel<Value>;
 

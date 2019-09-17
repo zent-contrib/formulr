@@ -11,7 +11,8 @@ import {
 } from './models';
 import { useValue$ } from './hooks';
 import { IValidator } from './validate';
-import { removeOnUnmount, orElse, isPlainObject } from './utils';
+import { removeOnUnmount, isPlainObject } from './utils';
+import { isSome, get, or } from './maybe';
 
 export type IUseFieldSet<T extends Record<string, BasicModel<any>>> = [IFormContext, FieldSetModel<T>];
 
@@ -29,7 +30,14 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
       const m = parent.get(field);
       if (!m || !isFieldSetModel<T>(m)) {
         model = new FieldSetModel({});
-        const v = orElse<Partial<T>>({}, isPlainObject, parent.getPatchedValue(field));
+        let v: Partial<$FieldSetValue<T>> = {};
+        const potential = parent.getPatchedValue(field);
+        if (isSome(potential)) {
+          const inner = get(potential);
+          if (isPlainObject(inner)) {
+            v = inner;
+          }
+        }
         model.patchedValue = v;
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
@@ -39,7 +47,9 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
       const m = field.getModel();
       if (!m || !isFieldSetModel<T>(m)) {
         model = new FieldSetModel({});
-        const v = orElse<Partial<T>>({}, isPlainObject, field.patchedValue, field.initialValue);
+        const v = or<Partial<$FieldSetValue<T>>>(field.patchedValue, () =>
+          or(field.initialValue, {} as $FieldSetValue<T>),
+        );
         model.patchedValue = v;
         field.setModel(model);
       } else {

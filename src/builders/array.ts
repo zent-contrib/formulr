@@ -1,5 +1,6 @@
 import { BasicBuilder } from './basic';
 import { FieldArrayModel } from '../models';
+import { Maybe, or } from '../maybe';
 
 export class FieldArrayBuilder<ChildBuilder extends BasicBuilder<any, any>> extends BasicBuilder<
   readonly (ChildBuilder['phantomValue'] | null)[],
@@ -16,11 +17,11 @@ export class FieldArrayBuilder<ChildBuilder extends BasicBuilder<any, any>> exte
   }
 
   build(
-    defaultValue?: readonly (ChildBuilder['phantomValue'] | null)[],
+    defaultValue?: Maybe<readonly (ChildBuilder['phantomValue'] | null)[]>,
   ): FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']> {
     const model = new FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']>(
       this.childBuilder,
-      defaultValue || this._defaultValue,
+      or(defaultValue, this._defaultValue),
     );
     model.validators = this._validators;
     return model;

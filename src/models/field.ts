@@ -1,5 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import { BasicModel } from './basic';
+import { Some, None, or, isSome, get } from '../maybe';
 
 const FIELD = Symbol('field');
 
@@ -30,16 +31,16 @@ class FieldModel<Value> extends BasicModel<Value> {
   }
 
   reset() {
-    this.value$.next(this.initialValue === undefined ? this.defaultValue : this.initialValue);
+    this.value$.next(or(this.initialValue, this.defaultValue));
   }
 
   clear() {
-    this.initialValue = undefined;
+    this.initialValue = None();
     this.value$.next(this.defaultValue);
   }
 
   initialize(value: Value) {
-    this.initialValue = value;
+    this.initialValue = Some(value);
     this.value$.next(value);
   }
 
@@ -57,8 +58,8 @@ class FieldModel<Value> extends BasicModel<Value> {
 
   pristine() {
     const value = this.value$.getValue();
-    if (this.initialValue !== undefined) {
-      return value === this.initialValue;
+    if (isSome(this.initialValue)) {
+      return value === get(this.initialValue);
     }
     return value === this.defaultValue;
   }

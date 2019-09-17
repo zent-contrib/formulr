@@ -1,5 +1,6 @@
 import { BasicModel, IModel } from './basic';
 import { ValidateOption, IMaybeError } from '../validate';
+import { Maybe, None } from '../maybe';
 
 const REF = Symbol('ref');
 
@@ -13,14 +14,14 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
   /**
    * @internal
    */
-  patchedValue: Value | undefined = undefined;
+  patchedValue: Maybe<Value> = None();
 
   /**
    * @internal
    */
   constructor(
-    private current: Model | undefined | null = undefined,
-    public initialValue: Value | undefined = undefined,
+    private current: Model | null = null,
+    public initialValue: Maybe<Value> = None(),
     private owner: Parent | null,
   ) {}
 
@@ -28,7 +29,7 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
     return this.current;
   }
 
-  setModel(model: Model | undefined | null) {
+  setModel(model: Model | null) {
     if (this.current) {
       this.current.form = null;
       this.current.owner = null;

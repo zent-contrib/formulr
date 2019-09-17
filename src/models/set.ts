@@ -1,6 +1,8 @@
 import { Subject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
 import { ValidateOption } from '../validate';
+import { Some, Maybe, None } from '../maybe';
+import { isPlainObject } from '../utils';
 
 type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
@@ -28,7 +30,10 @@ class FieldSetModel<
   }
 
   initialize(values: $FieldSetValue<Children>) {
-    this.initialValue = values;
+    if (!isPlainObject(values)) {
+      return;
+    }
+    this.initialValue = Some(values);
     const keys = Object.keys(values);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
@@ -42,11 +47,11 @@ class FieldSetModel<
   /**
    * @internal
    */
-  getPatchedValue(name: string) {
-    if (this.patchedValue) {
-      return this.patchedValue[name];
+  getPatchedValue<T>(name: string): Maybe<T> {
+    if (this.patchedValue && name in this.patchedValue) {
+      return Some<T>(this.patchedValue[name]);
     }
-    return null;
+    return None();
   }
 
   getRawValue(): $FieldSetValue<Children> {
@@ -64,6 +69,11 @@ class FieldSetModel<
   registerChild(name: string, model: BasicModel<unknown>) {
     model.form = this.form;
     model.owner = this;
+    if (this.children[name]) {
+      const prevModel = this.children[name];
+      prevModel.form = null;
+      prevModel.owner = null;
+    }
     this.children[name] = model;
     this.childRegister$.next(name);
   }
@@ -93,6 +103,9 @@ class FieldSetModel<
   }
 
   patchValue(value: $FieldSetValue<Children>) {
+    if (!isPlainObject(value)) {
+      return;
+    }
     this.patchedValue = value;
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i += 1) {
