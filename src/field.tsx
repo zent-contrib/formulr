@@ -1,5 +1,9 @@
-import { useMemo } from 'react';
-
+import { useMemo, useRef, useEffect } from 'react';
+import {
+  unstable_scheduleCallback as scheduleCallback,
+  unstable_cancelCallback as cancelCallback,
+  unstable_IdlePriority as IdlePriority,
+} from 'scheduler';
 import {
   FieldModel,
   BasicModel,
@@ -14,13 +18,13 @@ import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { IValidator } from './validate';
 import { removeOnUnmount } from './utils';
-import Scheduler from './scheduler';
 import { or } from './maybe';
+import { CallbackNode } from 'scheduler';
 
 export function makeDefaultFieldProps<Value>(model: FieldModel<Value>) {
-  const { form, parent } = useFormContext();
+  const { form } = useFormContext();
   const { value } = model;
-  const validateOnChangeScheduler = useMemo(() => new Scheduler(() => model.validate()), [model]);
+  const taskRef = useRef<CallbackNode | null>(null);
   const props = useMemo(
     () => ({
       value,
@@ -29,7 +33,12 @@ export function makeDefaultFieldProps<Value>(model: FieldModel<Value>) {
         if (model.isCompositing) {
           return;
         }
-        validateOnChangeScheduler.schedule();
+        if (!taskRef.current) {
+          taskRef.current = scheduleCallback(IdlePriority, () => {
+            taskRef.current = null;
+            model.validate();
+          });
+        }
         form.change$.next();
       },
       onCompositionStart() {
@@ -40,13 +49,18 @@ export function makeDefaultFieldProps<Value>(model: FieldModel<Value>) {
       },
       onBlur() {
         model.validate();
-        parent.validate();
       },
       onFocus() {
         model._touched = true;
       },
     }),
     [model],
+  );
+  useEffect(
+    () => () => {
+      taskRef.current && cancelCallback(taskRef.current);
+    },
+    [],
   );
   props.value = value;
   return props;

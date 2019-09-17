@@ -1,6 +1,7 @@
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { FieldSetModel } from './set';
 import { BasicModel } from './basic';
+import { ValidateOption } from '../validate';
 
 enum FormStrategy {
   Model,
@@ -25,6 +26,10 @@ class FormModel<
   constructor(public readonly children: Children) {
     super(children);
     this.form = this;
+  }
+
+  validate(option: ValidateOption = ValidateOption.Default) {
+    return super.validate(option | ValidateOption.IncludeChildren);
   }
 
   /** @internal */

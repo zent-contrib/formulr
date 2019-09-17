@@ -15,7 +15,8 @@ export abstract class BasicBuilder<Value, Model extends BasicModel<Value>> {
 
   abstract build(defaultValue?: Maybe<Value>): Model;
 
-  validators(validators: readonly IValidator<Value>[]) {
+  validators(...validators: readonly IValidator<Value>[]) {
     this._validators = validators;
+    return this;
   }
 }

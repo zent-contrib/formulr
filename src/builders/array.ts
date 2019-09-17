@@ -14,6 +14,7 @@ export class FieldArrayBuilder<ChildBuilder extends BasicBuilder<any, any>> exte
 
   defaultValue(defaultValue: readonly ChildBuilder['phantomValue'][]) {
     this._defaultValue = defaultValue;
+    return this;
   }
 
   build(

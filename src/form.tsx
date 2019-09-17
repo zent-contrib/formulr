@@ -1,24 +1,26 @@
 import { useMemo } from 'react';
 import { FormStrategy, FormModel, BasicModel } from './models';
 import { IFormContext } from './context';
+import { FormBuilder, $FieldSetBuilderChildren } from './builders';
+import { BasicBuilder } from './builders/basic';
 
 export interface IForm<T extends Record<string, BasicModel<unknown>>> {
   ctx: IFormContext;
   model: FormModel<T>;
 }
 
-export function useForm(arg: FormStrategy.View | (() => FormModel<any>)): IForm<any> {
+export function useForm<T extends Record<string, BasicBuilder<unknown, BasicModel<unknown>>>>(
+  arg: FormStrategy.View | FormBuilder<T>,
+): IForm<$FieldSetBuilderChildren<T>> {
   return useMemo(() => {
     let strategy: FormStrategy;
     let model: FormModel<any>;
     if (arg === FormStrategy.View) {
       strategy = arg;
       model = new FormModel({});
-    } else if (typeof arg === 'function') {
-      strategy = FormStrategy.Model;
-      model = arg();
     } else {
-      throw new Error('invalid argument for useForm');
+      strategy = FormStrategy.Model;
+      model = arg.build();
     }
     const ctx = {
       strategy,

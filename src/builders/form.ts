@@ -1,11 +1,11 @@
 import { BasicBuilder } from './basic';
-import { FieldSetModel, $FieldSetValue } from '../models';
+import { $FieldSetValue, FormModel } from '../models';
 import { $FieldSetBuilderChildren } from './set';
 import { Maybe, Some, or } from '../maybe';
 
 export class FormBuilder<ChildBuilders extends Record<string, BasicBuilder<any, any>>> extends BasicBuilder<
   $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
-  FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>
+  FormModel<$FieldSetBuilderChildren<ChildBuilders>>
 > {
   constructor(private readonly _childBuilders: ChildBuilders) {
     super();
@@ -24,7 +24,7 @@ export class FormBuilder<ChildBuilders extends Record<string, BasicBuilder<any, 
         children[key] = childBuilder.build(null);
       }
     }
-    const model = new FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>(children);
+    const model = new FormModel<$FieldSetBuilderChildren<ChildBuilders>>(children);
     model.validators = this._validators;
     return model;
   }
