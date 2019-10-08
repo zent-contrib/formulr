@@ -22,7 +22,6 @@ import { or } from './maybe';
 import { CallbackNode } from 'scheduler';
 
 export function makeDefaultFieldProps<Value>(model: FieldModel<Value>) {
-  const { form } = useFormContext();
   const { value } = model;
   const taskRef = useRef<CallbackNode | null>(null);
   const props = useMemo(
