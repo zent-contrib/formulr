@@ -39,7 +39,6 @@ export function makeDefaultFieldProps<Value>(model: FieldModel<Value>) {
             model.validate();
           });
         }
-        form.change$.next();
       },
       onCompositionStart() {
         model.isCompositing = true;

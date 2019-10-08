@@ -1,4 +1,4 @@
-import { BehaviorSubject, Subject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { FieldSetModel } from './set';
 import { BasicModel } from './basic';
 import { ValidateOption } from '../validate';
@@ -21,7 +21,6 @@ class FormModel<
   /** @internal */
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);
-  readonly change$ = new Subject<void>();
 
   constructor(public readonly children: Children) {
     super(children);
