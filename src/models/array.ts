@@ -140,15 +140,14 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
 
   validate(option = ValidateOption.Default): Promise<any> {
     if (option & ValidateOption.IncludeChildren) {
-      const childOption = option | ValidateOption.FromParent;
       return Promise.all(
         this.children$
           .getValue()
-          .map(it => it.validate(childOption))
-          .concat(super.validate(option)),
+          .map(it => it.validate(option))
+          .concat(this.triggerValidate(option)),
       );
     }
-    return super.validate(option);
+    return this.triggerValidate(option);
   }
 
   pristine() {

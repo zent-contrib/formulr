@@ -60,9 +60,6 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
   }
 
   validate(option: ValidateOption = ValidateOption.Default): Promise<void> {
-    if ((option & ValidateOption.FromParent) !== 0 && (option & ValidateOption.IncludeChildren) === 0) {
-      return Promise.resolve();
-    }
     if (!this.current) {
       return Promise.resolve();
     }

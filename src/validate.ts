@@ -18,8 +18,7 @@ export enum ValidateOption {
   IncludeAsync      =       0b000000010,
   IncludeUntouched  =       0b000000100,
   IncludeChildren   =       0b000001000,
-
-  FromParent        =       0b100000000,
+  ExcludePristine   =       0b000010000,
 
   Default           =       0b000000000,
 }
@@ -112,6 +111,10 @@ class ValidatorExecutor<T> {
   call(validation: IValidation): Observable<IMaybeError<T>> {
     const { option, reject, resolve } = validation;
     if (!this.model.touched() && !(option & ValidateOption.IncludeUntouched)) {
+      resolve();
+      return of(null);
+    }
+    if ((option & ValidateOption.ExcludePristine) && this.model.pristine()) {
       resolve();
       return of(null);
     }

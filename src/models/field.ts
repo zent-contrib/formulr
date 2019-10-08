@@ -1,6 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
 import { BasicModel } from './basic';
 import { Some, None, or, isSome, get } from '../maybe';
+import { ValidateOption } from '../validate';
 
 const FIELD = Symbol('field');
 
@@ -50,6 +51,10 @@ class FieldModel<Value> extends BasicModel<Value> {
 
   valid() {
     return this.error$.getValue() === null;
+  }
+
+  validate(option = ValidateOption.Default) {
+    return this.triggerValidate(option);
   }
 
   patchValue(value: Value) {

@@ -141,14 +141,13 @@ class FieldSetModel<
 
   validate(option = ValidateOption.Default): Promise<any> {
     if (option & ValidateOption.IncludeChildren) {
-      const childOption = option | ValidateOption.FromParent;
       return Promise.all(
         Object.keys(this.children)
-          .map(key => this.children[key].validate(childOption))
-          .concat(super.validate(option)),
+          .map(key => this.children[key].validate(option))
+          .concat(this.triggerValidate(option)),
       );
     }
-    return super.validate(option);
+    return this.triggerValidate(option);
   }
 
   pristine() {
