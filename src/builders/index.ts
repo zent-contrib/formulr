@@ -8,6 +8,7 @@ export * from './array';
 export * from './field';
 export * from './set';
 export * from './form';
+export * from './basic';
 
 export function field<T>(defaultValue: T) {
   return new FieldBuilder(defaultValue);
