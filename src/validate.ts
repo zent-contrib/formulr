@@ -15,12 +15,13 @@ export type IMaybeError<T> = IValidateResult<T> | null;
 
 // prettier-ignore
 export enum ValidateOption {
-  IncludeAsync      =       0b000000010,
-  IncludeUntouched  =       0b000000100,
-  IncludeChildren   =       0b000001000,
-  ExcludePristine   =       0b000010000,
+  Empty                         = 0b000000000,
+  IncludeAsync                  = 0b000000010,
+  IncludeUntouched              = 0b000000100,
+  IncludeChildrenRecursively    = 0b000001000,
+  ExcludePristine               = 0b000010000,
 
-  Default           =       0b000000000,
+  Default                       = Empty,
 }
 
 export interface IValidation {
