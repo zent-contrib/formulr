@@ -3,13 +3,11 @@
   "version": "0.2.0-beta.36",
   "description": "Form toolkit for React",
   "main": "./lib/index.js",
-  "module": "./esm/index.js",
-  "types": "./esm/index.d.ts",
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "scripts": {
     "dev": "webpack-dev-server --progress",
-    "build:esm": "rimraf ./esm && tsc --module es2015 --outDir esm",
-    "build:cmd": "rimraf ./cmd && tsc --module commonjs --outDir cmd",
-    "build": "npm run build:esm && npm run build:cmd",
+    "build": "rimraf ./lib && tsc",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,8 +21,7 @@
   ],
   "files": [
     "src/**/*",
-    "cmd/**/*",
-    "esm/**/*"
+    "lib/**/*"
   ],
   "author": "intellild",
   "license": "MIT",

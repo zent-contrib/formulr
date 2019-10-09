@@ -6,7 +6,7 @@
     "noUnusedLocals": true,
     "jsx": "react",
     "strict": true,
-    "outDir": "esm",
+    "outDir": "lib",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
