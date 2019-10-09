@@ -28,7 +28,7 @@ class FormModel<
   }
 
   validate(option: ValidateOption = ValidateOption.Default) {
-    return super.validate(option | ValidateOption.IncludeChildren);
+    return super.validate(option | ValidateOption.IncludeChildrenRecursively);
   }
 
   /** @internal */

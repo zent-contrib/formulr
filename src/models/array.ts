@@ -139,7 +139,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   }
 
   validate(option = ValidateOption.Default): Promise<any> {
-    if (option & ValidateOption.IncludeChildren) {
+    if (option & ValidateOption.IncludeChildrenRecursively) {
       return Promise.all(
         this.children$
           .getValue()

@@ -140,7 +140,7 @@ class FieldSetModel<
   }
 
   validate(option = ValidateOption.Default): Promise<any> {
-    if (option & ValidateOption.IncludeChildren) {
+    if (option & ValidateOption.IncludeChildrenRecursively) {
       return Promise.all(
         Object.keys(this.children)
           .map(key => this.children[key].validate(option))
