@@ -11,10 +11,10 @@ export class FormBuilder<ChildBuilders extends Record<string, BasicBuilder<any, 
     super();
   }
 
-  build(defaultValues?: Maybe<Record<string, any>>) {
-    const defaults = or<Record<string, any>>(defaultValues, {});
+  build(defaultValues?: Maybe<$FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>>) {
+    const defaults = or<Record<keyof ChildBuilders, any>>(defaultValues, {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>);
     const children = {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>;
-    const childKeys = Object.keys(this._childBuilders);
+    const childKeys: Array<keyof ChildBuilders> = Object.keys(this._childBuilders);
     for (let i = 0; i < childKeys.length; i += 1) {
       const key = childKeys[i];
       const childBuilder = this._childBuilders[key];

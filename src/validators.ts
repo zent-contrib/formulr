@@ -1,5 +1,5 @@
 import Decimal from 'big.js';
-import { IValidator, IMaybeError, ValidatorResult } from './validate';
+import { ISyncValidator, IMaybeError } from './validate';
 
 const EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
 
@@ -64,8 +64,8 @@ export function max(limit: number, message?: string) {
   };
 }
 
-export function required(message?: string): IValidator<any> {
-  function required(input: any): ValidatorResult<string> {
+export function required(message?: string): ISyncValidator<any> {
+  function required(input: any): IMaybeError<string> {
     return isEmptyInputValue(input)
       ? {
           name: 'required',
@@ -78,7 +78,7 @@ export function required(message?: string): IValidator<any> {
   return required;
 }
 
-export function requiredTrue(message?: string): IValidator<boolean> {
+export function requiredTrue(message?: string): ISyncValidator<boolean> {
   function requiredTrue(input: boolean) {
     return input === true
       ? null
@@ -92,7 +92,7 @@ export function requiredTrue(message?: string): IValidator<boolean> {
   return requiredTrue;
 }
 
-export function email(message?: string): IValidator<string> {
+export function email(message?: string): ISyncValidator<string> {
   function email(input: string) {
     return EMAIL_REGEXP.test(input)
       ? null
@@ -109,7 +109,7 @@ export interface IWithLength {
   length: number;
 }
 
-export function minLength<T extends IWithLength>(length: number, message?: string): IValidator<T> {
+export function minLength<T extends IWithLength>(length: number, message?: string): ISyncValidator<T> {
   function minLength(input: T) {
     return input.length < length
       ? {
@@ -123,7 +123,7 @@ export function minLength<T extends IWithLength>(length: number, message?: strin
   return minLength;
 }
 
-export function maxLength<T extends IWithLength>(length: number, message?: string): IValidator<T> {
+export function maxLength<T extends IWithLength>(length: number, message?: string): ISyncValidator<T> {
   function maxLength(input: T) {
     return input.length > length
       ? {
@@ -137,7 +137,7 @@ export function maxLength<T extends IWithLength>(length: number, message?: strin
   return maxLength;
 }
 
-export function pattern(regexp: RegExp, message?: string): IValidator<string> {
+export function pattern(regexp: RegExp, message?: string): ISyncValidator<string> {
   function pattern(input: string) {
     return regexp.test(input)
       ? null

@@ -23,10 +23,12 @@ class FieldSetModel<
 
   childRegister$ = new Subject<string>();
   childRemove$ = new Subject<string>();
+  readonly children: Record<string, BasicModel<any>>;
 
   /** @internal */
-  constructor(public readonly children: Children) {
+  constructor(children: Children) {
     super();
+    this.children = children;
   }
 
   initialize(values: $FieldSetValue<Children>) {
@@ -179,7 +181,7 @@ class FieldSetModel<
   }
 
   get<Name extends keyof Children>(name: Name): Children[Name] | undefined | null {
-    return this.children[name];
+    return this.children[name as string] as any;
   }
 }
 

@@ -1,7 +1,36 @@
-import { Observable, isObservable, from, NextObserver, empty, of, defer } from 'rxjs';
+import { Observable, from, NextObserver, empty, of, defer } from 'rxjs';
 import { catchError, map, concatAll, filter, takeWhile, finalize } from 'rxjs/operators';
 import { BasicModel, isFieldSetModel } from './models';
-import { isPromise, isNull } from './utils';
+
+export const ASYNC_VALIDATOR = Symbol('AsyncValidator');
+
+export interface IAsyncValidator<T> {
+  [ASYNC_VALIDATOR]: true;
+  validator(input: T, ctx: ValidatorContext<T>): null | Observable<IMaybeError<T>> | Promise<IMaybeError<T>>;
+}
+
+export interface ISyncValidator<T> {
+  (input: T, ctx: ValidatorContext<T>): IMaybeError<T>;
+  $$id?: symbol;
+}
+
+export function isAsyncValidator<T>(
+  validator: ISyncValidator<T> | IAsyncValidator<T>,
+): validator is IAsyncValidator<T> {
+  if ((validator as ISyncValidator<T> & IAsyncValidator<T>)[ASYNC_VALIDATOR]) {
+    return true;
+  }
+  return false;
+}
+
+export function createAsyncValidator<T>(
+  validator: () => null | Observable<IMaybeError<T>> | Promise<IMaybeError<T>>,
+): IAsyncValidator<T> {
+  return {
+    [ASYNC_VALIDATOR]: true,
+    validator,
+  };
+}
 
 export interface IValidateResult<T> {
   name: string;
@@ -29,14 +58,6 @@ export interface IValidation {
   resolve(): void;
   reject(error?: any): void;
 }
-
-export interface IValidator<Value> {
-  (input: Value, ctx: ValidatorContext<Value>): ValidatorResult<Value>;
-  isAsync?: boolean;
-  $$id?: symbol;
-}
-
-export type ValidatorResult<T> = null | Observable<IMaybeError<T>> | Promise<IMaybeError<T>> | IMaybeError<T>;
 
 export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
   constructor(private readonly model: BasicModel<T>) {}
@@ -76,29 +97,25 @@ export class ValidatorContext<T> {
   }
 }
 
-function filterAsync<T>(skipAsync: boolean, validator: IValidator<T>) {
-  return skipAsync ? !validator.isAsync : true;
-}
-
 function runValidator<T>(
-  validator: IValidator<T>,
+  validator: IAsyncValidator<T> | ISyncValidator<T>,
   { reject }: IValidation,
   value: T,
   ctx: ValidatorContext<T>,
 ): Observable<IMaybeError<T>> {
-  let result: ValidatorResult<T>;
   try {
-    result = validator(value, ctx);
+    if (isAsyncValidator(validator)) {
+      const ret = validator.validator(value, ctx);
+      if (ret === null) {
+        return of(null);
+      }
+      return from(ret);
+    } else {
+      return of(validator(value, ctx));
+    }
   } catch (error) {
     reject(error);
     return empty();
-  }
-  if (isPromise<IMaybeError<T>>(result)) {
-    return from(result);
-  } else if (isObservable<IMaybeError<T>>(result)) {
-    return result;
-  } else {
-    return of(result);
   }
 }
 
@@ -115,17 +132,17 @@ class ValidatorExecutor<T> {
       resolve();
       return of(null);
     }
-    if ((option & ValidateOption.ExcludePristine) && this.model.pristine()) {
+    if (option & ValidateOption.ExcludePristine && this.model.pristine()) {
       resolve();
       return of(null);
     }
     const value = this.model.getRawValue();
     const skipAsync = (option & ValidateOption.IncludeAsync) === 0;
     return from(this.model.validators).pipe(
-      filter(validator => filterAsync(skipAsync, validator)),
+      filter(validator => (skipAsync ? !isAsyncValidator(validator) : true)),
       map(validator => defer(() => runValidator(validator, validation, value, this.ctx))),
       concatAll(),
-      takeWhile(isNull, true),
+      takeWhile(it => it === null, true),
       catchError(error => {
         reject(error);
         return empty();
