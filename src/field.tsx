@@ -28,7 +28,7 @@ export function makeDefaultFieldProps<Value>(model: FieldModel<Value>) {
     () => ({
       value,
       onChange(value: Value) {
-        model.value$.next(value);
+        model.onChange(value);
         if (model.isCompositing) {
           return;
         }

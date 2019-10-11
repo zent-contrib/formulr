@@ -76,6 +76,11 @@ class FieldModel<Value> extends BasicModel<Value> {
   touched() {
     return this._touched;
   }
+
+  onChange(value: Value) {
+    this.value$.next(value);
+    this._touched = true;
+  }
 }
 
 FieldModel.prototype[FIELD] = true;
