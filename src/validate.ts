@@ -14,6 +14,10 @@ export interface ISyncValidator<T> {
   $$id?: symbol;
 }
 
+export type Validator<T> = IAsyncValidator<T> | ISyncValidator<T>;
+
+export type Validators<T> = readonly Validator<T>[];
+
 export function isAsyncValidator<T>(
   validator: ISyncValidator<T> | IAsyncValidator<T>,
 ): validator is IAsyncValidator<T> {

@@ -38,7 +38,7 @@ export function min(limit: number | string, message?: string) {
 }
 
 export function max(limit: number, message?: string) {
-  return function max(value: number | string): IMaybeError<number | string> | null {
+  return function max(value: number | string): IMaybeError<number | string> {
     if (isEmptyInputValue(value)) {
       return null;
     }
