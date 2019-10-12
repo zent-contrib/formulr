@@ -1,5 +1,5 @@
 import { BasicModel } from '../models';
-import { Validators } from '../validate';
+import { IValidators } from '../validate';
 import { Maybe } from '../maybe';
 
 export abstract class BasicBuilder<Value, Model extends BasicModel<Value>> {
@@ -11,11 +11,11 @@ export abstract class BasicBuilder<Value, Model extends BasicModel<Value>> {
    * @internal
    */
   readonly phantomModel!: Model;
-  protected _validators: Validators<Value> = [];
+  protected _validators: IValidators<Value> = [];
 
   abstract build(defaultValue?: Maybe<Value>): Model;
 
-  validators(...validators: Validators<Value>) {
+  validators(...validators: IValidators<Value>) {
     this._validators = validators;
     return this;
   }

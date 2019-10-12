@@ -16,7 +16,7 @@ import {
 } from './models';
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
-import { Validators } from './validate';
+import { IValidators } from './validate';
 import { removeOnUnmount } from './utils';
 import { or } from './maybe';
 import { CallbackNode } from 'scheduler';
@@ -104,7 +104,7 @@ function useModelAndChildProps<Value>(
 export function useField<Value>(
   field: string,
   defaultValue: Value | (() => Value),
-  validators?: Validators<Value>,
+  validators?: IValidators<Value>,
 ): FieldModel<Value>;
 
 export function useField<Value>(field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>>): FieldModel<Value>;
@@ -112,7 +112,7 @@ export function useField<Value>(field: FieldModel<Value> | ModelRef<Value, any, 
 export function useField<Value>(
   field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>> | string,
   defaultValue?: Value | (() => Value),
-  validators: Validators<Value> = [],
+  validators: IValidators<Value> = [],
 ): FieldModel<Value> {
   const { parent, strategy, form } = useFormContext();
   const model = useModelAndChildProps(field, parent, strategy, defaultValue!, form);

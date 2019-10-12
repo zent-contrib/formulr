@@ -13,7 +13,7 @@ import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { removeOnUnmount } from './utils';
 import { isSome, get } from './maybe';
-import { Validators } from './validate';
+import { IValidators } from './validate';
 
 export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
   FieldArrayChild<Item, Child>[],
@@ -76,7 +76,7 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
-  validators?: Validators<readonly (Item | null)[]>,
+  validators?: IValidators<readonly (Item | null)[]>,
   defaultValue?: Item[],
 ): FieldArrayModel<Item, Child>;
 
@@ -86,7 +86,7 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
 
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: string | FieldArrayModel<Item, Child> | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
-  validators: Validators<readonly Item[]> = [],
+  validators: IValidators<readonly Item[]> = [],
   defaultValue: readonly Item[] = [],
 ): FieldArrayModel<Item, Child> {
   const { parent, strategy } = useFormContext();

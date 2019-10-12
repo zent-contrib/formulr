@@ -10,7 +10,7 @@ import {
   isFieldSetModel,
 } from './models';
 import { useValue$ } from './hooks';
-import { Validators } from './validate';
+import { IValidators } from './validate';
 import { removeOnUnmount, isPlainObject } from './utils';
 import { isSome, get, or } from './maybe';
 
@@ -64,7 +64,7 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
 
 export function useFieldSet<T extends Record<string, BasicModel<any>>>(
   field: string | FieldSetModel<T> | ModelRef<$FieldSetValue<T>, any, FieldSetModel<T>>,
-  validators: Validators<T> = [],
+  validators: IValidators<T> = [],
 ): IUseFieldSet<T> {
   const { parent, strategy, form } = useFormContext();
   const model = useFieldSetModel(field, parent, strategy);

@@ -1,5 +1,5 @@
 import { Subject, BehaviorSubject } from 'rxjs';
-import { ValidateOption, IMaybeError, ErrorSubscriber, IValidation, validate, Validators } from '../validate';
+import { ValidateOption, IMaybeError, ErrorSubscriber, IValidation, validate, IValidators } from '../validate';
 import { switchMap } from 'rxjs/operators';
 import { FieldSetModel } from './set';
 import { ModelRef } from './ref';
@@ -32,7 +32,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
   /** @internal */
   readonly validate$ = new Subject<IValidation>();
   /** @internal */
-  validators: Validators<Value> = [];
+  validators: IValidators<Value> = [];
   /** @internal */
   initialValue: Maybe<Value> = None();
   /** @internal */
