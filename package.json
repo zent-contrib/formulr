@@ -9,7 +9,7 @@
     "dev": "webpack-dev-server --progress",
     "build": "rimraf ./lib && tsc",
     "prepublishOnly": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "doc": "typedoc --out ../zent-contrib.github.io/formulr --mode file"
   },
   "repository": {
     "type": "git",
@@ -50,6 +50,7 @@
     "jest": "^24.8.0",
     "rimraf": "^3.0.0",
     "scheduler": "~0.16.0",
+    "typedoc": "git+https://github.com/TypeStrong/typedoc.git#695d996",
     "typescript": "~3.6.0",
     "webpack": "^4.35.2",
     "webpack-bundle-analyzer": "^3.3.2",
