@@ -9,7 +9,7 @@
     "dev": "webpack-dev-server --progress",
     "build": "rimraf ./lib && tsc",
     "prepublishOnly": "npm run build",
-    "doc": "typedoc --out ../zent-contrib.github.io/formulr --mode file"
+    "doc": "typedoc --out typedoc --mode file && gh-pages -d typedoc"
   },
   "repository": {
     "type": "git",
@@ -46,6 +46,7 @@
     "@types/scheduler": "^0.16.0",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.6",
+    "gh-pages": "^2.1.1",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.8.0",
     "rimraf": "^3.0.0",
