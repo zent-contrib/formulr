@@ -43,7 +43,7 @@
   "devDependencies": {
     "@babel/core": "^7.5.0",
     "@babel/preset-react": "^7.0.0",
-    "@types/scheduler": "^0.16.0",
+    "@types/scheduler": "~0.16.1",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.6",
     "gh-pages": "^2.1.1",

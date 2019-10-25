@@ -3,6 +3,8 @@ import { FieldSetModel, BasicModel, ModelRef } from './models';
 
 export function noop() {}
 
+export const id = <T>(it: T) => it;
+
 export function isPlainObject(value: unknown): value is object {
   if (value === null || typeof value !== 'object') {
     return false;

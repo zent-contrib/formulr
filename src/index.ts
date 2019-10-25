@@ -1,4 +1,6 @@
 import * as Validators from './validators';
+import * as FieldUtils from './field-utils';
+
 export * from './builders';
 export * from './field';
 export * from './field-array';
@@ -10,4 +12,4 @@ export * from './context';
 export * from './hooks';
 export * from './value-listener';
 export * from './maybe';
-export { Validators };
+export { Validators, FieldUtils };
