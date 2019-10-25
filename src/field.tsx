@@ -15,14 +15,6 @@ import { IValidators } from './validate';
 import { removeOnUnmount } from './utils';
 import { or } from './maybe';
 
-// prettier-ignore
-export enum ValidateOccasion {
-  None      =     0b0000,
-  Change    =     0b0001,
-  Blur      =     0b0010,
-  Default   =     Change | Blur,
-}
-
 function useModelAndChildProps<Value>(
   field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>> | string,
   parent: FieldSetModel,
