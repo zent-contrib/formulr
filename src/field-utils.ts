@@ -7,19 +7,13 @@ import {
 import { FieldModel } from './models/field';
 import { ValidateOption } from './validate';
 
-export function useMAppendWith<Value>(
-  model: FieldModel<Value>,
-  ...args: ((model: FieldModel<Value>) => (value: Value) => void)[]
-): (value: Value) => void {
-  return useMemo(() => {
-    const fns = args.map(it => it(model));
-    return (value: Value) => {
-      for (let i = 0; i < fns.length; i += 1) {
-        const f = fns[i];
-        f(value);
-      }
-    };
-  }, [model as any].concat(args));
+export function useMAppend<T>(...fns: ((t: T) => void)[]): (t: T) => void {
+  return useCallback((value: T) => {
+    for (let i = 0; i < fns.length; i += 1) {
+      const f = fns[i];
+      f(value);
+    }
+  }, fns);
 }
 
 export function usePipe<T0, T1, T2>(fn0: (t0: T0) => T1, fn1: (t1: T1) => T2): (t0: T0) => T2;
@@ -67,7 +61,7 @@ export function usePipe<T0, T1, T2, T3, T4, T5, T6, T7, T8>(
 
 export function usePipe<T, R>(...args: ((v: any) => any)[]): (v: T) => R {
   return useMemo(() => {
-    const fn = args.reduce((next, f) => (arg: any) => next(f(arg)), (arg: any) => arg);
+    const fn = args.reduceRight((next, f) => (arg: any) => next(f(arg)), (arg: any) => arg);
     return (t: T): R => fn(t);
   }, args);
 }
