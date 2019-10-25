@@ -45,6 +45,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
   [MODEL]!: boolean;
 
   abstract getRawValue(): any;
+  abstract getSubmitValue(): any;
 
   readonly error$ = new BehaviorSubject<IMaybeError<Value>>(null);
 

@@ -68,6 +68,18 @@ class FieldSetModel<
     return value;
   }
 
+  getSubmitValue() {
+    const value: any = {};
+    const childrenKeys = Object.keys(this.children);
+    for (let i = 0; i < childrenKeys.length; i++) {
+      const key = childrenKeys[i];
+      const model = this.children[key] as BasicModel<unknown>;
+      const childValue = model.getSubmitValue();
+      value[key] = childValue;
+    }
+    return value;
+  }
+
   registerChild(name: string, model: BasicModel<unknown>) {
     model.form = this.form;
     model.owner = this;

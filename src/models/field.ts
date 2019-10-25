@@ -2,8 +2,13 @@ import { BehaviorSubject } from 'rxjs';
 import { BasicModel } from './basic';
 import { Some, None, or, isSome, get } from '../maybe';
 import { ValidateOption } from '../validate';
+import { id } from '../utils';
 
 const FIELD = Symbol('field');
+
+export interface INormalizeBeforeSubmit<A, B> {
+  (a: A): B;
+}
 
 class FieldModel<Value> extends BasicModel<Value> {
   /**
@@ -12,10 +17,10 @@ class FieldModel<Value> extends BasicModel<Value> {
   [FIELD]!: boolean;
 
   readonly value$: BehaviorSubject<Value>;
-  /** @internal */
-  _touched = false;
+  isTouched = false;
 
   isCompositing = false;
+  normalizeBeforeSubmit: INormalizeBeforeSubmit<Value, any> = id;
 
   /** @internal */
   constructor(private readonly defaultValue: Value) {
@@ -49,6 +54,11 @@ class FieldModel<Value> extends BasicModel<Value> {
     return this.value$.getValue();
   }
 
+  getSubmitValue() {
+    const { normalizeBeforeSubmit } = this;
+    return normalizeBeforeSubmit(this.value$.getValue());
+  }
+
   valid() {
     return this.error$.getValue() === null;
   }
@@ -74,12 +84,7 @@ class FieldModel<Value> extends BasicModel<Value> {
   }
 
   touched() {
-    return this._touched;
-  }
-
-  onChange(value: Value) {
-    this.value$.next(value);
-    this._touched = true;
+    return this.isTouched;
   }
 }
 

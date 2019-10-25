@@ -77,6 +77,18 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     });
   }
 
+  getSubmitValue(): (Item | null)[] {
+    return this.children$.getValue().map(child => {
+      if (isModelRef<Item, this, Child>(child)) {
+        const model = child.getModel();
+        return model ? model.getSubmitValue() : null;
+      } else if (isModel<Item>(child)) {
+        return child.getSubmitValue();
+      }
+      return null;
+    });
+  }
+
   patchValue(value: Item[]) {
     const children = this.children$.getValue();
     for (let i = 0; i < value.length; i += 1) {
