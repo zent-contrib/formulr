@@ -8,7 +8,7 @@ function isEmptyInputValue(value: any) {
   return value == null || value.length === 0;
 }
 
-export const REQUIRED = Symbol('required');
+export const SYMBOL_REQUIRED = Symbol('required');
 
 export function min(limit: number | string, message?: string) {
   return function min(value: number | string): IMaybeError<number | string> {
@@ -74,7 +74,7 @@ export function required(message?: string): ISyncValidator<any> {
         }
       : null;
   }
-  required.$$id = REQUIRED;
+  required.$$id = SYMBOL_REQUIRED;
   return required;
 }
 
