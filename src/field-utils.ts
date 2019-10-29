@@ -7,6 +7,18 @@ import {
 import { FieldModel } from './models/field';
 import { ValidateOption } from './validate';
 
+/**
+ * `const callback = useMAppend(foo, bar, baz)`
+ *
+ * is equal to
+ * ```js
+ * const callback = useCallback(arg => {
+ *   foo(arg);
+ *   bar(arg);
+ *   baz(arg);
+ * }, [foo, bar, baz])
+ * ```
+ */
 export function useMAppend<T>(...fns: ((t: T) => void)[]): (t: T) => void {
   return useCallback((value: T) => {
     for (let i = 0; i < fns.length; i += 1) {
