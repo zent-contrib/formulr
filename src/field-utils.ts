@@ -79,7 +79,32 @@ export function usePipe<T, R>(...args: ((v: any) => any)[]): (v: T) => R {
 }
 
 /**
- * This triggers a validation
+ * 生成一个默认的`onChange`回调，这个回调会触发`model.validate`
+ * 如果不需要在onChange的时候触发校验，如下即可：
+ * ```js
+ * const onChange = useCallback(value => model.value = value, [model]);
+ * ```
+ * 例如是一个`input`：
+ * ```ts
+ * const onChange = useCallback((value: React.ChangeEvent<HTMLInputElement>) => {
+ *   model.value = e.target.value;
+ * }, [model]);
+ * ```
+ * 可以配合usePipe使用：
+ * ```js
+ * function mapEventToValue(e) {
+ *   return e.target.value;
+ * }
+ * 
+ * function Foo() {
+ *   const onChange = FieldUtils.usePipe(
+ *     mapEventToValue,
+ *     FieldUtils.makeChangeHandler(model),
+ *   );
+ * }
+ * 
+ * 
+ * ```
  */
 export function makeChangeHandler<Value>(model: FieldModel<Value>, option: ValidateOption) {
   const taskRef = useRef<CallbackNode | null>(null);
