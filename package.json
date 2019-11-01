@@ -30,7 +30,6 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@types/big.js": "^4.0.5",
     "big.js": "^5.2.2",
     "rxjs": "^6.4.0",
     "tslib": "^1.9.3",
@@ -39,6 +38,7 @@
   "devDependencies": {
     "@babel/core": "^7.5.0",
     "@babel/preset-react": "^7.0.0",
+    "@types/big.js": "^4.0.5",
     "@types/react": "^16.8.0",
     "@types/react-dom": "^16.8.0",
     "@types/scheduler": "~0.16.1",
