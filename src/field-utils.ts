@@ -95,7 +95,6 @@ export function usePipe<T, R>(...args: ((v: any) => any)[]): (v: T) => R {
  * function mapEventToValue(e) {
  *   return e.target.value;
  * }
- * 
  * function Foo() {
  *   const onChange = FieldUtils.usePipe(
  *     mapEventToValue,
