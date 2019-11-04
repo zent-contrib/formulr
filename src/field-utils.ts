@@ -102,8 +102,6 @@ export function usePipe<T, R>(...args: ((v: any) => any)[]): (v: T) => R {
  *     FieldUtils.makeChangeHandler(model),
  *   );
  * }
- * 
- * 
  * ```
  */
 export function makeChangeHandler<Value>(model: FieldModel<Value>, option: ValidateOption) {
