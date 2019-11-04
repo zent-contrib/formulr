@@ -1201,7 +1201,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/9ad123a/src/field-utils.ts#L107">field-utils.ts:107</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/9ad123a/src/field-utils.ts#L106">field-utils.ts:106</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1214,18 +1214,16 @@
   model.value = e.target.value;
 }, [model]);</code></pre>
 									<p>可以配合usePipe使用：</p>
-									<p>```js
-										function mapEventToValue(e) {
-										return e.target.value;
-									}</p>
+									<pre><code class="language-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mapEventToValue</span>(<span class="hljs-params">e</span>) </span>{
+  <span class="hljs-keyword">return</span> e.target.value;
+}
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Foo</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> onChange = FieldUtils.usePipe(
+    mapEventToValue,
+    FieldUtils.makeChangeHandler(model),
+  );
+}</code></pre>
 								</div>
-								<p>function Foo() {
-									const onChange = FieldUtils.usePipe(
-									mapEventToValue,
-									FieldUtils.makeChangeHandler(model),
-									);
-								}</p>
-								<pre><code></code></pre>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -1635,7 +1633,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/9ad123a/src/field-utils.ts#L128">field-utils.ts:128</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/9ad123a/src/field-utils.ts#L127">field-utils.ts:127</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1661,7 +1659,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/9ad123a/src/field-utils.ts#L134">field-utils.ts:134</a></li>
+													<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/9ad123a/src/field-utils.ts#L133">field-utils.ts:133</a></li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1676,7 +1674,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/9ad123a/src/field-utils.ts#L131">field-utils.ts:131</a></li>
+													<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/9ad123a/src/field-utils.ts#L130">field-utils.ts:130</a></li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
