@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { FieldSetModel } from './set';
+import { FieldSetModel, ValidateIncludingChildrenRecursively, ValidateExcludingChildrenRecursively } from './set';
 import { BasicModel } from './basic';
-import { ValidateOption } from '../validate';
+import { ValidateOption, IMaybeError } from '../validate';
 
 enum FormStrategy {
   Model,
@@ -27,8 +27,14 @@ class FormModel<
     this.form = this;
   }
 
+  validate(option?: ValidateIncludingChildrenRecursively): Promise<IMaybeError<any>[]>
+  validate(option: ValidateExcludingChildrenRecursively): Promise<IMaybeError<any>>
   validate(option: ValidateOption = ValidateOption.Default) {
-    return super.validate(option | ValidateOption.IncludeChildrenRecursively);
+    if (option === ValidateOption.IncludeChildrenRecursively || option === ValidateOption.Default) {
+      return super.validate(option);
+    } else {
+      return super.validate(option);
+    }
   }
 
   /** @internal */

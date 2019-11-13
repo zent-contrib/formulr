@@ -66,7 +66,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
   abstract validate(option?: ValidateOption): Promise<any>;
 
   protected triggerValidate(option: ValidateOption) {
-    return new Promise((resolve, reject) => {
+    return new Promise<IMaybeError<Value>>((resolve, reject) => {
       this.validate$.next({
         option,
         resolve,

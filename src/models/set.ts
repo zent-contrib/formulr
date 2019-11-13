@@ -1,12 +1,15 @@
 import { Subject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
-import { ValidateOption } from '../validate';
+import { ValidateOption, IMaybeError } from '../validate';
 import { Some, Maybe, None } from '../maybe';
 import { isPlainObject } from '../utils';
 
 type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
 };
+
+export type ValidateIncludingChildrenRecursively = Extract<ValidateOption, ValidateOption.IncludeChildrenRecursively | ValidateOption.Default>;
+export type ValidateExcludingChildrenRecursively = Exclude<ValidateOption, ValidateOption.IncludeChildrenRecursively | ValidateOption.Default>;
 
 const SET = Symbol('set');
 
@@ -153,9 +156,11 @@ class FieldSetModel<
     }
   }
 
-  validate(option = ValidateOption.Default): Promise<any> {
+  validate(option?: ValidateIncludingChildrenRecursively): Promise<IMaybeError<any>[]>
+  validate(option: ValidateExcludingChildrenRecursively): Promise<IMaybeError<any>>
+  validate(option = ValidateOption.Default) {
     if (option & ValidateOption.IncludeChildrenRecursively) {
-      return Promise.all(
+      return Promise.all<IMaybeError<any>>(
         Object.keys(this.children)
           .map(key => this.children[key].validate(option))
           .concat(this.triggerValidate(option)),

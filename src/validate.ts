@@ -59,7 +59,7 @@ export enum ValidateOption {
 
 export interface IValidation {
   option: ValidateOption;
-  resolve(): void;
+  resolve(error: IMaybeError<any>): void;
   reject(error?: any): void;
 }
 
@@ -133,11 +133,11 @@ class ValidatorExecutor<T> {
   call(validation: IValidation): Observable<IMaybeError<T>> {
     const { option, reject, resolve } = validation;
     if (!this.model.touched() && !(option & ValidateOption.IncludeUntouched)) {
-      resolve();
+      resolve(null);
       return of(null);
     }
     if (option & ValidateOption.ExcludePristine && this.model.pristine()) {
-      resolve();
+      resolve(null);
       return of(null);
     }
     const value = this.model.getRawValue();
@@ -146,12 +146,18 @@ class ValidatorExecutor<T> {
       filter(validator => (skipAsync ? !isAsyncValidator(validator) : true)),
       map(validator => defer(() => runValidator(validator, validation, value, this.ctx))),
       concatAll(),
-      takeWhile(it => it === null, true),
+      takeWhile(it => {
+        const illegal = it !== null;
+        if (illegal) {
+          resolve(it);
+        }
+        return !illegal;
+      }, true),
       catchError(error => {
         reject(error);
         return empty();
       }),
-      finalize(resolve),
+      finalize(() => resolve(null)),
     );
   }
 }
