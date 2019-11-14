@@ -44,7 +44,7 @@ export interface IValidateResult<T> {
   [key: string]: any;
 }
 
-export type IMaybeError<T> = IValidateResult<T> | null;
+export type IMaybeError<T> = IValidateResult<T> | null | undefined;
 
 // prettier-ignore
 export enum ValidateOption {
@@ -146,7 +146,7 @@ class ValidatorExecutor<T> {
       filter(validator => (skipAsync ? !isAsyncValidator(validator) : true)),
       map(validator => defer(() => runValidator(validator, validation, value, this.ctx))),
       concatAll(),
-      takeWhile(it => it === null, true),
+      takeWhile(it => it == null, true),
       catchError(error => {
         reject(error);
         return empty();

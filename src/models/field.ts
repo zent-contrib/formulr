@@ -60,7 +60,7 @@ class FieldModel<Value> extends BasicModel<Value> {
   }
 
   valid() {
-    return this.error$.getValue() === null;
+    return this.error$.getValue() == null;
   }
 
   validate(option = ValidateOption.Default) {
