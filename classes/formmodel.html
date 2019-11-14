@@ -442,7 +442,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#error">error</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L98">models/basic.ts:98</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L95">models/basic.ts:95</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -461,7 +461,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#error">error</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L105">models/basic.ts:105</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L102">models/basic.ts:102</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -524,9 +524,14 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#clear">clear</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#clear">clear</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L134">models/set.ts:134</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L163">models/set.ts:163</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>清除 <code>FieldSet</code> 所有字段的值，同时清除 <code>initialValue</code></p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -544,9 +549,15 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#dirty">dirty</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#dirty">dirty</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L179">models/set.ts:179</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L223">models/set.ts:223</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>是否 <code>FieldSet</code> 上有任意字段被修改过</p>
+								</div>
+								<p><code>dirty === !pristine</code></p>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
@@ -562,9 +573,14 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#get">get</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L195">models/set.ts:195</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L247">models/set.ts:247</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>返回指定字段名对应的 model</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -575,6 +591,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>name: <span class="tsd-signature-type">Name</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>字段名</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Children[Name]</span>
@@ -597,7 +616,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#getpatchedvalue">getPatchedValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L52">models/set.ts:52</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L56">models/set.ts:56</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -635,9 +654,14 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#getrawvalue">getRawValue</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#getrawvalue">getRawValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L59">models/set.ts:59</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L66">models/set.ts:66</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>获取 <code>FieldSet</code> 的值</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <a href="../globals.html#_fieldsetvalue" class="tsd-signature-type">$FieldSetValue</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Children</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
@@ -654,9 +678,14 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#getsubmitvalue">getSubmitValue</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#getsubmitvalue">getSubmitValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L71">models/set.ts:71</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L81">models/set.ts:81</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>获取 <code>FieldSet</code> 用于表单提交的值</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
 						</li>
 					</ul>
@@ -673,13 +702,21 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#initialize">initialize</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#initialize">initialize</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L34">models/set.ts:34</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L38">models/set.ts:38</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>初始化 <code>FieldSet</code> 的值，并设置 <code>initialValue</code></p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>values: <a href="../globals.html#_fieldsetvalue" class="tsd-signature-type">$FieldSetValue</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Children</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>待初始化的值</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -698,13 +735,21 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#patchvalue">patchValue</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#patchvalue">patchValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L119">models/set.ts:119</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L145">models/set.ts:145</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>更新 <code>FieldSet</code> 的值</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>value: <a href="../globals.html#_fieldsetvalue" class="tsd-signature-type">$FieldSetValue</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Children</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>待更新的值</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -724,9 +769,14 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#pristine">pristine</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#pristine">pristine</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L167">models/set.ts:167</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L206">models/set.ts:206</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>是否 <code>FieldSet</code> 上的所有字段都没有被修改过</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
@@ -742,16 +792,27 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#registerchild">registerChild</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L83">models/set.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L98">models/set.ts:98</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>在 <code>FieldSet</code> 上注册一个新的字段</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>字段名</p>
+									</div>
 								</li>
 								<li>
 									<h5>model: <a href="basicmodel.html" class="tsd-signature-type">BasicModel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>字段对应的 model</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -769,13 +830,21 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#removechild">removeChild</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L95">models/set.ts:95</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L114">models/set.ts:114</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>在 <code>FieldSet</code> 上删除指定的字段</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>字段名</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="basicmodel.html" class="tsd-signature-type">BasicModel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -824,9 +893,14 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#reset">reset</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#reset">reset</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L145">models/set.ts:145</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L177">models/set.ts:177</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>重置 <code>FieldValue</code> 所有字段的值，如果存在 <code>initialValue</code> 就是用初始值，否则使用默认值</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -844,9 +918,14 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#touched">touched</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#touched">touched</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L183">models/set.ts:183</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L231">models/set.ts:231</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>是否 <code>FieldSet</code> 上有任意字段被 touch 过</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
@@ -862,7 +941,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#triggervalidate">triggerValidate</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L85">models/basic.ts:85</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L82">models/basic.ts:82</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -911,9 +990,14 @@
 								<p>Inherited from <a href="fieldsetmodel.html">FieldSetModel</a>.<a href="fieldsetmodel.html#valid">valid</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#valid">valid</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L104">models/set.ts:104</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/set.ts#L126">models/set.ts:126</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>是否 <code>FieldSet</code> 所有字段都通过了校验</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
