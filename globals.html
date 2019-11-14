@@ -1056,7 +1056,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/field.ts#L93">models/field.ts:93</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/field.ts#L141">models/field.ts:141</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1896,7 +1896,7 @@
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>创建一个 <code>Field</code> 的 model 对象</p>
+									<p>创建一个 <code>Field</code></p>
 								</div>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1910,7 +1910,7 @@
 								<li>
 									<h5>field: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>字段名，当<code>FormStrategy</code>是<code>View</code>的时候才能用字段名</p>
+										<p>字段名，当 <code>FormStrategy</code> 是 <code>View</code> 的时候才能用字段名</p>
 									</div>
 								</li>
 								<li>
@@ -1922,7 +1922,7 @@
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> validators: <a href="globals.html#ivalidators" class="tsd-signature-type">IValidators</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Value</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>当<code>field</code>是字段名的时候，可以传入<code>validator</code></p>
+										<p>当 <code>field</code> 是字段名的时候，可以传入<code>validator</code></p>
 									</div>
 								</li>
 							</ul>
@@ -1931,10 +1931,13 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/field.tsx#L73">field.tsx:73</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/field.tsx#L74">field.tsx:74</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>创建一个 <code>Field</code></p>
+								</div>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -1947,7 +1950,7 @@
 								<li>
 									<h5>field: <a href="classes/fieldmodel.html" class="tsd-signature-type">FieldModel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Value</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="classes/modelref.html" class="tsd-signature-type">ModelRef</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Value</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><a href="classes/fieldmodel.html" class="tsd-signature-type">FieldModel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Value</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p><code>Field</code> 对应的 model 对象，用于关联 <code>Field</code> 和 model</p>
+										<p><code>Field</code> 对应的 model 对象，用于关联 <code>Field</code> 和 model；当 <code>FormStrategy</code> 是 <code>Model</code> 的时候才能用</p>
 									</div>
 								</li>
 							</ul>
@@ -1966,10 +1969,13 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/field-array.tsx#L82">field-array.tsx:82</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/field-array.tsx#L84">field-array.tsx:84</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>创建一个 <code>FieldArray</code></p>
+								</div>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -1985,13 +1991,13 @@
 								<li>
 									<h5>field: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="classes/modelref.html" class="tsd-signature-type">ModelRef</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">keyof Item[]</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><a href="classes/fieldarraymodel.html" class="tsd-signature-type">FieldArrayModel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Child</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>字段名，当<code>FormStrategy</code>是<code>View</code>的时候才能用字段名</p>
+										<p>字段名，当 <code>FormStrategy</code> 是 <code>View</code> 的时候才能用字段名</p>
 									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> validators: <a href="globals.html#ivalidators" class="tsd-signature-type">IValidators</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">keyof (null | Item)[]</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>当<code>field</code>是字段名的时候，可以传入<code>validator</code></p>
+										<p>当 <code>field</code> 是字段名的时候，可以传入 <code>validator</code></p>
 									</div>
 								</li>
 								<li>
@@ -2006,10 +2012,13 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/field-array.tsx#L92">field-array.tsx:92</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/field-array.tsx#L95">field-array.tsx:95</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>创建一个 <code>FieldArray</code></p>
+								</div>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -2025,7 +2034,7 @@
 								<li>
 									<h5>field: <a href="classes/fieldarraymodel.html" class="tsd-signature-type">FieldArrayModel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Child</span><span class="tsd-signature-symbol">&gt;</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>model</p>
+										<p><code>FieldArray</code> 对应的 model 对象，用于关联 <code>FieldArray</code> 和 model；当 <code>FormStrategy</code> 是 <code>Model</code> 的时候才能用</p>
 									</div>
 								</li>
 							</ul>
@@ -2083,10 +2092,13 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/field-set.tsx#L69">field-set.tsx:69</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/field-set.tsx#L71">field-set.tsx:71</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>创建一个 <code>FieldSet</code></p>
+								</div>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -2158,9 +2170,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/form.tsx#L12">form.tsx:12</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/form.tsx#L17">form.tsx:17</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>创建一个 <code>Form</code></p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -2171,6 +2188,9 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>arg: <a href="enums/formstrategy.html#view" class="tsd-signature-type">View</a><span class="tsd-signature-symbol"> | </span><a href="classes/formbuilder.html" class="tsd-signature-type">FormBuilder</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>指定一个 builder 对象来显式构造表单数据，或者指定 <code>FormStrategy.View</code> 自动根据视图构造表单数据</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="interfaces/iform.html" class="tsd-signature-type">IForm</a><span class="tsd-signature-symbol">&lt;</span><a href="globals.html#_fieldsetbuilderchildren" class="tsd-signature-type">$FieldSetBuilderChildren</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
