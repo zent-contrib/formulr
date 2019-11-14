@@ -35,7 +35,7 @@ class FormModel<
   }
 
   /**
-   * 执行整个 `Form` 的校验
+   * 执行整个 `Form` 的校验，会递归触发所有表单元素的校验
    * @param option 表单校验的参数
    */
   validate(option: ValidateOption = ValidateOption.Default) {

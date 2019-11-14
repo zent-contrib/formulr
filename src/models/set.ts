@@ -186,7 +186,7 @@ class FieldSetModel<
   }
 
   /**
-   * 执行 `FieldSet` 的校验，会递归触发所有字段的校验
+   * 执行 `FieldSet` 的校验
    * @param option 校验的参数
    */
   validate(option = ValidateOption.Default): Promise<any> {

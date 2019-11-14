@@ -197,7 +197,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   }
 
   /**
-   * 执行 `FieldArray` 的校验，会校验所有子元素
+   * 执行 `FieldArray` 的校验
    * @param option 校验的参数
    */
   validate(option = ValidateOption.Default): Promise<any> {
