@@ -27,8 +27,7 @@ class FormModel<
     this.form = this;
   }
 
-  validate(option?: ValidateIncludingChildrenRecursively): Promise<IMaybeError<any>[]>
-  validate(option: ValidateExcludingChildrenRecursively): Promise<IMaybeError<any>>
+  validate(option?: ValidateOption): Promise<IMaybeError<any> | IMaybeError<any>[]>
   validate(option: ValidateOption = ValidateOption.Default) {
     return super.validate(option | ValidateOption.IncludeChildrenRecursively) as unknown;
   }

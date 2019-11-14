@@ -8,9 +8,6 @@ type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
 };
 
-export type ValidateIncludingChildrenRecursively = Extract<ValidateOption, ValidateOption.IncludeChildrenRecursively | ValidateOption.Default>;
-export type ValidateExcludingChildrenRecursively = Exclude<ValidateOption, ValidateOption.IncludeChildrenRecursively | ValidateOption.Default>;
-
 const SET_ID = Symbol('set');
 
 class FieldSetModel<
@@ -156,8 +153,7 @@ class FieldSetModel<
     }
   }
 
-  validate(option?: ValidateIncludingChildrenRecursively): Promise<IMaybeError<any>[]>
-  validate(option: ValidateExcludingChildrenRecursively): Promise<IMaybeError<any>>
+  validate(option?: ValidateOption): Promise<IMaybeError<any>[] | IMaybeError<any>>
   validate(option = ValidateOption.Default) {
     if (option & ValidateOption.IncludeChildrenRecursively) {
       return Promise.all<IMaybeError<any>>(
