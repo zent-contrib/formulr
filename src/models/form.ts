@@ -35,6 +35,7 @@ class FormModel<
 
   /** @internal */
   addWorkingValidator(v: Observable<unknown>) {
+    const r = this.validate(ValidateOption.ExcludePristine);
     this.workingValidators.add(v);
     this.updateIsValidating();
   }
