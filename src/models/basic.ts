@@ -22,7 +22,7 @@ interface IModel<Value> {
 
 let uniqueId = 0;
 
-const MODEL = Symbol('model');
+const MODEL_ID = Symbol('model');
 
 abstract class BasicModel<Value> implements IModel<Value> {
   /** @internal */
@@ -42,7 +42,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
   destroyOnUnmount = false;
 
   /** @internal */
-  [MODEL]!: boolean;
+  [MODEL_ID]!: boolean;
 
   abstract getRawValue(): any;
   abstract getSubmitValue(): any;
@@ -84,10 +84,10 @@ abstract class BasicModel<Value> implements IModel<Value> {
   }
 }
 
-BasicModel.prototype[MODEL] = true;
+BasicModel.prototype[MODEL_ID] = true;
 
 function isModel<T>(maybeModel: any): maybeModel is BasicModel<T> {
-  return !!(maybeModel && maybeModel[MODEL]);
+  return !!(maybeModel && maybeModel[MODEL_ID]);
 }
 
 export { IModel, BasicModel, isModel };

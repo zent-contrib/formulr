@@ -4,7 +4,7 @@ import { Some, None, or, isSome, get } from '../maybe';
 import { ValidateOption } from '../validate';
 import { id } from '../utils';
 
-const FIELD = Symbol('field');
+const FIELD_ID = Symbol('field');
 
 export interface INormalizeBeforeSubmit<A, B> {
   (a: A): B;
@@ -14,7 +14,7 @@ class FieldModel<Value> extends BasicModel<Value> {
   /**
    * @internal
    */
-  [FIELD]!: boolean;
+  [FIELD_ID]!: boolean;
 
   readonly value$: BehaviorSubject<Value>;
   isTouched = false;
@@ -88,10 +88,10 @@ class FieldModel<Value> extends BasicModel<Value> {
   }
 }
 
-FieldModel.prototype[FIELD] = true;
+FieldModel.prototype[FIELD_ID] = true;
 
 function isFieldModel<T>(maybeModel: any): maybeModel is FieldModel<T> {
-  return !!(maybeModel && maybeModel[FIELD]);
+  return !!(maybeModel && maybeModel[FIELD_ID]);
 }
 
 export { FieldModel, isFieldModel };

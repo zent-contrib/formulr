@@ -8,7 +8,7 @@ enum FormStrategy {
   View,
 }
 
-const FORM = Symbol('form');
+const FORM_ID = Symbol('form');
 
 class FormModel<
   Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
@@ -16,7 +16,7 @@ class FormModel<
   /**
    * @internal
    */
-  [FORM]!: boolean;
+  [FORM_ID]!: boolean;
 
   /** @internal */
   private readonly workingValidators = new Set<Observable<unknown>>();
@@ -52,12 +52,12 @@ class FormModel<
   }
 }
 
-FormModel.prototype[FORM] = true;
+FormModel.prototype[FORM_ID] = true;
 
 function isFormModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
   maybeModel: any,
 ): maybeModel is FormModel<Children> {
-  return !!(maybeModel && maybeModel[FORM]);
+  return !!(maybeModel && maybeModel[FORM_ID]);
 }
 
 export { FormStrategy, FormModel, isFormModel };

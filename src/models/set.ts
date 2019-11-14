@@ -8,7 +8,7 @@ type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
 };
 
-const SET = Symbol('set');
+const SET_ID = Symbol('set');
 
 class FieldSetModel<
   Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
@@ -16,7 +16,7 @@ class FieldSetModel<
   /**
    * @internal
    */
-  [SET]!: boolean;
+  [SET_ID]!: boolean;
 
   /** @internal */
   patchedValue: $FieldSetValue<Children> | null = null;
@@ -197,12 +197,12 @@ class FieldSetModel<
   }
 }
 
-FieldSetModel.prototype[SET] = true;
+FieldSetModel.prototype[SET_ID] = true;
 
 function isFieldSetModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
   maybeModel: any,
 ): maybeModel is FieldSetModel<Children> {
-  return !!(maybeModel && maybeModel[SET]);
+  return !!(maybeModel && maybeModel[SET_ID]);
 }
 
 export { FieldSetModel, $FieldSetValue, isFieldSetModel };
