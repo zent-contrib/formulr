@@ -59,7 +59,7 @@ export enum ValidateOption {
 
 export interface IValidation {
   option: ValidateOption;
-  resolve(error: IMaybeError<any>): void;
+  resolve(error?: IMaybeError<any>): void;
   reject(error?: any): void;
 }
 
@@ -152,7 +152,7 @@ class ValidatorExecutor<T> {
         return empty();
       }),
       tap(resolve),
-      finalize(() => resolve(null)),
+      finalize(resolve),
     );
   }
 }
