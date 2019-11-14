@@ -18,6 +18,10 @@ export type IValidator<T> = IAsyncValidator<T> | ISyncValidator<T>;
 
 export type IValidators<T> = readonly IValidator<T>[];
 
+/**
+ * 判断一个校验函数是否是异步的，异步的校验函数必须使用 `createAsyncValidator` 创建
+ * @param validator 校验函数
+ */
 export function isAsyncValidator<T>(
   validator: ISyncValidator<T> | IAsyncValidator<T>,
 ): validator is IAsyncValidator<T> {
@@ -27,6 +31,10 @@ export function isAsyncValidator<T>(
   return false;
 }
 
+/**
+ * 创建一个异步校验函数
+ * @param validator 异步校验函数的实现
+ */
 export function createAsyncValidator<T>(
   validator: () => null | Observable<IMaybeError<T>> | Promise<IMaybeError<T>>,
 ): IAsyncValidator<T> {
@@ -36,10 +44,25 @@ export function createAsyncValidator<T>(
   };
 }
 
+/**
+ * 表单字段校验结果
+ */
 export interface IValidateResult<T> {
+  /**
+   * 校验结果对应的字段名
+   */
   name: string;
+  /**
+   * 校验的错误信息
+   */
   message?: string;
+  /**
+   * 校验时的期望值，一般用于自定义复杂的上下文相关的错误信息
+   */
   expect?: T;
+  /**
+   * 校验时的实际值，一般用于自定义复杂的上下文相关的错误信息
+   */
   actual?: T;
   [key: string]: any;
 }
@@ -48,10 +71,25 @@ export type IMaybeError<T> = IValidateResult<T> | null | undefined;
 
 // prettier-ignore
 export enum ValidateOption {
+  /**
+   * 默认行为
+   */
   Empty                         = 0b000000000,
+  /**
+   * 校验时包含异步校验
+   */
   IncludeAsync                  = 0b000000010,
+  /**
+   * 校验时包含没有 `touch` 过的字段
+   */
   IncludeUntouched              = 0b000000100,
+  /**
+   * 递归校验下层的 `Field`，适用于直接从 `FieldSet` 和 `FieldArray` 触发的校验
+   */
   IncludeChildrenRecursively    = 0b000001000,
+  /**
+   * 不校验没有修改过的 `Field`
+   */
   ExcludePristine               = 0b000010000,
 
   Default                       = Empty,
@@ -71,6 +109,9 @@ export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
   }
 }
 
+/**
+ * 表单校验函数的上下文信息
+ */
 export class ValidatorContext<T> {
   constructor(readonly model: BasicModel<T>) {}
 
@@ -156,6 +197,10 @@ class ValidatorExecutor<T> {
   }
 }
 
+/**
+ * 执行 `model` 上的校验规则对 `model` 校验
+ * @param model 要校验的 model 对象
+ */
 export function validate<T>(model: BasicModel<T>) {
   const executor = new ValidatorExecutor(model);
   return (validation: IValidation) => executor.call(validation);

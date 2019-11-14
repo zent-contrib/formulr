@@ -75,8 +75,10 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
 }
 
 /**
- * @param field 字段名，当`FormStrategy`是`View`的时候才能用字段名
- * @param validators 当`field`是字段名的时候，可以传入`validator`
+ * 创建一个 `FieldArray`
+ * 
+ * @param field 字段名，当 `FormStrategy` 是 `View` 的时候才能用字段名
+ * @param validators 当 `field` 是字段名的时候，可以传入 `validator`
  * @param defaultValue 默认值
  */
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
@@ -86,8 +88,9 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
 ): FieldArrayModel<Item, Child>;
 
 /**
+ * 创建一个 `FieldArray`
  * 
- * @param field model
+ * @param field `FieldArray` 对应的 model 对象，用于关联 `FieldArray` 和 model；当 `FormStrategy` 是 `Model` 的时候才能用
  */
 export function useFieldArray<Item, Child extends BasicModel<Item>>(
   field: FieldArrayModel<Item, Child>,

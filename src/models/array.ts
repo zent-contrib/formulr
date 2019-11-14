@@ -31,21 +31,33 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     this.children$ = new BehaviorSubject(children);
   }
 
+  /**
+   * 重置 `FieldArray` 为初始值，初始值通过 `initialize` 设置；如果初始值不存在就使用默认值
+   */
   reset() {
     const children = or(this.initialValue, this.defaultValue).map(this.childFactory);
     this.children$.next(children);
   }
 
+  /**
+   * 清除 `FieldArray` 的初始值，并将当前值设置为默认值
+   */
   clear() {
     this.initialValue = undefined;
     const children = this.defaultValue.map(this.childFactory);
     this.children$.next(children);
   }
 
+  /**
+   * 获取 `FieldArray` 内的所有 model
+   */
   get children() {
     return this.children$.getValue();
   }
 
+  /**
+   * `FieldArray` 内所有 model 是否都通过了校验
+   */
   valid() {
     if (this.error$.getValue() !== null) {
       return false;
@@ -65,6 +77,9 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     return true;
   }
 
+  /**
+   * 获取 `FieldArray` 内的原始值
+   */
   getRawValue(): (Item | null)[] {
     return this.children$.getValue().map(child => {
       if (isModelRef<Item, this, Child>(child)) {
@@ -77,6 +92,9 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     });
   }
 
+  /**
+   * 获取 `FieldArray` 的用于表单提交的值，和原始值可能不一致
+   */
   getSubmitValue(): (Item | null)[] {
     return this.children$.getValue().map(child => {
       if (isModelRef<Item, this, Child>(child)) {
@@ -89,6 +107,10 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     });
   }
 
+  /**
+   * 修改 `FieldArray` 的值
+   * @param value 要修改的值
+   */
   patchValue(value: Item[]) {
     const children = this.children$.getValue();
     for (let i = 0; i < value.length; i += 1) {
@@ -114,16 +136,27 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     }
   }
 
+  /**
+   * 初始化 `FieldArray` 的值，同时设置 `initialValue`
+   * @param values 要设置为初始化值的值
+   */
   initialize(values: Item[]) {
     this.initialValue = Some(values);
     this.children$.next(values.map(this.childFactory));
   }
 
+  /**
+   * 添加一批元素到 `FieldArray` 的末尾
+   * @param items 待添加的值
+   */
   push(...items: Item[]) {
     const nextChildren: FieldArrayChild<Item, Child>[] = this.children$.getValue().concat(items.map(this.childFactory));
     this.children$.next(nextChildren);
   }
 
+  /**
+   * 删除 `FieldArray` 最后的一个元素
+   */
   pop() {
     const children = this.children$.getValue().slice();
     const child = children.pop();
@@ -131,6 +164,9 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     return child;
   }
 
+  /**
+   * 删除 `FieldArray` 第一个元素
+   */
   shift() {
     const children = this.children$.getValue().slice();
     const child = children.shift();
@@ -138,11 +174,21 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     return child;
   }
 
+  /**
+   * 在 `FieldArray` 开头添加值
+   * @param items 待添加的值·
+   */
   unshift(...items: Item[]) {
     const nextChildren = items.map(this.childFactory).concat(this.children$.getValue());
     this.children$.next(nextChildren);
   }
 
+  /**
+   * 在 `FieldArray` 的指定位置删除指定数量的元素，并添加指定的新元素
+   * @param start 开始删除的元素位置
+   * @param deleteCount 删除的元素个数
+   * @param items 待添加的元素值
+   */
   splice(start: number, deleteCount: number = 0, ...items: readonly Item[]): FieldArrayChild<Item, Child>[] {
     const children = this.children$.getValue().slice();
     const ret = children.splice(start, deleteCount, ...items.map(this.childFactory));
@@ -150,6 +196,10 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     return ret;
   }
 
+  /**
+   * 执行 `FieldArray` 的校验，会校验所有子元素
+   * @param option 校验的参数
+   */
   validate(option = ValidateOption.Default): Promise<any> {
     if (option & ValidateOption.IncludeChildrenRecursively) {
       return Promise.all(
@@ -162,6 +212,9 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     return this.triggerValidate(option);
   }
 
+  /**
+   * 是否 `FieldArray` 所有元素都没有修改过
+   */
   pristine() {
     const children = this.children$.getValue();
     for (let i = 0; i < children.length; i += 1) {
@@ -173,10 +226,18 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     return true;
   }
 
+  /**
+   * 是否 `FieldArray` 中任意元素有过修改
+   * 
+   * `dirty === !pristine`
+   */
   dirty() {
     return !this.pristine();
   }
 
+  /**
+   * 是否 `FieldArray` 任意元素被 touch 过
+   */
   touched() {
     const children = this.children$.getValue();
     for (let i = 0; i < children.length; i += 1) {

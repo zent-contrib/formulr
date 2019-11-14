@@ -29,16 +29,30 @@ abstract class BasicModel<Value> implements IModel<Value> {
   id: string;
   /** @internal */
   phantomValue!: Value;
-  /** @internal */
+  /** 
+   * @internal
+   */
   readonly validate$ = new Subject<IValidation>();
-  /** @internal */
+  /** 
+   * @internal
+   * 
+   * 校验规则数组
+   */
   validators: IValidators<Value> = [];
-  /** @internal */
+  /** 
+   * @internal
+   * 
+   * 初始值
+   */
   initialValue: Maybe<Value> = None();
   /** @internal */
   owner: FieldSetModel<any> | ModelRef<any, any, any> | null = null;
   /** @internal */
   form: FormModel<any> | null = null;
+
+  /**
+   * 组件 unmount 的时候删除 model
+   */
   destroyOnUnmount = false;
 
   /** @internal */
@@ -75,10 +89,16 @@ abstract class BasicModel<Value> implements IModel<Value> {
     });
   }
 
+  /**
+   * 获取 model 上的错误信息
+   */
   get error() {
     return this.error$.getValue();
   }
 
+  /**
+   * 设置 model 上的错误信息
+   */
   set error(error: IMaybeError<Value>) {
     this.error$.next(error);
   }
