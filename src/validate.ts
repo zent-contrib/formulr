@@ -133,11 +133,11 @@ class ValidatorExecutor<T> {
   call(validation: IValidation): Observable<IMaybeError<T>> {
     const { option, reject, resolve } = validation;
     if (!this.model.touched() && !(option & ValidateOption.IncludeUntouched)) {
-      resolve(null);
+      resolve();
       return of(null);
     }
     if (option & ValidateOption.ExcludePristine && this.model.pristine()) {
-      resolve(null);
+      resolve();
       return of(null);
     }
     const value = this.model.getRawValue();
