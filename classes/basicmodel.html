@@ -162,7 +162,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L50">models/basic.ts:50</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L64">models/basic.ts:64</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="basicmodel.html" class="tsd-signature-type">BasicModel</a></h4>
@@ -178,7 +178,7 @@
 					<div class="tsd-signature tsd-kind-icon">__computed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L45">models/basic.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L59">models/basic.ts:59</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -194,9 +194,14 @@
 					<div class="tsd-signature tsd-kind-icon">destroy<wbr>OnUnmount<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> =&nbsp;false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L42">models/basic.ts:42</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L56">models/basic.ts:56</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>组件 unmount 的时候删除 model</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
 					<a name="error_" class="tsd-anchor"></a>
@@ -204,7 +209,7 @@
 					<div class="tsd-signature tsd-kind-icon">error$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">BehaviorSubject</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/ivalidateresult.html" class="tsd-signature-type">IValidateResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Value</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new BehaviorSubject&lt;IMaybeError&lt;Value&gt;&gt;(null)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L50">models/basic.ts:50</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L64">models/basic.ts:64</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -214,7 +219,7 @@
 					<div class="tsd-signature tsd-kind-icon">form<span class="tsd-signature-symbol">:</span> <a href="formmodel.html" class="tsd-signature-type">FormModel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> =&nbsp;null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L41">models/basic.ts:41</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L51">models/basic.ts:51</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -246,13 +251,14 @@
 					<div class="tsd-signature tsd-kind-icon">initial<wbr>Value<span class="tsd-signature-symbol">:</span> <a href="../globals.html#maybe" class="tsd-signature-type">Maybe</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Value</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;None()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L37">models/basic.ts:37</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L47">models/basic.ts:47</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<dl class="tsd-comment-tags">
 							<dt>internal</dt>
-							<dd></dd>
+							<dd><p>初始值</p>
+							</dd>
 						</dl>
 					</div>
 				</section>
@@ -262,7 +268,7 @@
 					<div class="tsd-signature tsd-kind-icon">owner<span class="tsd-signature-symbol">:</span> <a href="fieldsetmodel.html" class="tsd-signature-type">FieldSetModel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><a href="modelref.html" class="tsd-signature-type">ModelRef</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> =&nbsp;null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L39">models/basic.ts:39</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L49">models/basic.ts:49</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -294,7 +300,7 @@
 					<div class="tsd-signature tsd-kind-icon">validate$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ivalidation.html" class="tsd-signature-type">IValidation</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Subject&lt;IValidation&gt;()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L33">models/basic.ts:33</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L35">models/basic.ts:35</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -310,13 +316,14 @@
 					<div class="tsd-signature tsd-kind-icon">validators<span class="tsd-signature-symbol">:</span> <a href="../globals.html#ivalidators" class="tsd-signature-type">IValidators</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Value</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L35">models/basic.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L41">models/basic.ts:41</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<dl class="tsd-comment-tags">
 							<dt>internal</dt>
-							<dd></dd>
+							<dd><p>校验规则数组</p>
+							</dd>
 						</dl>
 					</div>
 				</section>
@@ -334,9 +341,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L78">models/basic.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L98">models/basic.ts:98</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>获取 model 上的错误信息</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span>
 								<span class="tsd-signature-symbol"> | </span>
 								<span class="tsd-signature-type">null</span>
@@ -347,9 +359,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L82">models/basic.ts:82</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L105">models/basic.ts:105</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>设置 model 上的错误信息</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -374,7 +391,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#clear">clear</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L64">models/basic.ts:64</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L81">models/basic.ts:81</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -392,7 +409,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#dirty">dirty</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L60">models/basic.ts:60</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L74">models/basic.ts:74</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -410,7 +427,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#getrawvalue">getRawValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L47">models/basic.ts:47</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L61">models/basic.ts:61</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -427,7 +444,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L48">models/basic.ts:48</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L62">models/basic.ts:62</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -445,7 +462,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#initialize">initialize</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L65">models/basic.ts:65</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L82">models/basic.ts:82</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -469,7 +486,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#patchvalue">patchValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L62">models/basic.ts:62</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L76">models/basic.ts:76</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -493,7 +510,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#pristine">pristine</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L58">models/basic.ts:58</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L72">models/basic.ts:72</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -511,9 +528,14 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#reset">reset</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L63">models/basic.ts:63</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L80">models/basic.ts:80</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>来则basic 的reset注释</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -529,7 +551,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#touched">touched</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L59">models/basic.ts:59</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L73">models/basic.ts:73</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -546,7 +568,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L68">models/basic.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L85">models/basic.ts:85</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -570,7 +592,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#valid">valid</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L61">models/basic.ts:61</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L75">models/basic.ts:75</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -587,7 +609,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L66">models/basic.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/models/basic.ts#L83">models/basic.ts:83</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
