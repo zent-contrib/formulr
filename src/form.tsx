@@ -9,8 +9,12 @@ export interface IForm<T extends Record<string, BasicModel<unknown>>> {
   model: FormModel<T>;
 }
 
-export function useForm<T extends Record<string, BasicBuilder<unknown, BasicModel<unknown>>>>(
-  arg: FormStrategy.View | FormBuilder<T>,
+export function useForm<
+  T extends Record<string, Builder>,
+  Builder extends BasicBuilder<any, Model>,
+  Model extends BasicModel<any>
+>(
+  arg: FormStrategy.View | FormBuilder<T, Builder, Model>,
 ): IForm<$FieldSetBuilderChildren<T>> {
   return useMemo(() => {
     let strategy: FormStrategy;
