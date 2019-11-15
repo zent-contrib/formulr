@@ -11,8 +11,8 @@ export interface IForm<T extends Record<string, BasicModel<unknown>>> {
 
 export function useForm<
   T extends Record<string, Builder>,
-  Builder extends BasicBuilder<any, Model>,
-  Model extends BasicModel<any>
+  Builder extends BasicBuilder<unknown, Model>,
+  Model extends BasicModel<unknown>
 >(
   arg: FormStrategy.View | FormBuilder<T, Builder, Model>,
 ): IForm<$FieldSetBuilderChildren<T>> {

@@ -23,16 +23,16 @@ export function array<ChildBuilder extends BasicBuilder<any, any>>(
 
 export function set<
   ChildBuilders extends Record<string, Builder>,
-  Builder extends BasicBuilder<any, Model>,
-  Model extends BasicModel<any>
+  Builder extends BasicBuilder<unknown, Model>,
+  Model extends BasicModel<unknown>
 >(childBuilders: ChildBuilders) {
   return new FieldSetBuilder<ChildBuilders>(childBuilders);
 }
 
 export function form<
   ChildBuilders extends Record<string, Builder>,
-  Builder extends BasicBuilder<any, Model>,
-  Model extends BasicModel<any>
+  Builder extends BasicBuilder<unknown, Model>,
+  Model extends BasicModel<unknown>
 >(childBuilders: ChildBuilders) {
   return new FormBuilder<ChildBuilders, Builder, Model>(childBuilders);
 }
