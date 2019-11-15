@@ -31,6 +31,10 @@ class FieldSetModel<
     this.children = children;
   }
 
+  /**
+   * 初始化 `FieldSet` 的值，并设置 `initialValue`
+   * @param values 待初始化的值
+   */
   initialize(values: $FieldSetValue<Children>) {
     if (!isPlainObject(values)) {
       return;
@@ -56,6 +60,9 @@ class FieldSetModel<
     return None();
   }
 
+  /**
+   * 获取 `FieldSet` 的值
+   */
   getRawValue(): $FieldSetValue<Children> {
     const value: any = {};
     const childrenKeys = Object.keys(this.children);
@@ -68,6 +75,9 @@ class FieldSetModel<
     return value;
   }
 
+  /**
+   * 获取 `FieldSet` 用于表单提交的值
+   */
   getSubmitValue() {
     const value: any = {};
     const childrenKeys = Object.keys(this.children);
@@ -80,6 +90,11 @@ class FieldSetModel<
     return value;
   }
 
+  /**
+   * 在 `FieldSet` 上注册一个新的字段
+   * @param name 字段名
+   * @param model 字段对应的 model
+   */
   registerChild(name: string, model: BasicModel<unknown>) {
     model.form = this.form;
     model.owner = this;
@@ -92,6 +107,10 @@ class FieldSetModel<
     this.childRegister$.next(name);
   }
 
+  /**
+   * 在 `FieldSet` 上删除指定的字段
+   * @param name 字段名
+   */
   removeChild(name: string) {
     const model = this.children[name];
     delete this.children[name];
@@ -101,6 +120,9 @@ class FieldSetModel<
     return model;
   }
 
+  /**
+   * 是否 `FieldSet` 所有字段都通过了校验
+   */
   valid() {
     if (this.error$.getValue() !== null) {
       return false;
@@ -116,6 +138,10 @@ class FieldSetModel<
     return true;
   }
 
+  /**
+   * 更新 `FieldSet` 的值
+   * @param value 待更新的值
+   */
   patchValue(value: $FieldSetValue<Children>) {
     if (!isPlainObject(value)) {
       return;
@@ -131,6 +157,9 @@ class FieldSetModel<
     }
   }
 
+  /**
+   * 清除 `FieldSet` 所有字段的值，同时清除 `initialValue`
+   */
   clear() {
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
@@ -142,6 +171,9 @@ class FieldSetModel<
     }
   }
 
+  /**
+   * 重置 `FieldValue` 所有字段的值，如果存在 `initialValue` 就是用初始值，否则使用默认值
+   */
   reset() {
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
@@ -153,6 +185,10 @@ class FieldSetModel<
     }
   }
 
+  /**
+   * 执行 `FieldSet` 的校验
+   * @param option 校验的参数
+   */
   validate(option = ValidateOption.Default): Promise<any> {
     if (option & ValidateOption.IncludeChildrenRecursively) {
       return Promise.all(
@@ -164,6 +200,9 @@ class FieldSetModel<
     return this.triggerValidate(option);
   }
 
+  /**
+   * 是否 `FieldSet` 上的所有字段都没有被修改过
+   */
   pristine() {
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
@@ -176,10 +215,19 @@ class FieldSetModel<
     return true;
   }
 
+  /**
+   * 是否 `FieldSet` 上有任意字段被修改过
+   * 
+   * `dirty === !pristine`
+   */
   dirty() {
     return !this.pristine();
   }
 
+  /**
+   * 是否 `FieldSet` 上有任意字段被 touch 过
+   * 
+   */
   touched() {
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
@@ -192,6 +240,10 @@ class FieldSetModel<
     return false;
   }
 
+  /**
+   * 返回指定字段名对应的 model
+   * @param name 字段名
+   */
   get<Name extends keyof Children>(name: Name): Children[Name] | undefined | null {
     return this.children[name as string] as any;
   }
