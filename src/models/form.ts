@@ -4,7 +4,14 @@ import { BasicModel } from './basic';
 import { ValidateOption } from '../validate';
 
 enum FormStrategy {
+  /**
+   * 指定 model 模式
+   */
   Model,
+
+  /**
+   * 视图驱动模式
+   */
   View,
 }
 
@@ -27,6 +34,10 @@ class FormModel<
     this.form = this;
   }
 
+  /**
+   * 执行整个 `Form` 的校验，会递归触发所有表单元素的校验
+   * @param option 表单校验的参数
+   */
   validate(option: ValidateOption = ValidateOption.Default) {
     return super.validate(option | ValidateOption.IncludeChildrenRecursively);
   }

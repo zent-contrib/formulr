@@ -15,6 +15,10 @@ export abstract class BasicBuilder<Value, Model extends BasicModel<Value>> {
 
   abstract build(defaultValue?: Maybe<Value>): Model;
 
+  /**
+   * 设置 builder 上的校验规则
+   * @param validators 校验规则
+   */
   validators(...validators: IValidators<Value>) {
     this._validators = validators;
     return this;

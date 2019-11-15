@@ -28,6 +28,16 @@ export function useMAppend<T>(...fns: ((t: T) => void)[]): (t: T) => void {
   }, fns);
 }
 
+/**
+ * `const callback = usePipe(foo, bar, baz)`
+ * 
+ * is equal to
+ * ```js
+ * const callback = useMemo(() => arg => {
+ *  return baz(bar(foo(arg)))
+ * }, [foo, bar, baz])
+ * ```
+ */
 export function usePipe<T0, T1, T2>(fn0: (t0: T0) => T1, fn1: (t1: T1) => T2): (t0: T0) => T2;
 export function usePipe<T0, T1, T2, T3>(fn0: (t0: T0) => T1, fn1: (t1: T1) => T2, fn2: (t2: T2) => T3): (t0: T0) => T3;
 export function usePipe<T0, T1, T2, T3, T4>(
@@ -124,6 +134,11 @@ export function makeChangeHandler<Value>(model: FieldModel<Value>, option: Valid
   );
 }
 
+/**
+ * 生成一组 `onCompositionStart` 和 `onCompositionEnd` 的回调函数，用于跟踪输入法 composition 的状态，
+ * 这个状态会写到 `model.isCompositing` 字段上。
+ * @param model 用于记录状态的 `model` 对象
+ */
 export function useCompositionHandler<Value>(model: FieldModel<Value>) {
   return useMemo(
     () => ({
