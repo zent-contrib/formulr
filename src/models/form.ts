@@ -27,7 +27,6 @@ class FormModel<
     this.form = this;
   }
 
-  validate(option?: ValidateOption): Promise<IMaybeError<any> | IMaybeError<any>[]>
   validate(option: ValidateOption = ValidateOption.Default) {
     return super.validate(option | ValidateOption.IncludeChildrenRecursively);
   }

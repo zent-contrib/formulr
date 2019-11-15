@@ -153,8 +153,7 @@ class FieldSetModel<
     }
   }
 
-  validate(option?: ValidateOption): Promise<IMaybeError<any>[] | IMaybeError<any>>
-  validate(option = ValidateOption.Default) {
+  validate(option = ValidateOption.Default): Promise<IMaybeError<any> | IMaybeError<any>[]> {
     if (option & ValidateOption.IncludeChildrenRecursively) {
       return Promise.all<IMaybeError<any>>(
         Object.keys(this.children)

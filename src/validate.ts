@@ -44,7 +44,7 @@ export interface IValidateResult<T> {
   [key: string]: any;
 }
 
-export type IMaybeError<T> = IValidateResult<T> | null | undefined;
+export type IMaybeError<T> = IValidateResult<T> | null;
 
 // prettier-ignore
 export enum ValidateOption {
