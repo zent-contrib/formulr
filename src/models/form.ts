@@ -18,7 +18,7 @@ enum FormStrategy {
 const FORM_ID = Symbol('form');
 
 class FormModel<
-  Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
+  Children extends Record<string, BasicModel<unknown>> = Record<string, BasicModel<unknown>>
 > extends FieldSetModel<Children> {
   /**
    * @internal
