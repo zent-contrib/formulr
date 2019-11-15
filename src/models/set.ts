@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
-import { ValidateOption } from '../validate';
+import { ValidateOption, IMaybeError } from '../validate';
 import { Some, Maybe, None } from '../maybe';
 import { isPlainObject } from '../utils';
 
@@ -189,9 +189,9 @@ class FieldSetModel<
    * 执行 `FieldSet` 的校验
    * @param option 校验的参数
    */
-  validate(option = ValidateOption.Default): Promise<any> {
+  validate(option = ValidateOption.Default): Promise<IMaybeError<any> | IMaybeError<any>[]> {
     if (option & ValidateOption.IncludeChildrenRecursively) {
-      return Promise.all(
+      return Promise.all<IMaybeError<any>>(
         Object.keys(this.children)
           .map(key => this.children[key].validate(option))
           .concat(this.triggerValidate(option)),

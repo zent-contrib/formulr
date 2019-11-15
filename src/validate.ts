@@ -1,5 +1,5 @@
 import { Observable, from, NextObserver, empty, of, defer } from 'rxjs';
-import { catchError, map, concatAll, filter, takeWhile, finalize } from 'rxjs/operators';
+import { catchError, map, concatAll, filter, takeWhile, tap, finalize } from 'rxjs/operators';
 import { BasicModel, isFieldSetModel } from './models';
 
 export const ASYNC_VALIDATOR = Symbol('AsyncValidator');
@@ -97,7 +97,7 @@ export enum ValidateOption {
 
 export interface IValidation {
   option: ValidateOption;
-  resolve(): void;
+  resolve(error?: IMaybeError<any>): void;
   reject(error?: any): void;
 }
 
@@ -192,6 +192,7 @@ class ValidatorExecutor<T> {
         reject(error);
         return empty();
       }),
+      tap(resolve),
       finalize(resolve),
     );
   }
