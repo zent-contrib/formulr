@@ -4,11 +4,18 @@ import { BasicModel } from './basic';
 import { ValidateOption } from '../validate';
 
 enum FormStrategy {
+  /**
+   * 指定 model 模式
+   */
   Model,
+
+  /**
+   * 视图驱动模式
+   */
   View,
 }
 
-const FORM = Symbol('form');
+const FORM_ID = Symbol('form');
 
 class FormModel<
   Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
@@ -16,7 +23,7 @@ class FormModel<
   /**
    * @internal
    */
-  [FORM]!: boolean;
+  [FORM_ID]!: boolean;
 
   /** @internal */
   private readonly workingValidators = new Set<Observable<unknown>>();
@@ -27,6 +34,10 @@ class FormModel<
     this.form = this;
   }
 
+  /**
+   * 执行整个 `Form` 的校验，会递归触发所有表单元素的校验
+   * @param option 表单校验的参数
+   */
   validate(option: ValidateOption = ValidateOption.Default) {
     return super.validate(option | ValidateOption.IncludeChildrenRecursively);
   }
@@ -52,12 +63,12 @@ class FormModel<
   }
 }
 
-FormModel.prototype[FORM] = true;
+FormModel.prototype[FORM_ID] = true;
 
 function isFormModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
   maybeModel: any,
 ): maybeModel is FormModel<Children> {
-  return !!(maybeModel && maybeModel[FORM]);
+  return !!(maybeModel && maybeModel[FORM_ID]);
 }
 
 export { FormStrategy, FormModel, isFormModel };

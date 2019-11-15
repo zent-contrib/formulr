@@ -10,6 +10,11 @@ function isEmptyInputValue(value: any) {
 
 export const SYMBOL_REQUIRED = Symbol('required');
 
+/**
+ * 限制一个值的最小值
+ * @param limit 允许的最小值（包含自身）
+ * @param message 错误信息
+ */
 export function min(limit: number | string, message?: string) {
   return function min(value: number | string): IMaybeError<number | string> {
     if (isEmptyInputValue(value)) {
@@ -37,6 +42,11 @@ export function min(limit: number | string, message?: string) {
   };
 }
 
+/**
+ * 限制一个值的最大值
+ * @param limit 允许的最大值（包含自身）
+ * @param message 错误信息
+ */
 export function max(limit: number, message?: string) {
   return function max(value: number | string): IMaybeError<number | string> {
     if (isEmptyInputValue(value)) {
@@ -64,6 +74,10 @@ export function max(limit: number, message?: string) {
   };
 }
 
+/**
+ * 限制一个值不为 `null`/`undefined`，并且长度不为零
+ * @param message 错误信息
+ */
 export function required(message?: string): ISyncValidator<any> {
   function required(input: any): IMaybeError<string> {
     return isEmptyInputValue(input)
@@ -78,6 +92,10 @@ export function required(message?: string): ISyncValidator<any> {
   return required;
 }
 
+/**
+ * 限制一个值必须为 `true`
+ * @param message 错误信息
+ */
 export function requiredTrue(message?: string): ISyncValidator<boolean> {
   function requiredTrue(input: boolean) {
     return input === true
@@ -92,6 +110,10 @@ export function requiredTrue(message?: string): ISyncValidator<boolean> {
   return requiredTrue;
 }
 
+/**
+ * 限制一个值是合法的 email 地址，规则和 Angular 使用的一致
+ * @param message 错误信息
+ */
 export function email(message?: string): ISyncValidator<string> {
   function email(input: string) {
     return EMAIL_REGEXP.test(input)
@@ -109,6 +131,11 @@ export interface IWithLength {
   length: number;
 }
 
+/**
+ * 限制一个值的最小长度，通过 `.length` 属性判断
+ * @param length 允许的最小长度（包含自身）
+ * @param message 错误信息
+ */
 export function minLength<T extends IWithLength>(length: number, message?: string): ISyncValidator<T> {
   function minLength(input: T) {
     return input.length < length
@@ -123,6 +150,11 @@ export function minLength<T extends IWithLength>(length: number, message?: strin
   return minLength;
 }
 
+/**
+ * 限制一个值的最大长度，通过 `.length` 属性判断
+ * @param length 允许的最大长度（包含自身）
+ * @param message 错误信息
+ */
 export function maxLength<T extends IWithLength>(length: number, message?: string): ISyncValidator<T> {
   function maxLength(input: T) {
     return input.length > length
@@ -137,6 +169,11 @@ export function maxLength<T extends IWithLength>(length: number, message?: strin
   return maxLength;
 }
 
+/**
+ * 限制一个字符串必须匹配一个正则表达式
+ * @param regexp 要匹配的正则表达式
+ * @param message 错误信息
+ */
 export function pattern(regexp: RegExp, message?: string): ISyncValidator<string> {
   function pattern(input: string) {
     return regexp.test(input)

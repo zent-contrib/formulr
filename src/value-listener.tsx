@@ -50,6 +50,9 @@ function getModelFromContext<Model>(
   return maybeModel;
 }
 
+/**
+ * 根据 `name` 订阅 `FieldSet` 的值
+ */
 export function FieldSetValue({ name, children }: IFieldSetValueProps) {
   const ctx = useFormContext();
   const model = getModelFromContext(ctx, name, undefined, isFieldSetModel);
@@ -71,6 +74,9 @@ export function FieldSetValue({ name, children }: IFieldSetValueProps) {
 }
 
 export interface IFieldValueCommonProps<T> {
+  /**
+   * render props，参数是 Field 当前的值
+   */
   children?: (value: T | null) => React.ReactElement | null;
 }
 
@@ -84,6 +90,9 @@ export interface IFieldValueViewDrivenProps<T> extends IFieldValueCommonProps<T>
 
 export type IFieldValueProps<T> = IFieldValueModelDrivenProps<T> | IFieldValueViewDrivenProps<T>;
 
+/**
+ * 根据 `name` 或者 `model` 订阅字段的更新
+ */
 export function FieldValue<T extends React.ReactElement | null>(props: IFieldValueProps<T>): React.ReactElement | null {
   const { name, model: maybeModel, children } = props as Partial<
     IFieldValueModelDrivenProps<T> & IFieldValueViewDrivenProps<T>
@@ -101,6 +110,9 @@ export function FieldValue<T extends React.ReactElement | null>(props: IFieldVal
   return null;
 }
 
+/**
+ * 根据 `name` 或者 `model` 订阅 `FieldArray` 的更新
+ */
 export function useFieldArrayValue<Item, Child extends BasicModel<Item>>(field: string | FieldArrayModel<Item, Child>) {
   const ctx = useFormContext();
   const model = getModelFromContext(

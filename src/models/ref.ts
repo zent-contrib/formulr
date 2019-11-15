@@ -2,14 +2,14 @@ import { BasicModel, IModel } from './basic';
 import { ValidateOption, IMaybeError } from '../validate';
 import { Maybe, None } from '../maybe';
 
-const REF = Symbol('ref');
+const REF_ID = Symbol('ref');
 
 class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<Value> = BasicModel<Value>>
   implements IModel<Value | null> {
   /**
    * @internal
    */
-  [REF]!: boolean;
+  [REF_ID]!: boolean;
 
   /**
    * @internal
@@ -125,12 +125,12 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
   }
 }
 
-ModelRef.prototype[REF] = true;
+ModelRef.prototype[REF_ID] = true;
 
 function isModelRef<T, P extends BasicModel<any>, M extends BasicModel<T> = BasicModel<T>>(
   maybeModelRef: any,
 ): maybeModelRef is ModelRef<T, P, M> {
-  return !!(maybeModelRef && maybeModelRef[REF]);
+  return !!(maybeModelRef && maybeModelRef[REF_ID]);
 }
 
 export { ModelRef, isModelRef };

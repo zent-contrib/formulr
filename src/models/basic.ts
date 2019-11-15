@@ -22,27 +22,41 @@ interface IModel<Value> {
 
 let uniqueId = 0;
 
-const MODEL = Symbol('model');
+const MODEL_ID = Symbol('model');
 
 abstract class BasicModel<Value> implements IModel<Value> {
   /** @internal */
   id: string;
   /** @internal */
   phantomValue!: Value;
-  /** @internal */
+  /** 
+   * @internal
+   */
   readonly validate$ = new Subject<IValidation>();
-  /** @internal */
+  /** 
+   * @internal
+   * 
+   * 校验规则数组
+   */
   validators: IValidators<Value> = [];
-  /** @internal */
+  /** 
+   * @internal
+   * 
+   * 初始值
+   */
   initialValue: Maybe<Value> = None();
   /** @internal */
   owner: FieldSetModel<any> | ModelRef<any, any, any> | null = null;
   /** @internal */
   form: FormModel<any> | null = null;
+
+  /**
+   * 组件 unmount 的时候删除 model
+   */
   destroyOnUnmount = false;
 
   /** @internal */
-  [MODEL]!: boolean;
+  [MODEL_ID]!: boolean;
 
   abstract getRawValue(): any;
   abstract getSubmitValue(): any;
@@ -75,19 +89,25 @@ abstract class BasicModel<Value> implements IModel<Value> {
     });
   }
 
+  /**
+   * 获取 model 上的错误信息
+   */
   get error() {
     return this.error$.getValue();
   }
 
+  /**
+   * 设置 model 上的错误信息
+   */
   set error(error: IMaybeError<Value>) {
     this.error$.next(error);
   }
 }
 
-BasicModel.prototype[MODEL] = true;
+BasicModel.prototype[MODEL_ID] = true;
 
 function isModel<T>(maybeModel: any): maybeModel is BasicModel<T> {
-  return !!(maybeModel && maybeModel[MODEL]);
+  return !!(maybeModel && maybeModel[MODEL_ID]);
 }
 
 export { IModel, BasicModel, isModel };

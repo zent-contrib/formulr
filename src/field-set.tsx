@@ -63,6 +63,8 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
 }
 
 /**
+ * 创建一个 `FieldSet`
+ * 
  * @param field model 或者字段名，当`FormStrategy`是`View`的时候才能用字段名
  * @param validators 当`field`是字段名的时候，可以传入`validator`
  */

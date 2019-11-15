@@ -9,6 +9,11 @@ export interface IForm<T extends Record<string, BasicModel<unknown>>> {
   model: FormModel<T>;
 }
 
+/**
+ * 创建一个 `Form`
+ * 
+ * @param arg 指定一个 builder 对象来显式构造表单数据，或者指定 `FormStrategy.View` 自动根据视图构造表单数据
+ */
 export function useForm<T extends Record<string, BasicBuilder<unknown, BasicModel<unknown>>>>(
   arg: FormStrategy.View | FormBuilder<T>,
 ): IForm<$FieldSetBuilderChildren<T>> {
