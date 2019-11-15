@@ -153,6 +153,10 @@ class FieldSetModel<
     }
   }
 
+  /**
+   * 执行 `FieldSet` 的校验
+   * @param option 校验的参数
+   */
   validate(option = ValidateOption.Default): Promise<IMaybeError<any> | IMaybeError<any>[]> {
     if (option & ValidateOption.IncludeChildrenRecursively) {
       return Promise.all<IMaybeError<any>>(
