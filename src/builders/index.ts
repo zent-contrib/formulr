@@ -11,10 +11,18 @@ export * from './set';
 export * from './form';
 export * from './basic';
 
+/**
+ * 创建一个 `Field` builder
+ * @param defaultValue `Field` 的默认值
+ */
 export function field<T>(defaultValue: T) {
   return new FieldBuilder(defaultValue);
 }
 
+/**
+ * 创建一个 `FieldArray` builder
+ * @param childBuilder 数组元素的 builder 对象，可以是 `field`、`array` 或者 `set` 的返回值
+ */
 export function array<ChildBuilder extends BasicBuilder<any, any>>(
   childBuilder: ChildBuilder,
 ) {
