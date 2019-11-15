@@ -29,7 +29,7 @@ class FormModel<
 
   validate(option?: ValidateOption): Promise<IMaybeError<any> | IMaybeError<any>[]>
   validate(option: ValidateOption = ValidateOption.Default) {
-    return super.validate(option | ValidateOption.IncludeChildrenRecursively) as unknown;
+    return super.validate(option | ValidateOption.IncludeChildrenRecursively);
   }
 
   /** @internal */
