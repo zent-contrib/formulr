@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { FieldSetModel } from './set';
 import { BasicModel } from './basic';
-import { ValidateOption, IMaybeError } from '../validate';
+import { ValidateOption } from '../validate';
 
 enum FormStrategy {
   Model,
