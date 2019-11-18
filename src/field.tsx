@@ -38,7 +38,7 @@ function useModelAndChildProps<Value>(
       }
     } else if (isModelRef<Value, any, FieldModel<Value>>(field)) {
       const m = field.getModel();
-      if (!m || isFieldModel<Value>(m)) {
+      if (!m || !isFieldModel<Value>(m)) {
         const v = or<Value>(field.patchedValue, () => or(field.initialValue, defaultValue));
         model = new FieldModel<Value>(v);
         field.setModel(model);
