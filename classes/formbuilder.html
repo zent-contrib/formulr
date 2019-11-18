@@ -59,7 +59,7 @@
 					<a href="formbuilder.html">FormBuilder</a>
 				</li>
 			</ul>
-			<h1>Class FormBuilder&lt;ChildBuilders&gt;</h1>
+			<h1>Class FormBuilder&lt;ChildBuilders, Builder, Model&gt;</h1>
 		</div>
 	</div>
 </header>
@@ -70,7 +70,13 @@
 				<h3>Type parameters</h3>
 				<ul class="tsd-type-parameters">
 					<li>
-						<h4>ChildBuilders<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="basicbuilder.html" class="tsd-signature-type">BasicBuilder</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						<h4>ChildBuilders<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Builder</span><span class="tsd-signature-symbol">&gt;</span></h4>
+					</li>
+					<li>
+						<h4>Builder<span class="tsd-signature-symbol">: </span><a href="basicbuilder.html" class="tsd-signature-type">BasicBuilder</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Model</span><span class="tsd-signature-symbol">&gt;</span></h4>
+					</li>
+					<li>
+						<h4>Model<span class="tsd-signature-symbol">: </span><a href="basicmodel.html" class="tsd-signature-type">BasicModel</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h4>
 					</li>
 				</ul>
 			</section>
@@ -128,7 +134,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/builders/form.ts#L9">builders/form.ts:9</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/05b2aa9/src/builders/form.ts#L13">src/builders/form.ts:13</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -150,7 +156,7 @@
 					<div class="tsd-signature tsd-kind-icon">_child<wbr>Builders<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ChildBuilders</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/builders/form.ts#L10">builders/form.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/05b2aa9/src/builders/form.ts#L14">src/builders/form.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -161,7 +167,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicbuilder.html">BasicBuilder</a>.<a href="basicbuilder.html#_validators">_validators</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/builders/basic.ts#L14">builders/basic.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/05b2aa9/src/builders/basic.ts#L14">src/builders/basic.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -172,7 +178,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicbuilder.html">BasicBuilder</a>.<a href="basicbuilder.html#phantommodel">phantomModel</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/builders/basic.ts#L13">builders/basic.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/05b2aa9/src/builders/basic.ts#L13">src/builders/basic.ts:13</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -189,7 +195,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicbuilder.html">BasicBuilder</a>.<a href="basicbuilder.html#phantomvalue">phantomValue</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/builders/basic.ts#L9">builders/basic.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/05b2aa9/src/builders/basic.ts#L9">src/builders/basic.ts:9</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -213,7 +219,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="basicbuilder.html">BasicBuilder</a>.<a href="basicbuilder.html#build">build</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/builders/form.ts#L14">builders/form.ts:14</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/05b2aa9/src/builders/form.ts#L18">src/builders/form.ts:18</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -237,7 +243,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="basicbuilder.html">BasicBuilder</a>.<a href="basicbuilder.html#validators">validators</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/86e7213/src/builders/basic.ts#L22">builders/basic.ts:22</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/05b2aa9/src/builders/basic.ts#L22">src/builders/basic.ts:22</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
