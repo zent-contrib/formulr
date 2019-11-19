@@ -32,6 +32,9 @@ class FormModel<
   constructor(public readonly children: Children) {
     super(children);
     this.form = this;
+    for (const [name, child] of Object.entries(children)) {
+      this.registerChild(name, child);
+    }
   }
 
   /**
