@@ -1,6 +1,7 @@
 import { BasicModel, IModel } from './basic';
 import { ValidateOption, IMaybeError } from '../validate';
 import { Maybe, None } from '../maybe';
+import { BehaviorSubject } from 'rxjs';
 
 const REF_ID = Symbol('ref');
 
@@ -16,25 +17,26 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
    */
   patchedValue: Maybe<Value> = None();
 
+  model$: BehaviorSubject<Model | null>;
+
   /**
    * @internal
    */
-  constructor(
-    private current: Model | null = null,
-    public initialValue: Maybe<Value> = None(),
-    private owner: Parent | null,
-  ) {}
+  constructor(current: Model | null = null, public initialValue: Maybe<Value> = None(), private owner: Parent | null) {
+    this.model$ = new BehaviorSubject(current);
+  }
 
   getModel() {
-    return this.current;
+    return this.model$.getValue();
   }
 
   setModel(model: Model | null) {
-    if (this.current) {
-      this.current.form = null;
-      this.current.owner = null;
+    const current = this.getModel();
+    if (current) {
+      current.form = null;
+      current.owner = null;
     }
-    this.current = model;
+    this.model$.next(model);
     if (model) {
       model.form = this.owner && this.owner.form;
       model.owner = this;
@@ -46,82 +48,74 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
   }
 
   dirty() {
-    if (!this.current) {
+    const current = this.getModel();
+    if (!current) {
       return false;
     }
-    return this.current.dirty();
+    return current.dirty();
   }
 
   touched() {
-    if (!this.current) {
+    const current = this.getModel();
+    if (!current) {
       return false;
     }
-    return this.current.touched();
+    return current.touched();
   }
 
   validate(option: ValidateOption = ValidateOption.Default): Promise<void> {
-    if (!this.current) {
+    const current = this.getModel();
+    if (!current) {
       return Promise.resolve();
     }
-    return this.current.validate(option);
+    return current.validate(option);
   }
 
-  getRawValue() {
-    if (this.current) {
-      return this.current.getRawValue();
-    }
-    return null;
+  getRawValue(): Value | null {
+    return this.getModel()?.getRawValue();
   }
 
   pristine() {
-    if (this.current) {
-      return this.current.pristine();
+    const current = this.getModel();
+    if (current) {
+      return current.pristine();
     }
     return true;
   }
 
   valid() {
-    if (this.current) {
-      return this.current.valid();
+    const current = this.getModel();
+    if (current) {
+      return current.valid();
     }
     return true;
   }
 
   get error() {
-    if (this.current) {
-      return this.current.error;
-    }
-    return null;
+    return this.getModel()?.error;
   }
 
   set error(error: IMaybeError<Value>) {
-    if (this.current) {
-      this.current.error = error;
+    const current = this.getModel();
+    if (current) {
+      current.error = error;
     }
   }
 
   patchValue(value: Value) {
-    if (this.current) {
-      this.current.patchValue(value);
-    }
+    this.getModel()?.patchValue(value);
   }
 
   initialize(value: Value) {
-    if (this.current) {
-      this.current.initialize(value);
-    }
+    this.getModel()?.initialize(value);
   }
 
   reset() {
-    if (this.current) {
-      this.current.reset();
-    }
+    this.getModel()?.reset();
   }
 
   clear() {
-    if (this.current) {
-      this.current.clear();
-    }
+    this.getModel()?.clear();
   }
 }
 

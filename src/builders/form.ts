@@ -1,9 +1,13 @@
 import { BasicBuilder } from './basic';
-import { $FieldSetValue, FormModel } from '../models';
+import { $FieldSetValue, FormModel, BasicModel } from '../models';
 import { $FieldSetBuilderChildren } from './set';
 import { Maybe, Some, or } from '../maybe';
 
-export class FormBuilder<ChildBuilders extends Record<string, BasicBuilder<any, any>>> extends BasicBuilder<
+export class FormBuilder<
+  ChildBuilders extends Record<string, Builder>,
+  Builder extends BasicBuilder<unknown, Model>,
+  Model extends BasicModel<unknown>
+> extends BasicBuilder<
   $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
   FormModel<$FieldSetBuilderChildren<ChildBuilders>>
 > {
@@ -13,7 +17,7 @@ export class FormBuilder<ChildBuilders extends Record<string, BasicBuilder<any, 
 
   build(defaultValues?: Maybe<$FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>>) {
     const defaults = or<Record<keyof ChildBuilders, any>>(defaultValues, {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>);
-    const children = {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>;
+    const children = {} as $FieldSetBuilderChildren<ChildBuilders>;
     const childKeys: Array<keyof ChildBuilders> = Object.keys(this._childBuilders);
     for (let i = 0; i < childKeys.length; i += 1) {
       const key = childKeys[i];

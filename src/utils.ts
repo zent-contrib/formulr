@@ -19,8 +19,8 @@ export function isPlainObject(value: unknown): value is object {
   return Object.getPrototypeOf(value) === proto;
 }
 
-export function removeOnUnmount(
-  field: string | BasicModel<any> | ModelRef<any, any>,
+export function removeOnUnmount<Model extends BasicModel<any>>(
+  field: string | BasicModel<any> | ModelRef<any, any, Model>,
   model: BasicModel<any>,
   parent: FieldSetModel,
 ) {

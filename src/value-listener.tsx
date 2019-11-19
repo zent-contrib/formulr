@@ -1,9 +1,18 @@
 import * as React from 'react';
-import { merge, never } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { merge, never, of } from 'rxjs';
+import { filter, switchMap } from 'rxjs/operators';
 import { useFormContext, FormContext, IFormContext } from './context';
 import { useValue$ } from './hooks';
-import { FieldModel, FieldArrayModel, BasicModel, isFieldSetModel, isFieldModel, isFieldArrayModel } from './models';
+import {
+  FieldModel,
+  FieldArrayModel,
+  BasicModel,
+  isFieldSetModel,
+  isFieldModel,
+  isFieldArrayModel,
+  isModelRef,
+  ModelRef,
+} from './models';
 import { noop } from './utils';
 
 export interface IFieldSetValueProps {
@@ -98,16 +107,56 @@ export function FieldValue<T extends React.ReactElement | null>(props: IFieldVal
     IFieldValueModelDrivenProps<T> & IFieldValueViewDrivenProps<T>
   >;
   const ctx = useFormContext();
-  const model = getModelFromContext(ctx, name, maybeModel, isFieldModel);
-  if (model) {
-    const value = useValue$(model.value$, model.value);
+  const [model, setModel] = React.useState<FieldModel<T> | ModelRef<T, any, FieldModel<T>> | null>(
+    isFieldModel(maybeModel) || isModelRef(maybeModel) ? maybeModel : null,
+  );
+  React.useEffect(() => {
+    if (!name) {
+      setModel(isFieldModel(maybeModel) || isModelRef(maybeModel) ? maybeModel : null);
+      return noop;
+    }
+    const m = ctx.parent.get(name);
+    if (isFieldModel<T>(m)) {
+      setModel(m);
+    }
+    const $ = merge(ctx.parent.childRegister$, ctx.parent.childRemove$)
+      .pipe(filter(change => change === name))
+      .subscribe(name => {
+        const candidate = ctx.parent.get(name);
+        if (isFieldModel<T>(candidate)) {
+          setModel(candidate);
+        }
+      });
+    return () => $.unsubscribe();
+  }, [name, parent, maybeModel]);
+  if (!model) {
+    useValue$(never(), null);
+    return null;
+  } else if (isModelRef<T, any, FieldModel<T>>(model)) {
+    const [value, setValue] = React.useState();
+    React.useEffect(() => {
+      const $ = model.model$
+        .pipe(
+          switchMap(it => {
+            if (isFieldModel(it)) {
+              return it.value$;
+            }
+            return of(null);
+          }),
+        )
+        .subscribe(value => setValue(value));
+      return () => $.unsubscribe();
+    }, [model]);
     if (children) {
       return children(value);
     }
-    return <>{value}</>;
+    return (value as unknown) as React.ReactElement;
   }
-  useValue$(never(), null);
-  return null;
+  const value = useValue$(model.value$, model.value);
+  if (children) {
+    return children(value);
+  }
+  return (value as unknown) as React.ReactElement;
 }
 
 /**
