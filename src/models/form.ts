@@ -32,7 +32,11 @@ class FormModel<
   constructor(public readonly children: Children) {
     super(children);
     this.form = this;
-    for (const [name, child] of Object.entries(children)) {
+    const keys = Object.keys(children);
+    const keysLength = keys.length;
+    for (let index = 0; index < keysLength; index++) {
+      const name = keys[index];
+      const child = children[name];
       this.registerChild(name, child);
     }
   }
