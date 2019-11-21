@@ -35,8 +35,8 @@ export function array<ChildBuilder extends BasicBuilder<any, any>>(
  */
 export function set<
   ChildBuilders extends Record<string, Builder>,
-  Builder extends BasicBuilder<unknown, Model>,
-  Model extends BasicModel<unknown>
+  Builder extends BasicBuilder<any, Model>,
+  Model extends BasicModel<any>
 >(childBuilders: ChildBuilders) {
   return new FieldSetBuilder<ChildBuilders>(childBuilders);
 }
@@ -47,8 +47,8 @@ export function set<
  */
 export function form<
   ChildBuilders extends Record<string, Builder>,
-  Builder extends BasicBuilder<unknown, Model>,
-  Model extends BasicModel<unknown>
+  Builder extends BasicBuilder<any, Model>,
+  Model extends BasicModel<any>
 >(childBuilders: ChildBuilders) {
   return new FormBuilder<ChildBuilders, Builder, Model>(childBuilders);
 }
