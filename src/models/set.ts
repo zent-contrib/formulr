@@ -23,11 +23,18 @@ class FieldSetModel<
 
   childRegister$ = new Subject<string>();
   childRemove$ = new Subject<string>();
-  readonly children: Record<string, BasicModel<any>>;
+  readonly children: Record<string, BasicModel<any>> = {};
 
   /** @internal */
   constructor(children: Children) {
     super();
+    const keys = Object.keys(children);
+    const keysLength = keys.length;
+    for (let index = 0; index < keysLength; index++) {
+      const name = keys[index];
+      const child = children[name];
+      this.registerChild(name, child);
+    }
     this.children = children;
   }
 
@@ -96,13 +103,13 @@ class FieldSetModel<
    * @param model 字段对应的 model
    */
   registerChild(name: string, model: BasicModel<unknown>) {
-    model.form = this.form;
-    model.owner = this;
     if (this.children[name]) {
       const prevModel = this.children[name];
       prevModel.form = null;
       prevModel.owner = null;
     }
+    model.form = this.form;
+    model.owner = this;
     this.children[name] = model;
     this.childRegister$.next(name);
   }
