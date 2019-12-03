@@ -89,11 +89,11 @@ export interface IFieldValueCommonProps<T> {
   children?: (value: T | null) => React.ReactElement | null;
 }
 
-export interface IFieldValueModelDrivenProps<T> extends IFieldValueCommonProps<T> {
+export interface IFieldValueViewDrivenProps<T> extends IFieldValueCommonProps<T> {
   name: string;
 }
 
-export interface IFieldValueViewDrivenProps<T> extends IFieldValueCommonProps<T> {
+export interface IFieldValueModelDrivenProps<T> extends IFieldValueCommonProps<T> {
   model: FieldModel<T>;
 }
 
@@ -102,7 +102,7 @@ export type IFieldValueProps<T> = IFieldValueModelDrivenProps<T> | IFieldValueVi
 /**
  * 根据 `name` 或者 `model` 订阅字段的更新
  */
-export function FieldValue<T extends React.ReactElement | null>(props: IFieldValueProps<T>): React.ReactElement | null {
+export function FieldValue<T>(props: IFieldValueProps<T>): React.ReactElement | null {
   const { name, model: maybeModel, children } = props as Partial<
     IFieldValueModelDrivenProps<T> & IFieldValueViewDrivenProps<T>
   >;
