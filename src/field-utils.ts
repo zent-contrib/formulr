@@ -113,7 +113,7 @@ export function usePipe<T, R>(...args: ((v: any) => any)[]): (v: T) => R {
  * }
  * ```
  */
-export function makeChangeHandler<Value>(model: FieldModel<Value>, option: ValidateOption) {
+export function makeChangeHandler<Value>(model: FieldModel<Value>, option = ValidateOption.Default | ValidateOption.ExcludePristine) {
   const taskRef = useRef<CallbackNode | null>(null);
   const optionRef = useRef(option);
   optionRef.current = option;
