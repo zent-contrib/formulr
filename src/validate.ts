@@ -8,11 +8,12 @@ export const ASYNC_VALIDATOR = Symbol('AsyncValidator');
 export interface IAsyncValidator<T> {
   [ASYNC_VALIDATOR]: true;
   validator(input: T, ctx: ValidatorContext<T>): null | Observable<IMaybeError<T>> | Promise<IMaybeError<T>>;
+  $$id?: any;
 }
 
 export interface ISyncValidator<T> {
   (input: T, ctx: ValidatorContext<T>): IMaybeError<T>;
-  $$id?: symbol;
+  $$id?: any;
 }
 
 export type IValidator<T> = IAsyncValidator<T> | ISyncValidator<T>;
