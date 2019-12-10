@@ -27,8 +27,7 @@ const MODEL_ID = Symbol('model');
 abstract class BasicModel<Value> implements IModel<Value> {
   /** @internal */
   id: string;
-  /** @internal */
-  phantomValue!: Value;
+  
   /** 
    * @internal
    */
@@ -58,7 +57,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
   /** @internal */
   [MODEL_ID]!: boolean;
 
-  abstract getRawValue(): any;
+  abstract getRawValue(): unknown;
   abstract getSubmitValue(): any;
 
   readonly error$ = new BehaviorSubject<IMaybeError<Value>>(null);

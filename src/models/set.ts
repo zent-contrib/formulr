@@ -91,7 +91,7 @@ class FieldSetModel<
   /**
    * 获取 `FieldSet` 的值
    */
-  getRawValue(): $FieldSetValue<Children> {
+  getRawValue<FormRawValue = $FieldSetValue<Children>>(): FormRawValue {
     const value: any = {};
     const childrenKeys = Object.keys(this.children);
     for (let i = 0; i < childrenKeys.length; i++) {
