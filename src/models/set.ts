@@ -102,7 +102,7 @@ class FieldSetModel<
    * @param name 字段名
    * @param model 字段对应的 model
    */
-  registerChild(name: string, model: BasicModel<unknown>) {
+  registerChild(name: string, model: BasicModel<any>) {
     if (this.children[name]) {
       const prevModel = this.children[name];
       prevModel.form = null;
