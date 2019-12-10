@@ -89,12 +89,12 @@ export interface IFieldValueCommonProps<T> {
   children?: (value: T | null) => React.ReactElement | null;
 }
 
-export interface IFieldValueModelDrivenProps<T> extends IFieldValueCommonProps<T> {
-  model: FieldModel<T>;
-}
-
 export interface IFieldValueViewDrivenProps<T> extends IFieldValueCommonProps<T> {
   name: string;
+}
+
+export interface IFieldValueModelDrivenProps<T> extends IFieldValueCommonProps<T> {
+  model: FieldModel<T>;
 }
 
 export type IFieldValueProps<T> = IFieldValueModelDrivenProps<T> | IFieldValueViewDrivenProps<T>;
