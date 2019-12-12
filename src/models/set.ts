@@ -4,10 +4,6 @@ import { ValidateOption, IMaybeError } from '../validate';
 import { Some, Maybe, None } from '../maybe';
 import { isPlainObject } from '../utils';
 
-/**
- * T extends Record<string, BasicModel<Value>> => Record<string, Value>
- * 将FieldSetModel转换为普通的js对象
- */
 type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
 };

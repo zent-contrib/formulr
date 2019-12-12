@@ -29,7 +29,6 @@ abstract class BasicModel<Value> implements IModel<Value> {
   id: string;
   /** @internal */
   phantomValue!: Value;
-  
   /** 
    * @internal
    */
