@@ -3,10 +3,12 @@ import { FieldSetModel, $FieldSetValue } from '../models';
 import { Maybe, Some, None, or } from '../maybe';
 
 export type $FieldSetBuilderChildren<ChildBuilders extends Record<string, BasicBuilder<any, any>>> = {
-  [Key in keyof ChildBuilders]: ChildBuilders[Key]['phantomModel'];
+  [Key in keyof ChildBuilders]: ChildBuilders[Key] extends BasicBuilder<infer V, infer M> ? M : never;
 };
 
-export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<any, any>>> extends BasicBuilder<
+export class FieldSetBuilder<
+  ChildBuilders extends Record<string, BasicBuilder<any, any>>
+> extends BasicBuilder<
   $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
   FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>
 > {
@@ -19,7 +21,7 @@ export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<a
       defaultValues,
       {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
     );
-    const children = {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>;
+    const children = {} as $FieldSetBuilderChildren<ChildBuilders>;
     const childKeys: Array<keyof $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>> = Object.keys(
       this._childBuilders,
     );

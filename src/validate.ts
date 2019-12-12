@@ -140,7 +140,7 @@ export class ValidatorContext<T> {
   }
 
   getFormValue<T extends object = Record<string, unknown>>(): T | null {
-    return this.model.form && this.model.form.getRawValue();
+    return this.model.form && this.model.form.getRawValue() as T | null;
   }
 }
 
@@ -183,7 +183,7 @@ class ValidatorExecutor<T> {
       resolve();
       return of(null);
     }
-    const value = this.model.getRawValue();
+    const value = this.model.getRawValue() as T;
     const skipAsync = (option & ValidateOption.IncludeAsync) === 0;
     return from(this.model.validators).pipe(
       filter(validator => (skipAsync ? !isAsyncValidator(validator) : true)),

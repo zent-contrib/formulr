@@ -71,8 +71,8 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
     return current.validate(option);
   }
 
-  getRawValue(): Value | null {
-    return this.getModel()?.getRawValue();
+  getRawValue() {
+    return this.getModel()?.getRawValue() as Value | null;
   }
 
   pristine() {

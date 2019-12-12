@@ -3,10 +3,31 @@ import { BasicModel, isModel } from './basic';
 import { ValidateOption, IMaybeError } from '../validate';
 import { Some, Maybe, None } from '../maybe';
 import { isPlainObject } from '../utils';
+import { FieldArrayModel } from './array';
+import { FieldModel } from './field';
 
+/**
+ * T extends Record<string, BasicModel<Value>> => Record<string, Value>
+ * 将FieldSetModel转换为普通的js对象
+ */
 type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
-  [Key in keyof Children]: Children[Key]['phantomValue'];
+  [Key in keyof Children]: Children[Key] extends BasicModel<infer V> ? V : never;
 };
+
+/**
+ * T extends Record<string, any> => FieldSetModel<T>
+ * 将普通的js对象转换为FieldSetModel
+ */
+type $FieldSetModel<Children extends Record<string, any>> = {
+  [K in keyof Children]: 
+    Children[K] extends (infer Item)[]
+      ? Item extends Record<string, any>
+        ? FieldArrayModel<Children[K]>
+        : FieldModel<Item>[]
+      : Children[K] extends Record<string, any>
+        ? FieldSetModel<Children[K]>
+        : FieldModel<Children[K]>
+}
 
 const SET_ID = Symbol('set');
 
@@ -62,7 +83,7 @@ class FieldSetModel<
    */
   getPatchedValue<T>(name: string): Maybe<T> {
     if (this.patchedValue && name in this.patchedValue) {
-      return Some<T>(this.patchedValue[name]);
+      return Some<T>(this.patchedValue[name] as T);
     }
     return None();
   }
@@ -70,7 +91,7 @@ class FieldSetModel<
   /**
    * 获取 `FieldSet` 的值
    */
-  getRawValue(): $FieldSetValue<Children> {
+  getRawValue<FormRawValue = $FieldSetValue<Children>>(): FormRawValue {
     const value: any = {};
     const childrenKeys = Object.keys(this.children);
     for (let i = 0; i < childrenKeys.length; i++) {
@@ -264,4 +285,4 @@ function isFieldSetModel<Children extends Record<string, BasicModel<any>> = Reco
   return !!(maybeModel && maybeModel[SET_ID]);
 }
 
-export { FieldSetModel, $FieldSetValue, isFieldSetModel };
+export { FieldSetModel, $FieldSetValue, isFieldSetModel, $FieldSetModel };
