@@ -10,7 +10,7 @@ export interface INormalizeBeforeSubmit<A, B> {
   (a: A): B;
 }
 
-class FieldModel<Value, NormalizedValue = Value> extends BasicModel<Value> {
+class FieldModel<Value> extends BasicModel<Value> {
   /**
    * @internal
    */
@@ -27,7 +27,7 @@ class FieldModel<Value, NormalizedValue = Value> extends BasicModel<Value> {
   /**
    * 用于表单提交前格式化 `Field` 值的回调函数
    */
-  normalizeBeforeSubmit = id as INormalizeBeforeSubmit<Value, NormalizedValue>;
+  normalizeBeforeSubmit = id as INormalizeBeforeSubmit<Value, any>;
 
   /** @internal */
   constructor(private readonly defaultValue: Value) {

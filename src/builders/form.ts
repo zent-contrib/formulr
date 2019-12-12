@@ -23,9 +23,9 @@ export class FormBuilder<
       const key = childKeys[i];
       const childBuilder = this._childBuilders[key];
       if (key in defaults) {
-        (<BasicModel<any>>children[key]) = childBuilder.build(Some(defaults[key]));
+        children[key] = childBuilder.build(Some(defaults[key]));
       } else {
-        (<BasicModel<any>>children[key]) = childBuilder.build(null);
+        children[key] = childBuilder.build(null);
       }
     }
     const model = new FormModel<$FieldSetBuilderChildren<ChildBuilders>>(children);

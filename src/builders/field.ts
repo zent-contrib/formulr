@@ -8,10 +8,10 @@ export class FieldBuilder<Value> extends BasicBuilder<Value, FieldModel<Value>> 
     super();
   }
 
-  private _normalizeBeforeSubmit = id;
+  private _normalizeBeforeSubmit: INormalizeBeforeSubmit<Value, any> = id;
 
   normalizeBeforeSubmit<T>(normalizeBeforeSubmit: INormalizeBeforeSubmit<Value, T>) {
-    (<INormalizeBeforeSubmit<Value, T>>this._normalizeBeforeSubmit) = normalizeBeforeSubmit;
+    this._normalizeBeforeSubmit = normalizeBeforeSubmit;
   }
 
   build(defaultValue?: Maybe<Value>) {

@@ -3,12 +3,10 @@ import { FieldSetModel, $FieldSetValue } from '../models';
 import { Maybe, Some, None, or } from '../maybe';
 
 export type $FieldSetBuilderChildren<ChildBuilders extends Record<string, BasicBuilder<any, any>>> = {
-  [Key in keyof ChildBuilders]: ChildBuilders[Key] extends BasicBuilder<infer V, infer M> ? M : never;
+  [Key in keyof ChildBuilders]: ChildBuilders[Key]['phantomModel'];
 };
 
-export class FieldSetBuilder<
-  ChildBuilders extends Record<string, BasicBuilder<any, any>>
-> extends BasicBuilder<
+export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<any, any>>> extends BasicBuilder<
   $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
   FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>
 > {

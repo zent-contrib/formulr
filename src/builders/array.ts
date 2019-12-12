@@ -2,28 +2,25 @@ import { BasicBuilder } from './basic';
 import { FieldArrayModel } from '../models';
 import { Maybe, or } from '../maybe';
 
-type $ChildBuilderValue<Builder extends BasicBuilder<any, any>> = Builder extends BasicBuilder<infer V, infer M> ? V : never;
-type $ChildBuilderModel<Builder extends BasicBuilder<any, any>> = Builder extends BasicBuilder<infer V, infer M> ? M : never;
-
 export class FieldArrayBuilder<ChildBuilder extends BasicBuilder<any, any>> extends BasicBuilder<
-  readonly ($ChildBuilderValue<ChildBuilder>)[],
-  FieldArrayModel<$ChildBuilderValue<ChildBuilder>, $ChildBuilderModel<ChildBuilder>>
+  readonly (ChildBuilder['phantomValue'] | null)[],
+  FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']>
 > {
-  private _defaultValue: readonly $ChildBuilderValue<ChildBuilder>[] = [];
+  private _defaultValue: readonly ChildBuilder['phantomValue'][] = [];
 
   constructor(private readonly childBuilder: ChildBuilder) {
     super();
   }
 
-  defaultValue(defaultValue: readonly $ChildBuilderValue<ChildBuilder>[]) {
+  defaultValue(defaultValue: readonly ChildBuilder['phantomValue'][]) {
     this._defaultValue = defaultValue;
     return this;
   }
 
   build(
-    defaultValue?: Maybe<readonly ($ChildBuilderValue<ChildBuilder>)[]>,
-  ): FieldArrayModel<$ChildBuilderValue<ChildBuilder>, $ChildBuilderModel<ChildBuilder>> {
-    const model = new FieldArrayModel<$ChildBuilderValue<ChildBuilder>, $ChildBuilderModel<ChildBuilder>>(
+    defaultValue?: Maybe<readonly (ChildBuilder['phantomValue'] | null)[]>,
+  ): FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']> {
+    const model = new FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']>(
       this.childBuilder,
       or(defaultValue, this._defaultValue),
     );

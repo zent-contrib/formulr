@@ -72,7 +72,7 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
   }
 
   getRawValue() {
-    return this.getModel()?.getRawValue() as Value | null;
+    return this.getModel()?.getRawValue();
   }
 
   pristine() {

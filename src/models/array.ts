@@ -89,7 +89,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
         return child.getRawValue();
       }
       return null;
-    }) as (Item | null)[];
+    });
   }
 
   /**
