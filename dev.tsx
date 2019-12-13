@@ -12,16 +12,15 @@ import {
   FieldValue,
   FieldSetValue,
   useFieldArray,
-  ValidatorResult,
   ModelRef,
   FieldSetModel,
   ValidateOption,
-  makeDefaultFieldProps,
+  createAsyncValidator,
 } from './src';
 
-function asyncValidator(): ValidatorResult<string> {
+const asyncValidator = createAsyncValidator(() => {
   return new Promise((resolve, reject) => {
-    reject('111')
+    // reject('111')
     setTimeout(() => {
       resolve({
         name: 'async',
@@ -29,8 +28,7 @@ function asyncValidator(): ValidatorResult<string> {
       });
     }, 100);
   });
-}
-asyncValidator.isAsync = true;
+});
 
 const List2 = () => {
   const { children } = useFieldArray<any, FieldSetModel>('list', [], ['123', '456']);
@@ -62,28 +60,37 @@ const List = () => {
 const Input = ({ field }: { field: any; validators?: any[] }) => {
   const model = useField(field, '', [Validators.required('required'), asyncValidator]);
   const { error } = model;
-  const input = makeDefaultFieldProps(model);
   const onChange = useCallback(
     e => {
       model.value = e.target.value;
-      model.validate(ValidateOption.Default | ValidateOption.IncludeAsync).then(() => {
-        console.log('complete')
-      }, error => {
-        console.log('throws error', error);
-      })
+      model.validate(ValidateOption.Default | ValidateOption.IncludeAsync).then(
+        result => {
+          console.log('complete', result);
+        },
+        error => {
+          console.log('throws error', error);
+        },
+      );
     },
-    [input.onChange],
+    [model],
   );
   return (
     <div style={{ background: '#eee', padding: '10px' }}>
-      <input {...input} onChange={onChange} style={{ color: error ? 'red' : undefined }} />
+      <input value={model.value} onChange={onChange} style={{ color: error ? 'red' : undefined }} />
       {error ? error.message : null}
     </div>
   );
 };
 
 const NestedList1 = ({ model: maybeModel }: { model: any }) => {
-  const model = useFieldArray<any, FieldSetModel>(maybeModel, [], [['123', '456'], ['654', '321']]);
+  const model = useFieldArray<any, FieldSetModel>(
+    maybeModel,
+    [],
+    [
+      ['123', '456'],
+      ['654', '321'],
+    ],
+  );
   return (
     <>
       {model.children.map((child, index) => (
@@ -140,7 +147,13 @@ const App = () => {
       <NestedList1 model="nested-list" />
       <div>
         <button onClick={() => console.log(form.model.getRawValue())}>button</button>
-        <button onClick={() => form.model.validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildren).then(() => {console.log('form validation complete')})}>
+        <button
+          onClick={() =>
+            form.model.validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildrenRecursively).then(result => {
+              console.log('form validation complete', result);
+            })
+          }
+        >
           validate
         </button>
       </div>

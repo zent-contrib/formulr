@@ -1,6 +1,6 @@
 {
   "name": "formulr",
-  "version": "0.2.4",
+  "version": "0.2.7",
   "description": "Form toolkit for React",
   "keywords": [
     "form",
@@ -51,7 +51,7 @@
     "react-dom": "^16.8.0",
     "rimraf": "^3.0.0",
     "scheduler": "~0.16.0",
-    "typedoc": "git+https://github.com/TypeStrong/typedoc.git#695d996",
+    "typedoc": "^0.15.3",
     "typescript": "~3.7.0",
     "webpack": "^4.35.2",
     "webpack-bundle-analyzer": "^3.3.2",
