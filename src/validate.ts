@@ -38,7 +38,7 @@ export function isAsyncValidator<T>(
  * @param validator 异步校验函数的实现
  */
 export function createAsyncValidator<T>(
-  validator: () => null | Observable<IMaybeError<T>> | Promise<IMaybeError<T>>,
+  validator: (value: T, context: ValidatorContext<T>) => null | Observable<IMaybeError<T>> | Promise<IMaybeError<T>>,
 ): IAsyncValidator<T> {
   return {
     [ASYNC_VALIDATOR]: true,
