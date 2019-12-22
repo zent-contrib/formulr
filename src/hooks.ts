@@ -22,6 +22,7 @@ export function useVisible<T>(model: BasicModel<T>) {
     model.isVisible = true;
     return () => {
       model.isVisible = false;
+      console.log(model.isVisible)
     };
   }, []);
 }

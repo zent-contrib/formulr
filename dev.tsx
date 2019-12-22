@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 
 import {
@@ -127,6 +127,7 @@ const FieldSet = ({
 const App = () => {
   const form = useForm(FormStrategy.View);
   // const isValidating = useValue$(form.isValidating$, false);
+  const [input1, toggleInput1] = useState(true);
   console.log('App render');
   return (
     <FormProvider value={form.ctx}>
@@ -136,7 +137,7 @@ const App = () => {
           <Input key={index} name={`input${index}`} />
         ))} */}
       <FieldSet name="fieldset">
-        <Input field="input1" />
+        {input1 && <Input field="input1" />}
         <FieldValue name="input1" />
         <Input field="input2" />
       </FieldSet>
@@ -156,6 +157,10 @@ const App = () => {
         >
           validate
         </button>
+        <button onClick={() => {
+          console.log(form.model.getVisibleValue())
+        }}>getVisibleValue</button>
+        <button onClick={() => toggleInput1(v => !v)}>toggle input1</button>
       </div>
     </FormProvider>
   );

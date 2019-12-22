@@ -102,14 +102,18 @@ class FieldSetModel<
    * 获取当前已被渲染的组件的表单值
    */
   getVisibleValue() {
+    if (!this.isVisible) {
+      return;
+    }
     const value: any = {};
     const keys = Object.keys(this.children);
     const len = keys.length;
     for (let i = 0; i < len; i++) {
       const key = keys[i];
       const model = this.children[key];
+      console.log(key, model.isVisible)
       if (model.isVisible) {
-        value[key] = model.getRawValue();
+        value[key] = model.getVisibleValue();
       }
     }
     return value as DeepPartial<$FieldSetValue<Children>>;

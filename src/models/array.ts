@@ -107,6 +107,10 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     });
   }
 
+  getVisibleValue() {
+    return this.isVisible ? this.getRawValue() : undefined;
+  }
+
   /**
    * 修改 `FieldArray` 的值
    * @param value 要修改的值

@@ -28,6 +28,7 @@ class FormModel<
   /** @internal */
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);
+  isVisible = true;
 
   constructor(public readonly children: Children) {
     super(children);

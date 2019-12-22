@@ -85,6 +85,10 @@ class FieldModel<Value> extends BasicModel<Value> {
     return normalizeBeforeSubmit(this.value$.getValue());
   }
 
+  getVisibleValue() {
+    return this.isVisible ? this.getRawValue() : undefined;
+  }
+
   /**
    * `Field` 是否所有校验都通过了
    */
