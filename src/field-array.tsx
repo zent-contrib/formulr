@@ -10,7 +10,7 @@ import {
   isFieldArrayModel,
 } from './models';
 import { useFormContext } from './context';
-import { useValue$ } from './hooks';
+import { useValue$, useVisible } from './hooks';
 import { removeOnUnmount } from './utils';
 import { isSome, get } from './maybe';
 import { IValidators } from './validate';
@@ -113,6 +113,7 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
    */
   useValue$(children$, children$.getValue());
   useValue$(error$, error$.getValue());
+  useVisible(model);
   removeOnUnmount(field, model, parent);
   return model;
 }

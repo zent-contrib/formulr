@@ -55,6 +55,11 @@ abstract class BasicModel<Value> implements IModel<Value> {
    */
   destroyOnUnmount = false;
 
+  /**
+   * model对应的组件是否被渲染
+   */
+  isVisible = false;
+
   /** @internal */
   [MODEL_ID]!: boolean;
 

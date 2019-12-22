@@ -9,7 +9,7 @@ import {
   isModelRef,
   isFieldModel,
 } from './models';
-import { useValue$ } from './hooks';
+import { useValue$, useVisible } from './hooks';
 import { useFormContext } from './context';
 import { IValidators } from './validate';
 import { removeOnUnmount } from './utils';
@@ -52,7 +52,6 @@ function useModelAndChildProps<Value>(
   }, [field, parent, strategy, form]);
 }
 
-
 /**
  * 创建一个 `Field`
  * 
@@ -86,6 +85,7 @@ export function useField<Value>(
   if (typeof field === 'string' || isModelRef(field)) {
     model.validators = validators;
   }
+  useVisible(model);
   removeOnUnmount(field, model, parent);
   return model;
 }

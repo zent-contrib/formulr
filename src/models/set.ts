@@ -3,6 +3,7 @@ import { BasicModel, isModel } from './basic';
 import { ValidateOption, IMaybeError } from '../validate';
 import { Some, Maybe, None } from '../maybe';
 import { isPlainObject } from '../utils';
+import { DeepPartial } from 'utility-types';
 
 type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
@@ -95,6 +96,23 @@ class FieldSetModel<
       value[key] = childValue;
     }
     return value;
+  }
+
+  /**
+   * 获取当前已被渲染的组件的表单值
+   */
+  getVisibleValue() {
+    const value: any = {};
+    const keys = Object.keys(this.children);
+    const len = keys.length;
+    for (let i = 0; i < len; i++) {
+      const key = keys[i];
+      const model = this.children[key];
+      if (model.isVisible) {
+        value[key] = model.getRawValue();
+      }
+    }
+    return value as DeepPartial<$FieldSetValue<Children>>;
   }
 
   /**

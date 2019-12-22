@@ -9,7 +9,7 @@ import {
   isModelRef,
   isFieldSetModel,
 } from './models';
-import { useValue$ } from './hooks';
+import { useValue$, useVisible } from './hooks';
 import { IValidators } from './validate';
 import { removeOnUnmount, isPlainObject } from './utils';
 import { isSome, get, or } from './maybe';
@@ -90,6 +90,7 @@ export function useFieldSet<T extends Record<string, BasicModel<any>>>(
    * user can get the value from model
    */
   useValue$(model.error$, model.error$.getValue());
+  useVisible(model);
   removeOnUnmount(field, model, parent);
   return [childContext, model];
 }
