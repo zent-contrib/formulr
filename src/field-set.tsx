@@ -70,7 +70,7 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
  */
 export function useFieldSet<T extends Record<string, BasicModel<any>>>(
   field: string | FieldSetModel<T> | ModelRef<$FieldSetValue<T>, any, FieldSetModel<T>>,
-  validators: IValidators<T> = [],
+  validators: IValidators<$FieldSetValue<T>> = [],
 ): IUseFieldSet<T> {
   const { parent, strategy, form } = useFormContext();
   const model = useFieldSetModel(field, parent, strategy);

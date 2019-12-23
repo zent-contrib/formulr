@@ -19,7 +19,7 @@ export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<a
       defaultValues,
       {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
     );
-    const children = {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>;
+    const children = {} as $FieldSetBuilderChildren<ChildBuilders>;
     const childKeys: Array<keyof $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>> = Object.keys(
       this._childBuilders,
     );
