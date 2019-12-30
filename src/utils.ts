@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { FieldSetModel, BasicModel, ModelRef } from './models';
 
-export function noop() {}
+export function noop() {
+  // noop
+}
 
 export const id = <T>(it: T) => it;
 
@@ -33,3 +35,5 @@ export function removeOnUnmount<Model extends BasicModel<any>>(
     [field, model, model],
   );
 }
+
+export type $MergeProps<T> = (T extends any ? (t: T) => void : never) extends (r: infer R) => void ? R : never;
