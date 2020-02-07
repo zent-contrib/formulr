@@ -1,7 +1,7 @@
-import { BasicModel, IModel } from './basic';
-import { ValidateOption, IMaybeError } from '../validate';
-import { Maybe, None } from '../maybe';
 import { BehaviorSubject } from 'rxjs';
+import { BasicModel, IModel } from './basic';
+import { ValidateOption, IMaybeError, IValidators } from '../validate';
+import { Maybe, None } from '../maybe';
 
 const REF_ID = Symbol('ref');
 
@@ -24,6 +24,17 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
    */
   constructor(current: Model | null = null, public initialValue: Maybe<Value> = None(), private owner: Parent | null) {
     this.model$ = new BehaviorSubject(current);
+  }
+
+  get validators() {
+    return this.model$.getValue()?.validators ?? [];
+  }
+
+  set validators(validators: IValidators<Value>) {
+    const model = this.model$.getValue();
+    if (model) {
+      model.validators = validators;
+    }
   }
 
   getModel() {
