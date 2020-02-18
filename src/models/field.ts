@@ -77,6 +77,11 @@ class FieldModel<Value> extends BasicModel<Value> {
     return this.value$.getValue();
   }
 
+  dispose() {
+    this.form = null;
+    this.owner = null;
+  }
+
   /**
    * 获取用于表单提交的值
    */
@@ -121,7 +126,7 @@ class FieldModel<Value> extends BasicModel<Value> {
 
   /**
    * `Field` 的值是否改变过，如果存在初始值会和初始值比较，否则和默认值比较
-   * 
+   *
    * `dirty === !pristine`
    */
   dirty() {
