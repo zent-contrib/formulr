@@ -29,19 +29,19 @@ abstract class BasicModel<Value> implements IModel<Value> {
   id: string;
   /** @internal */
   phantomValue!: Value;
-  /** 
+  /**
    * @internal
    */
   readonly validate$ = new Subject<IValidation>();
-  /** 
+  /**
    * @internal
-   * 
+   *
    * 校验规则数组
    */
   validators: IValidators<Value> = [];
-  /** 
+  /**
    * @internal
-   * 
+   *
    * 初始值
    */
   initialValue: Maybe<Value> = None();
@@ -69,6 +69,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
     this.validate$.pipe(switchMap(validate(this))).subscribe(new ErrorSubscriber(this));
   }
 
+  abstract dispose(): void;
   abstract pristine(): boolean;
   abstract touched(): boolean;
   abstract dirty(): boolean;

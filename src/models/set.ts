@@ -3,6 +3,7 @@ import { BasicModel, isModel } from './basic';
 import { ValidateOption, IMaybeError } from '../validate';
 import { Some, Maybe, None } from '../maybe';
 import { isPlainObject } from '../utils';
+import { isFieldArrayModel } from './array';
 
 type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
@@ -112,6 +113,24 @@ class FieldSetModel<
     model.owner = this;
     this.children[name] = model;
     this.childRegister$.next(name);
+    /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
+    if (isFieldSetModel(model)) {
+      const { children } = model;
+      const keys = Object.keys(model.children);
+      const keysLength = keys.length;
+      for (let index = 0; index < keysLength; index++) {
+        const name = keys[index];
+        const child = children[name];
+        model.registerChild(name, child);
+      }
+    } else if (isFieldArrayModel(model)) {
+      const { children } = model;
+      const { length } = children;
+      for (let index = 0; index < length; index++) {
+        const child = children[index];
+        model.registerChild(child);
+      }
+    }
   }
 
   /**
@@ -120,11 +139,23 @@ class FieldSetModel<
    */
   removeChild(name: string) {
     const model = this.children[name];
+    model.dispose();
     delete this.children[name];
-    model.form = null;
-    model.owner = null;
     this.childRemove$.next(name);
     return model;
+  }
+
+  dispose() {
+    this.form = null;
+    this.owner = null;
+    const { children } = this;
+    const keys = Object.keys(children);
+    const len = keys.length;
+    for (let i = 0; i < len; i++) {
+      const name = keys[i];
+      const child = children[name];
+      child.dispose();
+    }
   }
 
   /**
@@ -224,7 +255,7 @@ class FieldSetModel<
 
   /**
    * 是否 `FieldSet` 上有任意字段被修改过
-   * 
+   *
    * `dirty === !pristine`
    */
   dirty() {
@@ -233,7 +264,7 @@ class FieldSetModel<
 
   /**
    * 是否 `FieldSet` 上有任意字段被 touch 过
-   * 
+   *
    */
   touched() {
     const keys = Object.keys(this.children);

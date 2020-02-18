@@ -4,6 +4,7 @@ import { ValidateOption } from '../validate';
 import { ModelRef, isModelRef } from './ref';
 import { BasicBuilder } from '../builders/basic';
 import { Some, or } from '../maybe';
+import { isFieldSetModel } from './set';
 
 type FieldArrayChild<Item, Child extends BasicModel<Item>> =
   | Child
@@ -142,7 +143,12 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
    */
   initialize(values: Item[]) {
     this.initialValue = Some(values);
-    this.children$.next(values.map(this.childFactory));
+    const children = values.map(this.childFactory);
+    const { length } = children;
+    for (let i = 0; i < length; i++) {
+      this.registerChild(children[i]);
+    }
+    this.children$.next(children);
   }
 
   /**
@@ -151,6 +157,10 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
    */
   push(...items: Item[]) {
     const nextChildren: FieldArrayChild<Item, Child>[] = this.children$.getValue().concat(items.map(this.childFactory));
+    const { length } = nextChildren;
+    for (let i = 0; i < length; i++) {
+      this.registerChild(nextChildren[i]);
+    }
     this.children$.next(nextChildren);
   }
 
@@ -160,6 +170,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   pop() {
     const children = this.children$.getValue().slice();
     const child = children.pop();
+    child && this.removeChild(child);
     this.children$.next(children);
     return child;
   }
@@ -170,6 +181,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   shift() {
     const children = this.children$.getValue().slice();
     const child = children.shift();
+    child && this.removeChild(child);
     this.children$.next(children);
     return child;
   }
@@ -180,6 +192,10 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
    */
   unshift(...items: Item[]) {
     const nextChildren = items.map(this.childFactory).concat(this.children$.getValue());
+    const { length } = nextChildren;
+    for (let i = 0; i < length; i++) {
+      this.registerChild(nextChildren[i]);
+    }
     this.children$.next(nextChildren);
   }
 
@@ -189,10 +205,21 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
    * @param deleteCount 删除的元素个数
    * @param items 待添加的元素值
    */
-  splice(start: number, deleteCount: number = 0, ...items: readonly Item[]): FieldArrayChild<Item, Child>[] {
+  splice(start: number, deleteCount = 0, ...items: readonly Item[]): FieldArrayChild<Item, Child>[] {
     const children = this.children$.getValue().slice();
-    const ret = children.splice(start, deleteCount, ...items.map(this.childFactory));
+    const insertedChildren = items.map(this.childFactory);
+    const ret = children.splice(start, deleteCount, ...insertedChildren);
     this.children$.next(children);
+
+    const { length: insertCount } = insertedChildren;
+    for (let i = 0; i < insertCount; i++) {
+      this.registerChild(insertedChildren[i]);
+    }
+
+    const { length: removeCount } = ret;
+    for (let i = 0; i < removeCount; i++) {
+      this.removeChild(ret[i]);
+    }
     return ret;
   }
 
@@ -228,7 +255,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
 
   /**
    * 是否 `FieldArray` 中任意元素有过修改
-   * 
+   *
    * `dirty === !pristine`
    */
   dirty() {
@@ -247,6 +274,66 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
       }
     }
     return false;
+  }
+
+  /**
+   * 递归地给child添加form引用
+   * @param child
+   */
+  registerChild(child: FieldArrayChild<Item, Child>) {
+    let model: Child | BasicModel<unknown> | null = null;
+    if (isModelRef(child)) {
+      model = child.getModel();
+    } else if (isModel(child)) {
+      model = child;
+    }
+
+    if (model) {
+      model.form = this.form;
+      if (isFieldSetModel(model)) {
+        const { children } = model;
+        const keys = Object.keys(model.children);
+        const keysLength = keys.length;
+        for (let index = 0; index < keysLength; index++) {
+          const name = keys[index];
+          const child = children[name];
+          model.registerChild(name, child);
+        }
+      }
+    }
+  }
+
+  /**
+   * 递归地释放child
+   * @param child
+   */
+  removeChild(child: FieldArrayChild<Item, Child>) {
+    let model: Child | BasicModel<unknown> | null = null;
+    if (isModelRef(child)) {
+      model = child.getModel();
+    } else if (isModel(child)) {
+      model = child;
+    }
+
+    if (model) {
+      model.dispose();
+    }
+  }
+
+  dispose() {
+    this.form = null;
+    this.owner = null;
+    const { children } = this;
+    const len = children.length;
+    for (let i = 0; i < len; i++) {
+      const child = children[i];
+      if (isModelRef(child)) {
+        const model = child.getModel();
+        model && model.dispose();
+      } else if (isModel(child)) {
+        child.dispose();
+      }
+    }
   }
 }
 
