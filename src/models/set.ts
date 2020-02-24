@@ -24,7 +24,7 @@ class FieldSetModel<
 
   childRegister$ = new Subject<string>();
   childRemove$ = new Subject<string>();
-  readonly children: Record<string, BasicModel<any>> = {};
+  readonly children: Children = {} as Children;
 
   /** @internal */
   constructor(children: Children) {
@@ -111,7 +111,7 @@ class FieldSetModel<
     }
     model.form = this.form;
     model.owner = this;
-    this.children[name] = model;
+    (this.children as Record<string, BasicModel<unknown>>)[name] = model;
     this.childRegister$.next(name);
     /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
     if (isFieldSetModel(model)) {
