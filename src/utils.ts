@@ -5,6 +5,10 @@ export function noop() {
   // noop
 }
 
+export function last<T>(arr: T[]) {
+  return arr.length ? arr[arr.length - 1] : null;
+}
+
 export const id = <T>(it: T) => it;
 
 export function isPlainObject(value: unknown): value is object {
