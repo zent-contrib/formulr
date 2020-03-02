@@ -1,6 +1,6 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { FieldSetModel } from './set';
-import { BasicModel } from './basic';
+import { AbstractModel } from './abstract';
 import { ValidateOption } from '../validate';
 
 enum FormStrategy {
@@ -18,7 +18,7 @@ enum FormStrategy {
 const FORM_ID = Symbol('form');
 
 class FormModel<
-  Children extends Record<string, BasicModel<unknown>> = Record<string, BasicModel<unknown>>
+  Children extends Record<string, AbstractModel<unknown>> = Record<string, AbstractModel<unknown>>
 > extends FieldSetModel<Children> {
   /**
    * @internal
@@ -29,9 +29,16 @@ class FormModel<
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);
 
+  get owner(): AbstractModel<any> | null {
+    return (this as unknown) as AbstractModel<any> | null;
+  }
+
+  get form(): FormModel | null | undefined {
+    return this as FormModel<any>;
+  }
+
   constructor(public readonly children: Children) {
     super(children);
-    this.form = this;
     const keys = Object.keys(children);
     const keysLength = keys.length;
     for (let index = 0; index < keysLength; index++) {
@@ -72,7 +79,7 @@ class FormModel<
 
 FormModel.prototype[FORM_ID] = true;
 
-function isFormModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
+function isFormModel<Children extends Record<string, AbstractModel<any>> = Record<string, AbstractModel<any>>>(
   maybeModel: any,
 ): maybeModel is FormModel<Children> {
   return !!(maybeModel && maybeModel[FORM_ID]);

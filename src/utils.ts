@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { FieldSetModel, BasicModel, ModelRef } from './models';
+import { FieldSetModel, AbstractModel, ModelRef } from './models';
 
 export function noop() {
   // noop
@@ -25,9 +25,9 @@ export function isPlainObject(value: unknown): value is object {
   return Object.getPrototypeOf(value) === proto;
 }
 
-export function removeOnUnmount<Model extends BasicModel<any>>(
-  field: string | BasicModel<any> | ModelRef<any, any, Model>,
-  model: BasicModel<any>,
+export function removeOnUnmount<Model extends AbstractModel<any>>(
+  field: string | AbstractModel<any> | ModelRef<any, any, Model>,
+  model: AbstractModel<any>,
   parent: FieldSetModel,
 ) {
   useEffect(
@@ -41,3 +41,17 @@ export function removeOnUnmount<Model extends BasicModel<any>>(
 }
 
 export type $MergeProps<T> = (T extends any ? (t: T) => void : never) extends (r: infer R) => void ? R : never;
+
+export function memoize<T, R>(func: (t: T) => R): (t: T) => R {
+  let prev: T;
+  let value: R;
+  let initial = false;
+  return arg => {
+    if (!initial || prev !== arg) {
+      initial = true;
+      prev = arg;
+      value = func(arg);
+    }
+    return value;
+  };
+}

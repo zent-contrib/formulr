@@ -6,6 +6,10 @@ export type $FieldSetBuilderChildren<ChildBuilders extends Record<string, BasicB
   [Key in keyof ChildBuilders]: ChildBuilders[Key]['phantomModel'];
 };
 
+export type $FieldSetBuilderDefaultValue<ChildBuilders extends Record<string, BasicBuilder<any, any>>> = Partial<
+  $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>
+>;
+
 export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<any, any>>> extends BasicBuilder<
   $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
   FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>
@@ -14,24 +18,17 @@ export class FieldSetBuilder<ChildBuilders extends Record<string, BasicBuilder<a
     super();
   }
 
-  build(defaultValues?: Maybe<$FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>>) {
-    const defaults = or<Record<keyof $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>, any>>(
-      defaultValues,
-      {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
-    );
+  build(defaultValues?: Maybe<$FieldSetBuilderDefaultValue<ChildBuilders>>) {
+    const defaults = or<$FieldSetBuilderDefaultValue<ChildBuilders>>(defaultValues, () => ({}));
     const children = {} as $FieldSetBuilderChildren<ChildBuilders>;
-    const childKeys: Array<keyof $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>> = Object.keys(
-      this._childBuilders,
-    );
-    for (let i = 0; i < childKeys.length; i += 1) {
-      const key = childKeys[i];
+    Object.keys(this._childBuilders).forEach((key: keyof ChildBuilders) => {
       const childBuilder = this._childBuilders[key];
-      if (key in defaults) {
+      if (defaults.hasOwnProperty(key)) {
         children[key] = childBuilder.build(Some(defaults[key]));
       } else {
         children[key] = childBuilder.build(None());
       }
-    }
+    });
     const model = new FieldSetModel<$FieldSetBuilderChildren<ChildBuilders>>(children);
     model.validators = this._validators;
     return model;

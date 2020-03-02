@@ -1,12 +1,12 @@
 import { BasicBuilder } from './basic';
-import { $FieldSetValue, FormModel, BasicModel } from '../models';
-import { $FieldSetBuilderChildren } from './set';
+import { $FieldSetValue, FormModel, AbstractModel } from '../models';
+import { $FieldSetBuilderChildren, $FieldSetBuilderDefaultValue } from './set';
 import { Maybe, Some, or } from '../maybe';
 
 export class FormBuilder<
   ChildBuilders extends Record<string, Builder>,
   Builder extends BasicBuilder<unknown, Model>,
-  Model extends BasicModel<unknown>
+  Model extends AbstractModel<unknown>
 > extends BasicBuilder<
   $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
   FormModel<$FieldSetBuilderChildren<ChildBuilders>>
@@ -15,19 +15,17 @@ export class FormBuilder<
     super();
   }
 
-  build(defaultValues?: Maybe<$FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>>) {
-    const defaults = or<Record<keyof ChildBuilders, any>>(defaultValues, {} as $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>);
+  build(defaultValues?: Maybe<$FieldSetBuilderDefaultValue<ChildBuilders>>) {
+    const defaults = or<$FieldSetBuilderDefaultValue<ChildBuilders>>(defaultValues, () => ({}));
     const children = {} as $FieldSetBuilderChildren<ChildBuilders>;
-    const childKeys: Array<keyof ChildBuilders> = Object.keys(this._childBuilders);
-    for (let i = 0; i < childKeys.length; i += 1) {
-      const key = childKeys[i];
+    Object.keys(this._childBuilders).forEach((key: keyof ChildBuilders) => {
       const childBuilder = this._childBuilders[key];
-      if (key in defaults) {
+      if (defaults.hasOwnProperty(key)) {
         children[key] = childBuilder.build(Some(defaults[key]));
       } else {
         children[key] = childBuilder.build(null);
       }
-    }
+    });
     const model = new FormModel<$FieldSetBuilderChildren<ChildBuilders>>(children);
     model.validators = this._validators;
     return model;

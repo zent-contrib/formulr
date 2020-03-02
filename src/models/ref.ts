@@ -1,12 +1,13 @@
 import { BehaviorSubject } from 'rxjs';
-import { BasicModel, IModel } from './basic';
+import { IModel, IForm } from './base';
 import { ValidateOption, IMaybeError, IValidators } from '../validate';
 import { Maybe, None } from '../maybe';
+import { memoize } from '../utils';
 
 const REF_ID = Symbol('ref');
 
-class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<Value> = BasicModel<Value>>
-  implements IModel<Value | null> {
+class ModelRef<Value, Parent extends IModel<any>, Model extends IModel<Value>>
+  implements IModel<Value> {
   /**
    * @internal
    */
@@ -19,14 +20,37 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
 
   model$: BehaviorSubject<Model | null>;
 
+  private _owner: IModel<any> | null = null;
+
+  get owner(): IModel<any> | null {
+    return this._owner;
+  }
+
+  set owner(owner: IModel<any> | null) {
+    this._owner = owner;
+    const model = this.getModel();
+    if (model) {
+      model.owner = owner;
+    }
+  }
+
+  private getForm = memoize<IModel<any> | null, IForm<Value> | null | undefined>(owner => {
+    return owner?.form;
+  });
+
+  get form(): IForm<any> | null | undefined {
+    return this.getForm(this.owner);
+  }
+
   /**
    * @internal
    */
-  constructor(current: Model | null = null, public initialValue: Maybe<Value> = None(), private owner: Parent | null) {
+  constructor(current: Model | null = null, public initialValue: Maybe<Value> = None(), owner: Parent | null) {
     this.model$ = new BehaviorSubject(current);
+    this.owner = owner;
   }
 
-  get validators() {
+  get validators(): IValidators<Value> {
     return this.model$.getValue()?.validators ?? [];
   }
 
@@ -44,14 +68,12 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
   setModel(model: Model | null) {
     const current = this.getModel();
     if (current) {
-      current.form = null;
-      current.owner = null;
+      current.dispose();
+    }
+    if (model) {
+      model.owner = this.owner;
     }
     this.model$.next(model);
-    if (model) {
-      model.form = this.owner && this.owner.form;
-      model.owner = this;
-    }
   }
 
   getParent() {
@@ -128,11 +150,20 @@ class ModelRef<Value, Parent extends BasicModel<any>, Model extends BasicModel<V
   clear() {
     this.getModel()?.clear();
   }
+
+  dispose() {
+    this.getModel()?.dispose();
+    this.model$.next(null);
+  }
+
+  getSubmitValue() {
+    this.getModel()?.getSubmitValue();
+  }
 }
 
 ModelRef.prototype[REF_ID] = true;
 
-function isModelRef<T, P extends BasicModel<any>, M extends BasicModel<T> = BasicModel<T>>(
+function isModelRef<T, P extends IModel<any>, M extends IModel<T>>(
   maybeModelRef: any,
 ): maybeModelRef is ModelRef<T, P, M> {
   return !!(maybeModelRef && maybeModelRef[REF_ID]);

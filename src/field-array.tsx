@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import {
   FieldArrayModel,
-  BasicModel,
+  AbstractModel,
   FormStrategy,
   FieldSetModel,
   FieldArrayChild,
@@ -15,12 +15,12 @@ import { removeOnUnmount } from './utils';
 import { isSome, get } from './maybe';
 import { IValidators } from './validate';
 
-export type IUseFieldArray<Item, Child extends BasicModel<Item>> = [
+export type IUseFieldArray<Item, Child extends AbstractModel<Item>> = [
   FieldArrayChild<Item, Child>[],
   FieldArrayModel<Item, Child>,
 ];
 
-function useArrayModel<Item, Child extends BasicModel<Item>>(
+function useArrayModel<Item, Child extends AbstractModel<Item>>(
   field: string | FieldArrayModel<Item, Child> | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   parent: FieldSetModel,
   strategy: FormStrategy,
@@ -43,7 +43,7 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
           }
         }
         model = new FieldArrayModel<Item, Child>(null, v);
-        parent.registerChild(field, model as BasicModel<unknown>);
+        parent.registerChild(field, model as AbstractModel<unknown>);
       } else {
         model = m;
       }
@@ -81,7 +81,7 @@ function useArrayModel<Item, Child extends BasicModel<Item>>(
  * @param validators 当 `field` 是字段名的时候，可以传入 `validator`
  * @param defaultValue 默认值
  */
-export function useFieldArray<Item, Child extends BasicModel<Item>>(
+export function useFieldArray<Item, Child extends AbstractModel<Item>>(
   field: string | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   validators?: IValidators<readonly (Item | null)[]>,
   defaultValue?: Item[],
@@ -92,11 +92,11 @@ export function useFieldArray<Item, Child extends BasicModel<Item>>(
  * 
  * @param field `FieldArray` 对应的 model 对象，用于关联 `FieldArray` 和 model；当 `FormStrategy` 是 `Model` 的时候才能用
  */
-export function useFieldArray<Item, Child extends BasicModel<Item>>(
+export function useFieldArray<Item, Child extends AbstractModel<Item>>(
   field: FieldArrayModel<Item, Child>,
 ): FieldArrayModel<Item, Child>;
 
-export function useFieldArray<Item, Child extends BasicModel<Item>>(
+export function useFieldArray<Item, Child extends AbstractModel<Item>>(
   field: string | FieldArrayModel<Item, Child> | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   validators: IValidators<readonly Item[]> = [],
   defaultValue: readonly Item[] = [],

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useFormContext, IFormContext } from './context';
 import {
   FieldSetModel,
-  BasicModel,
+  AbstractModel,
   FormStrategy,
   ModelRef,
   $FieldSetValue,
@@ -14,9 +14,9 @@ import { IValidators } from './validate';
 import { removeOnUnmount, isPlainObject } from './utils';
 import { isSome, get, or } from './maybe';
 
-export type IUseFieldSet<T extends Record<string, BasicModel<any>>> = [IFormContext, FieldSetModel<T>];
+export type IUseFieldSet<T extends Record<string, AbstractModel<any>>> = [IFormContext, FieldSetModel<T>];
 
-function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
+function useFieldSetModel<T extends Record<string, AbstractModel<any>>>(
   field: string | FieldSetModel<T> | ModelRef<$FieldSetValue<T>, any, FieldSetModel<T>>,
   parent: FieldSetModel,
   strategy: FormStrategy,
@@ -39,7 +39,7 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
           }
         }
         model.patchedValue = v;
-        parent.registerChild(field, model as BasicModel<unknown>);
+        parent.registerChild(field, model as AbstractModel<unknown>);
       } else {
         model = m;
       }
@@ -68,7 +68,7 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
  * @param field model 或者字段名，当`FormStrategy`是`View`的时候才能用字段名
  * @param validators 当`field`是字段名的时候，可以传入`validator`
  */
-export function useFieldSet<T extends Record<string, BasicModel<any>>>(
+export function useFieldSet<T extends Record<string, AbstractModel<any>>>(
   field: string | FieldSetModel<T> | ModelRef<$FieldSetValue<T>, any, FieldSetModel<T>>,
   validators: IValidators<$FieldSetValue<T>> = [],
 ): IUseFieldSet<T> {

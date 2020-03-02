@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import {
   FieldModel,
-  BasicModel,
+  AbstractModel,
   FormStrategy,
   FieldSetModel,
   FormModel,
@@ -32,7 +32,7 @@ function useModelAndChildProps<Value>(
       if (!m || !isFieldModel<Value>(m)) {
         const v = or<Value>(parent.getPatchedValue(field), defaultValue);
         model = new FieldModel<Value>(v);
-        parent.registerChild(field, model as BasicModel<unknown>);
+        parent.registerChild(field, model as AbstractModel<unknown>);
       } else {
         model = m;
       }

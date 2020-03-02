@@ -16,6 +16,10 @@ import {
   FieldSetModel,
   ValidateOption,
   createAsyncValidator,
+  form,
+  field,
+  set,
+  array,
 } from './src';
 
 const asyncValidator = createAsyncValidator(() => {
@@ -149,9 +153,11 @@ const App = () => {
         <button onClick={() => console.log(form.model.getRawValue())}>button</button>
         <button
           onClick={() =>
-            form.model.validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildrenRecursively).then(result => {
-              console.log('form validation complete', result);
-            })
+            form.model
+              .validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildrenRecursively)
+              .then(result => {
+                console.log('form validation complete', result);
+              })
           }
         >
           validate
@@ -164,3 +170,35 @@ const App = () => {
 ReactDOM.render(<App />, document.getElementById('app'));
 
 // ReactDOM.unstable_createRoot(document.getElementById('app')).render(<App />);
+
+const a = form({
+  foo: field(''),
+  bar: field(3),
+  baz: set({
+    foo: field(''),
+    bar: field(3),
+    baz: set({
+      foo: field(''),
+      bar: field(3),
+    }),
+  }),
+  array: array(
+    set({
+      foo: field(''),
+      bar: field(3),
+      baz: set({
+        foo: field(''),
+        bar: field(3),
+      }),
+    }),
+  ),
+});
+
+const b = a.build();
+
+const c: string | undefined = b.get('array')?.children[0]?.get('foo')?.value;
+const d = b.getRawValue();
+const e: number = d.array[0].baz.bar;
+
+void c;
+void e;

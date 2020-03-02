@@ -1,6 +1,6 @@
 import { Observable, from, NextObserver, empty, of, defer } from 'rxjs';
 import { catchError, map, concatAll, filter, takeWhile } from 'rxjs/operators';
-import { BasicModel, isFieldSetModel } from './models';
+import { AbstractModel, isFieldSetModel } from './models';
 import { finalizeWithLast } from './finalize-with-last';
 
 export const ASYNC_VALIDATOR = Symbol('AsyncValidator');
@@ -104,7 +104,7 @@ export interface IValidation {
 }
 
 export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
-  constructor(private readonly model: BasicModel<T>) {}
+  constructor(private readonly model: AbstractModel<T>) {}
 
   next(error: IMaybeError<T>) {
     this.model.error = error;
@@ -115,9 +115,9 @@ export class ErrorSubscriber<T> implements NextObserver<IMaybeError<T>> {
  * 表单校验函数的上下文信息
  */
 export class ValidatorContext<T> {
-  constructor(readonly model: BasicModel<T>) {}
+  constructor(readonly model: AbstractModel<T>) {}
 
-  getSection(): BasicModel<T>['owner'] {
+  getSection(): AbstractModel<T>['owner'] {
     return this.model.owner;
   }
 
@@ -169,7 +169,7 @@ function runValidator<T>(
 class ValidatorExecutor<T> {
   readonly ctx: ValidatorContext<T>;
 
-  constructor(private readonly model: BasicModel<T>) {
+  constructor(private readonly model: AbstractModel<T>) {
     this.ctx = new ValidatorContext(model);
   }
 
@@ -203,7 +203,7 @@ class ValidatorExecutor<T> {
  * 执行 `model` 上的校验规则对 `model` 校验
  * @param model 要校验的 model 对象
  */
-export function validate<T>(model: BasicModel<T>) {
+export function validate<T>(model: AbstractModel<T>) {
   const executor = new ValidatorExecutor(model);
   return (validation: IValidation) => executor.call(validation);
 }

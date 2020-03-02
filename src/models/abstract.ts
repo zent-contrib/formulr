@@ -1,32 +1,13 @@
 import { Subject, BehaviorSubject } from 'rxjs';
 import { ValidateOption, IMaybeError, ErrorSubscriber, IValidation, validate, IValidators } from '../validate';
 import { switchMap } from 'rxjs/operators';
-import { FieldSetModel } from './set';
-import { ModelRef } from './ref';
-import { FormModel } from './form';
 import { Maybe, None } from '../maybe';
-
-interface IModel<Value> {
-  getRawValue(): any;
-  pristine(): boolean;
-  touched(): boolean;
-  dirty(): boolean;
-  valid(): boolean;
-  patchValue(value: Value): void;
-  validate(strategy: ValidateOption): void;
-  reset(): void;
-  clear(): void;
-  initialize(value: Value): void;
-  error: IMaybeError<Value>;
-}
-
-let uniqueId = 0;
+import { memoize } from '../utils';
+import { IForm, IModel } from './base';
 
 const MODEL_ID = Symbol('model');
 
-abstract class BasicModel<Value> implements IModel<Value> {
-  /** @internal */
-  id: string;
+abstract class AbstractModel<Value> implements IModel<Value> {
   /** @internal */
   phantomValue!: Value;
   /**
@@ -45,15 +26,13 @@ abstract class BasicModel<Value> implements IModel<Value> {
    * 初始值
    */
   initialValue: Maybe<Value> = None();
-  /** @internal */
-  owner: FieldSetModel<any> | ModelRef<any, any, any> | null = null;
-  /** @internal */
-  form: FormModel<any> | null = null;
 
   /**
    * 组件 unmount 的时候删除 model
    */
   destroyOnUnmount = false;
+
+  abstract owner: IModel<any> | null;
 
   /** @internal */
   [MODEL_ID]!: boolean;
@@ -63,13 +42,18 @@ abstract class BasicModel<Value> implements IModel<Value> {
 
   readonly error$ = new BehaviorSubject<IMaybeError<Value>>(null);
 
-  constructor() {
-    this.id = `model-${uniqueId}`;
-    uniqueId += 1;
+  private getForm = memoize<IModel<any> | null, IForm<Value> | null | undefined>(owner => {
+    return owner?.form;
+  });
+
+  get form(): IForm<any> | null | undefined {
+    return this.getForm(this.owner);
+  }
+
+  protected constructor(protected readonly id: string) {
     this.validate$.pipe(switchMap(validate(this))).subscribe(new ErrorSubscriber(this));
   }
 
-  abstract dispose(): void;
   abstract pristine(): boolean;
   abstract touched(): boolean;
   abstract dirty(): boolean;
@@ -79,6 +63,10 @@ abstract class BasicModel<Value> implements IModel<Value> {
   abstract clear(): void;
   abstract initialize(value: Value): void;
   abstract validate(option?: ValidateOption): Promise<any>;
+
+  dispose() {
+    this.owner = null;
+  }
 
   protected triggerValidate(option: ValidateOption) {
     return new Promise<IMaybeError<Value>>((resolve, reject) => {
@@ -105,10 +93,10 @@ abstract class BasicModel<Value> implements IModel<Value> {
   }
 }
 
-BasicModel.prototype[MODEL_ID] = true;
+AbstractModel.prototype[MODEL_ID] = true;
 
-function isModel<T>(maybeModel: any): maybeModel is BasicModel<T> {
-  return !!(maybeModel && maybeModel[MODEL_ID]);
+function isModel<T>(maybeModel: any): maybeModel is AbstractModel<T> {
+  return Boolean(maybeModel?.[MODEL_ID]);
 }
 
-export { IModel, BasicModel, isModel };
+export { AbstractModel, isModel };
