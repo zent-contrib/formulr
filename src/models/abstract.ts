@@ -1,8 +1,7 @@
-import { Subject, BehaviorSubject } from 'rxjs';
-import { ValidateOption, IMaybeError, ErrorSubscriber, IValidation, validate, IValidators } from '../validate';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { ErrorSubscriber, IMaybeError, IValidation, IValidators, validate, ValidateOption } from '../validate';
 import { switchMap } from 'rxjs/operators';
 import { Maybe, None } from '../maybe';
-import { memoize } from '../utils';
 import { IForm, IModel } from './base';
 
 const MODEL_ID = Symbol('model');
@@ -32,6 +31,8 @@ abstract class AbstractModel<Value> implements IModel<Value> {
    */
   destroyOnUnmount = false;
 
+  private subscriptions: Subscription[] = [];
+
   abstract owner: IModel<any> | null;
 
   /** @internal */
@@ -42,16 +43,12 @@ abstract class AbstractModel<Value> implements IModel<Value> {
 
   readonly error$ = new BehaviorSubject<IMaybeError<Value>>(null);
 
-  private getForm = memoize<IModel<any> | null, IForm<Value> | null | undefined>(owner => {
-    return owner?.form;
-  });
-
   get form(): IForm<any> | null | undefined {
-    return this.getForm(this.owner);
+    return this.owner?.form;
   }
 
-  protected constructor(protected readonly id: string) {
-    this.validate$.pipe(switchMap(validate(this))).subscribe(new ErrorSubscriber(this));
+  protected constructor(readonly id: string) {
+    this.subscriptions.push(this.validate$.pipe(switchMap(validate(this))).subscribe(new ErrorSubscriber(this)));
   }
 
   abstract pristine(): boolean;
@@ -65,10 +62,19 @@ abstract class AbstractModel<Value> implements IModel<Value> {
   abstract validate(option?: ValidateOption): Promise<any>;
 
   dispose() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions = [];
     this.owner = null;
   }
 
   protected triggerValidate(option: ValidateOption) {
+    /**
+     * FormModel的owner是它自身
+     */
+    if (this.owner !== this && !(option & ValidateOption.StopPropagation)) {
+      const parentOption = option & ~ValidateOption.IncludeChildrenRecursively;
+      this.owner?.validate(parentOption);
+    }
     return new Promise<IMaybeError<Value>>((resolve, reject) => {
       this.validate$.next({
         option,

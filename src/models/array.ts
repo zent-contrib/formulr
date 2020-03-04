@@ -1,9 +1,9 @@
 import { BehaviorSubject } from 'rxjs';
 import { AbstractModel, isModel } from './abstract';
 import { ValidateOption } from '../validate';
-import { ModelRef, isModelRef } from './ref';
+import { isModelRef, ModelRef } from './ref';
 import { BasicBuilder } from '../builders/basic';
-import { Some, or } from '../maybe';
+import { or, Some } from '../maybe';
 import UniqueId from '../unique-id';
 import { IModel } from './base';
 
@@ -168,7 +168,9 @@ class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends A
   pop() {
     const children = this.children$.getValue().slice();
     const child = children.pop();
-    child?.dispose();
+    if (child) {
+      child.owner = null;
+    }
     this.children$.next(children);
     return child;
   }
@@ -179,7 +181,9 @@ class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends A
   shift() {
     const children = this.children$.getValue().slice();
     const child = children.shift();
-    child?.dispose();
+    if (child) {
+      child.owner = null;
+    }
     this.children$.next(children);
     return child;
   }
@@ -204,7 +208,11 @@ class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends A
     const insertedChildren = items.map(this.childFactory);
     const removedChildren = children.splice(start, deleteCount, ...insertedChildren);
     this.children$.next(children);
-    removedChildren.forEach(child => child?.dispose());
+    removedChildren.forEach(child => {
+      if (child) {
+        child.owner = null;
+      }
+    });
     return removedChildren;
   }
 
@@ -214,10 +222,11 @@ class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends A
    */
   validate(option = ValidateOption.Default): Promise<any> {
     if (option & ValidateOption.IncludeChildrenRecursively) {
+      const childOption = option | ValidateOption.StopPropagation;
       return Promise.all(
         this.children$
           .getValue()
-          .map(it => it.validate(option))
+          .map(it => it.validate(childOption))
           .concat(this.triggerValidate(option)),
       );
     }
@@ -266,12 +275,13 @@ class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends A
     this.children.forEach(child => {
       child.dispose();
     });
+    this.children$.next([]);
   }
 }
 
 FieldArrayModel.prototype[FIELD_ARRAY_ID] = true;
 
-function isFieldArrayModel<Item, Child extends AbstractModel<Item> = AbstractModel<Item>>(
+function isFieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>>(
   maybeModel: any,
 ): maybeModel is FieldArrayModel<Item, Child> {
   return !!(maybeModel && maybeModel[FIELD_ARRAY_ID]);

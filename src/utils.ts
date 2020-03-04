@@ -41,17 +41,3 @@ export function removeOnUnmount<Model extends AbstractModel<any>>(
 }
 
 export type $MergeProps<T> = (T extends any ? (t: T) => void : never) extends (r: infer R) => void ? R : never;
-
-export function memoize<T, R>(func: (t: T) => R): (t: T) => R {
-  let prev: T;
-  let value: R;
-  let initial = false;
-  return arg => {
-    if (!initial || prev !== arg) {
-      initial = true;
-      prev = arg;
-      value = func(arg);
-    }
-    return value;
-  };
-}

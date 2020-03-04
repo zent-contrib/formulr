@@ -93,6 +93,7 @@ export enum ValidateOption {
    * 不校验没有修改过的 `Field`
    */
   ExcludePristine               = 0b000010000,
+  StopPropagation               = 0b000100000,
 
   Default                       = Empty,
 }

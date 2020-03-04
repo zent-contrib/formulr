@@ -1,26 +1,15 @@
 import { useMemo } from 'react';
-import {
-  FieldArrayModel,
-  AbstractModel,
-  FormStrategy,
-  FieldSetModel,
-  FieldArrayChild,
-  ModelRef,
-  isModelRef,
-  isFieldArrayModel,
-} from './models';
+import { FieldArrayModel, FormStrategy, FieldSetModel, ModelRef, isModelRef, isFieldArrayModel } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
 import { removeOnUnmount } from './utils';
 import { isSome, get } from './maybe';
 import { IValidators } from './validate';
+import { IModel } from './models/base';
 
-export type IUseFieldArray<Item, Child extends AbstractModel<Item>> = [
-  FieldArrayChild<Item, Child>[],
-  FieldArrayModel<Item, Child>,
-];
+export type IUseFieldArray<Item, Child extends IModel<Item>> = [Child[], FieldArrayModel<Item, Child>];
 
-function useArrayModel<Item, Child extends AbstractModel<Item>>(
+function useArrayModel<Item, Child extends IModel<Item>>(
   field: string | FieldArrayModel<Item, Child> | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   parent: FieldSetModel,
   strategy: FormStrategy,
@@ -43,7 +32,7 @@ function useArrayModel<Item, Child extends AbstractModel<Item>>(
           }
         }
         model = new FieldArrayModel<Item, Child>(null, v);
-        parent.registerChild(field, model as AbstractModel<unknown>);
+        parent.registerChild(field, model);
       } else {
         model = m;
       }
@@ -76,12 +65,12 @@ function useArrayModel<Item, Child extends AbstractModel<Item>>(
 
 /**
  * 创建一个 `FieldArray`
- * 
+ *
  * @param field 字段名，当 `FormStrategy` 是 `View` 的时候才能用字段名
  * @param validators 当 `field` 是字段名的时候，可以传入 `validator`
  * @param defaultValue 默认值
  */
-export function useFieldArray<Item, Child extends AbstractModel<Item>>(
+export function useFieldArray<Item, Child extends IModel<Item>>(
   field: string | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   validators?: IValidators<readonly (Item | null)[]>,
   defaultValue?: Item[],
@@ -89,14 +78,14 @@ export function useFieldArray<Item, Child extends AbstractModel<Item>>(
 
 /**
  * 创建一个 `FieldArray`
- * 
+ *
  * @param field `FieldArray` 对应的 model 对象，用于关联 `FieldArray` 和 model；当 `FormStrategy` 是 `Model` 的时候才能用
  */
-export function useFieldArray<Item, Child extends AbstractModel<Item>>(
+export function useFieldArray<Item, Child extends IModel<Item>>(
   field: FieldArrayModel<Item, Child>,
 ): FieldArrayModel<Item, Child>;
 
-export function useFieldArray<Item, Child extends AbstractModel<Item>>(
+export function useFieldArray<Item, Child extends IModel<Item>>(
   field: string | FieldArrayModel<Item, Child> | ModelRef<readonly Item[], any, FieldArrayModel<Item, Child>>,
   validators: IValidators<readonly Item[]> = [],
   defaultValue: readonly Item[] = [],

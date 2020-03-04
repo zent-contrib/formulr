@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
 
 import {
@@ -78,6 +78,12 @@ const Input = ({ field }: { field: any; validators?: any[] }) => {
     },
     [model],
   );
+  useEffect(() => {
+    const $ = model.validate$.subscribe(() => {
+      console.log('validate', field);
+    });
+    return () => $.unsubscribe();
+  }, [model, field]);
   return (
     <div style={{ background: '#eee', padding: '10px' }}>
       <input value={model.value} onChange={onChange} style={{ color: error ? 'red' : undefined }} />
@@ -171,19 +177,11 @@ ReactDOM.render(<App />, document.getElementById('app'));
 
 // ReactDOM.unstable_createRoot(document.getElementById('app')).render(<App />);
 
-const a = form({
-  foo: field(''),
-  bar: field(3),
-  baz: set({
+function typeTest() {
+  const a = form({
     foo: field(''),
     bar: field(3),
     baz: set({
-      foo: field(''),
-      bar: field(3),
-    }),
-  }),
-  array: array(
-    set({
       foo: field(''),
       bar: field(3),
       baz: set({
@@ -191,14 +189,26 @@ const a = form({
         bar: field(3),
       }),
     }),
-  ),
-});
+    array: array(
+      set({
+        foo: field(''),
+        bar: field(3),
+        baz: set({
+          foo: field(''),
+          bar: field(3),
+        }),
+      }),
+    ),
+  });
 
-const b = a.build();
+  const b = a.build();
 
-const c: string | undefined = b.get('array')?.children[0]?.get('foo')?.value;
-const d = b.getRawValue();
-const e: number = d.array[0].baz.bar;
+  const c: string | undefined = b.get('array')?.children[0]?.get('foo')?.value;
+  const d = b.getRawValue();
+  const e: number = d.array[0].baz.bar;
 
-void c;
-void e;
+  void c;
+  void e;
+}
+
+void typeTest;

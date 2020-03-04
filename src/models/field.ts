@@ -82,10 +82,6 @@ class FieldModel<Value> extends AbstractModel<Value> {
     return this.value$.getValue();
   }
 
-  dispose() {
-    this.owner = null;
-  }
-
   /**
    * 获取用于表单提交的值
    */

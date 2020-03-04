@@ -2,12 +2,10 @@ import { BehaviorSubject } from 'rxjs';
 import { IModel, IForm } from './base';
 import { ValidateOption, IMaybeError, IValidators } from '../validate';
 import { Maybe, None } from '../maybe';
-import { memoize } from '../utils';
 
 const REF_ID = Symbol('ref');
 
-class ModelRef<Value, Parent extends IModel<any>, Model extends IModel<Value>>
-  implements IModel<Value> {
+class ModelRef<Value, Parent extends IModel<any>, Model extends IModel<Value>> implements IModel<Value> {
   /**
    * @internal
    */
@@ -34,12 +32,8 @@ class ModelRef<Value, Parent extends IModel<any>, Model extends IModel<Value>>
     }
   }
 
-  private getForm = memoize<IModel<any> | null, IForm<Value> | null | undefined>(owner => {
-    return owner?.form;
-  });
-
   get form(): IForm<any> | null | undefined {
-    return this.getForm(this.owner);
+    return this.owner?.form;
   }
 
   /**

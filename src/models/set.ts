@@ -1,7 +1,7 @@
 import { Subject } from 'rxjs';
 import { AbstractModel, isModel } from './abstract';
-import { ValidateOption, IMaybeError } from '../validate';
-import { Some, Maybe, None } from '../maybe';
+import { IMaybeError, ValidateOption } from '../validate';
+import { Maybe, None, Some } from '../maybe';
 import { isPlainObject } from '../utils';
 import UniqueId from '../unique-id';
 import { IModel } from './base';
@@ -32,8 +32,8 @@ class FieldSetModel<
   owner: IModel<any> | null = null;
 
   /** @internal */
-  constructor(children: Children) {
-    super(uniqueId.get());
+  constructor(children: Children, id = uniqueId.get()) {
+    super(id);
     const keys = Object.keys(children);
     const keysLength = keys.length;
     for (let index = 0; index < keysLength; index++) {
@@ -123,7 +123,7 @@ class FieldSetModel<
    */
   removeChild(name: string) {
     const model = this.children[name];
-    model.dispose();
+    model.owner = null;
     delete this.children[name];
     this.childRemove$.next(name);
     return model;
@@ -202,9 +202,10 @@ class FieldSetModel<
    */
   validate(option = ValidateOption.Default): Promise<IMaybeError<any> | IMaybeError<any>[]> {
     if (option & ValidateOption.IncludeChildrenRecursively) {
+      const childOption = option | ValidateOption.StopPropagation;
       return Promise.all<IMaybeError<any>>(
         Object.keys(this.children)
-          .map(key => this.children[key].validate(option))
+          .map(key => this.children[key].validate(childOption))
           .concat(this.triggerValidate(option)),
       );
     }
