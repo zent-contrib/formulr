@@ -102,7 +102,7 @@ export type Middleware<F> = (next: F) => F;
  * <Field validators={[validator]}></Field>
  * ```
  */
-export function compose$<Target>(...middlewares: Middleware<Target>[]) {
+export function compose<Target>(...middlewares: Middleware<Target>[]) {
   return (target: Target) => middlewares.reduceRight((currentTarget, middleware) => middleware(currentTarget), target);
 }
 
