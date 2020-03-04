@@ -81,7 +81,7 @@ export type Middleware<F> = (next: F) => F;
 
 /**
  * ## example middleware
- * ```ts
+ * ```tsx
  * function when<Value>(condition: () => boolean | Promise<boolean>): Middleware<IValidator<Value>> {
  *   return (next: IValidator<Value>) =>
  *     createAsyncValidator((value, ctx) => {
@@ -96,12 +96,14 @@ export type Middleware<F> = (next: F) => F;
  *    });
  *   }
  * }
+ *
+ * const validator = compose(when(() => Math.random() > 0.5))(required('required if random number great then 5'));
+ *
+ * <Field validators={[validator]}></Field>
  * ```
  */
-export function compose<Args extends any[], R>(...funcs: Middleware<Func<Args, R>>[]): Middleware<Func<Args, R>> {
-  return (end: Func<Args, R>): Func<Args, R> => {
-    return funcs.reduceRight((next, func) => func(next), end);
-  };
+export function compose$<Target>(...middlewares: Middleware<Target>[]) {
+  return (target: Target) => middlewares.reduceRight((currentTarget, middleware) => middleware(currentTarget), target);
 }
 
 /**
