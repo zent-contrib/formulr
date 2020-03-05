@@ -47,7 +47,7 @@ export function createAsyncValidator<T>(
 }
 
 /**
- * 表单字段校验结果
+ * 校验结果错误名
  */
 export interface IValidateResult<T> {
   /**
