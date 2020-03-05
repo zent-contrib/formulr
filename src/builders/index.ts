@@ -3,7 +3,7 @@ import { FieldBuilder } from './field';
 import { FieldSetBuilder } from './set';
 import { BasicBuilder } from './basic';
 import { FormBuilder } from './form';
-import { AbstractModel } from '../models';
+import { BasicModel } from '../models';
 
 export * from './array';
 export * from './field';
@@ -36,7 +36,7 @@ export function array<ChildBuilder extends BasicBuilder<any, any>>(
 export function set<
   ChildBuilders extends Record<string, Builder>,
   Builder extends BasicBuilder<any, Model>,
-  Model extends AbstractModel<any>
+  Model extends BasicModel<any>
 >(childBuilders: ChildBuilders) {
   return new FieldSetBuilder<ChildBuilders>(childBuilders);
 }
@@ -48,7 +48,7 @@ export function set<
 export function form<
   ChildBuilders extends Record<string, Builder>,
   Builder extends BasicBuilder<any, Model>,
-  Model extends AbstractModel<any>
+  Model extends BasicModel<any>
 >(childBuilders: ChildBuilders) {
   return new FormBuilder<ChildBuilders, Builder, Model>(childBuilders);
 }

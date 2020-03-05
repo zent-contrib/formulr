@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import {
   FieldModel,
-  AbstractModel,
+  BasicModel,
   FormStrategy,
   FieldSetModel,
   FormModel,
@@ -39,7 +39,7 @@ function useModelAndChildProps<Value>(
           isValueFactory(defaultValue) ? defaultValue : () => defaultValue,
         );
         model = new FieldModel<Value>(v);
-        parent.registerChild(field, model as AbstractModel<unknown>);
+        parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
       }

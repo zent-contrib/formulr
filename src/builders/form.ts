@@ -1,12 +1,12 @@
 import { BasicBuilder } from './basic';
-import { $FieldSetValue, FormModel, AbstractModel } from '../models';
+import { $FieldSetValue, FormModel, BasicModel } from '../models';
 import { $FieldSetBuilderChildren, $FieldSetBuilderDefaultValue } from './set';
 import { Maybe, Some, or } from '../maybe';
 
 export class FormBuilder<
   ChildBuilders extends Record<string, Builder>,
   Builder extends BasicBuilder<unknown, Model>,
-  Model extends AbstractModel<unknown>
+  Model extends BasicModel<unknown>
 > extends BasicBuilder<
   $FieldSetValue<$FieldSetBuilderChildren<ChildBuilders>>,
   FormModel<$FieldSetBuilderChildren<ChildBuilders>>

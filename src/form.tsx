@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
-import { FormStrategy, FormModel, AbstractModel } from './models';
+import { FormStrategy, FormModel, BasicModel } from './models';
 import { IFormContext } from './context';
 import { FormBuilder, $FieldSetBuilderChildren } from './builders';
 import { BasicBuilder } from './builders/basic';
 
-export interface IUseForm<T extends Record<string, AbstractModel<unknown>>> {
+export interface IUseForm<T extends Record<string, BasicModel<unknown>>> {
   ctx: IFormContext;
   model: FormModel<T>;
 }
@@ -17,7 +17,7 @@ export interface IUseForm<T extends Record<string, AbstractModel<unknown>>> {
 export function useForm<
   T extends Record<string, Builder>,
   Builder extends BasicBuilder<unknown, Model>,
-  Model extends AbstractModel<unknown>
+  Model extends BasicModel<unknown>
 >(arg: FormStrategy.View | FormBuilder<T, Builder, Model>): IUseForm<$FieldSetBuilderChildren<T>> {
   return useMemo(() => {
     let strategy: FormStrategy;

@@ -6,7 +6,7 @@ import { useValue$ } from './hooks';
 import {
   FieldModel,
   FieldArrayModel,
-  AbstractModel,
+  BasicModel,
   isFieldSetModel,
   isFieldModel,
   isFieldArrayModel,
@@ -164,7 +164,7 @@ export function FieldValue<T>(props: IFieldValueProps<T>): React.ReactElement | 
 /**
  * 根据 `name` 或者 `model` 订阅 `FieldArray` 的更新
  */
-export function useFieldArrayValue<Item, Child extends AbstractModel<Item>>(field: string | FieldArrayModel<Item, Child>) {
+export function useFieldArrayValue<Item, Child extends BasicModel<Item>>(field: string | FieldArrayModel<Item, Child>) {
   const ctx = useFormContext();
   const model = getModelFromContext(
     ctx,

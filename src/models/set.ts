@@ -1,12 +1,12 @@
 import { Subject } from 'rxjs';
-import { AbstractModel, isModel } from './abstract';
+import { BasicModel, isModel } from './basic';
 import { IMaybeError, ValidateOption } from '../validate';
 import { Maybe, None, Some } from '../maybe';
 import { isPlainObject } from '../utils';
 import UniqueId from '../unique-id';
 import { IModel } from './base';
 
-type $FieldSetValue<Children extends Record<string, AbstractModel<any>>> = {
+type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
 };
 
@@ -15,8 +15,8 @@ const SET_ID = Symbol('set');
 const uniqueId = new UniqueId('field-set');
 
 class FieldSetModel<
-  Children extends Record<string, AbstractModel<any>> = Record<string, AbstractModel<any>>
-> extends AbstractModel<$FieldSetValue<Children>> {
+  Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
+> extends BasicModel<$FieldSetValue<Children>> {
   /**
    * @internal
    */
@@ -56,7 +56,7 @@ class FieldSetModel<
     const keys = Object.keys(values);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = this.children[key] as AbstractModel<unknown>;
+      const child = this.children[key] as BasicModel<unknown>;
       if (isModel(child)) {
         child.initialize(values[key]);
       }
@@ -81,7 +81,7 @@ class FieldSetModel<
     const childrenKeys = Object.keys(this.children);
     for (let i = 0; i < childrenKeys.length; i++) {
       const key = childrenKeys[i];
-      const model = this.children[key] as AbstractModel<unknown>;
+      const model = this.children[key] as BasicModel<unknown>;
       const childValue = model.getRawValue();
       value[key] = childValue;
     }
@@ -96,7 +96,7 @@ class FieldSetModel<
     const childrenKeys = Object.keys(this.children);
     for (let i = 0; i < childrenKeys.length; i++) {
       const key = childrenKeys[i];
-      const model = this.children[key] as AbstractModel<unknown>;
+      const model = this.children[key] as BasicModel<unknown>;
       const childValue = model.getSubmitValue();
       value[key] = childValue;
     }
@@ -108,12 +108,12 @@ class FieldSetModel<
    * @param name 字段名
    * @param model 字段对应的 model
    */
-  registerChild(name: string, model: AbstractModel<any>) {
+  registerChild(name: string, model: BasicModel<any>) {
     if (this.children.hasOwnProperty(name) && this.children[name] !== model) {
       this.removeChild(name);
     }
     model.owner = this;
-    (this.children as Record<string, AbstractModel<unknown>>)[name] = model;
+    (this.children as Record<string, BasicModel<unknown>>)[name] = model;
     this.childRegister$.next(name);
   }
 
@@ -263,7 +263,7 @@ class FieldSetModel<
 
 FieldSetModel.prototype[SET_ID] = true;
 
-function isFieldSetModel<Children extends Record<string, AbstractModel<any>> = Record<string, AbstractModel<any>>>(
+function isFieldSetModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
   maybeModel: any,
 ): maybeModel is FieldSetModel<Children> {
   return !!(maybeModel && maybeModel[SET_ID]);

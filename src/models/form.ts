@@ -1,6 +1,6 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { FieldSetModel } from './set';
-import { AbstractModel } from './abstract';
+import { BasicModel } from './basic';
 import { ValidateOption } from '../validate';
 import UniqueId from '../unique-id';
 
@@ -21,7 +21,7 @@ const FORM_ID = Symbol('form');
 const uniqueId = new UniqueId('form');
 
 class FormModel<
-  Children extends Record<string, AbstractModel<unknown>> = Record<string, AbstractModel<unknown>>
+  Children extends Record<string, BasicModel<unknown>> = Record<string, BasicModel<unknown>>
 > extends FieldSetModel<Children> {
   /**
    * @internal
@@ -32,11 +32,11 @@ class FormModel<
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);
 
-  get owner(): AbstractModel<any> | null {
+  get owner(): BasicModel<any> | null {
     return this;
   }
 
-  set owner(owner: AbstractModel<any> | null) {
+  set owner(owner: BasicModel<any> | null) {
     // noop
   }
 
@@ -86,7 +86,7 @@ class FormModel<
 
 FormModel.prototype[FORM_ID] = true;
 
-function isFormModel<Children extends Record<string, AbstractModel<any>> = Record<string, AbstractModel<any>>>(
+function isFormModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>(
   maybeModel: any,
 ): maybeModel is FormModel<Children> {
   return !!(maybeModel && maybeModel[FORM_ID]);

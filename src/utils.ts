@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { FieldSetModel, AbstractModel, ModelRef } from './models';
+import { FieldSetModel, BasicModel, ModelRef } from './models';
 
 export function noop() {
   // noop
@@ -25,9 +25,9 @@ export function isPlainObject(value: unknown): value is object {
   return Object.getPrototypeOf(value) === proto;
 }
 
-export function removeOnUnmount<Model extends AbstractModel<any>>(
-  field: string | AbstractModel<any> | ModelRef<any, any, Model>,
-  model: AbstractModel<any>,
+export function removeOnUnmount<Model extends BasicModel<any>>(
+  field: string | BasicModel<any> | ModelRef<any, any, Model>,
+  model: BasicModel<any>,
   parent: FieldSetModel,
 ) {
   useEffect(

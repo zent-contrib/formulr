@@ -6,7 +6,7 @@ import { IForm, IModel } from './base';
 
 const MODEL_ID = Symbol('model');
 
-abstract class AbstractModel<Value> implements IModel<Value> {
+abstract class BasicModel<Value> implements IModel<Value> {
   /** @internal */
   phantomValue!: Value;
   /**
@@ -99,10 +99,10 @@ abstract class AbstractModel<Value> implements IModel<Value> {
   }
 }
 
-AbstractModel.prototype[MODEL_ID] = true;
+BasicModel.prototype[MODEL_ID] = true;
 
-function isModel<T>(maybeModel: any): maybeModel is AbstractModel<T> {
+function isModel<T>(maybeModel: any): maybeModel is BasicModel<T> {
   return Boolean(maybeModel?.[MODEL_ID]);
 }
 
-export { AbstractModel, isModel };
+export { BasicModel, isModel };

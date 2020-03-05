@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { AbstractModel } from './abstract';
+import { BasicModel } from './basic';
 import { Some, None, or, isSome, get } from '../maybe';
 import { ValidateOption } from '../validate';
 import { id } from '../utils';
@@ -13,7 +13,7 @@ export interface INormalizeBeforeSubmit<A, B> {
 
 const uniqueId = new UniqueId('field');
 
-class FieldModel<Value> extends AbstractModel<Value> {
+class FieldModel<Value> extends BasicModel<Value> {
   /**
    * @internal
    */
@@ -32,7 +32,7 @@ class FieldModel<Value> extends AbstractModel<Value> {
    */
   normalizeBeforeSubmit: INormalizeBeforeSubmit<Value, any> = id;
 
-  owner: AbstractModel<any> | null = null;
+  owner: BasicModel<any> | null = null;
 
   /** @internal */
   constructor(private readonly defaultValue: Value) {

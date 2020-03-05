@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { AbstractModel, isModel } from './abstract';
+import { BasicModel, isModel } from './basic';
 import { ValidateOption } from '../validate';
 import { isModelRef, ModelRef } from './ref';
 import { BasicBuilder } from '../builders/basic';
@@ -11,7 +11,7 @@ const FIELD_ARRAY_ID = Symbol('field-array');
 
 const uniqueId = new UniqueId('field-array');
 
-class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends AbstractModel<readonly Item[]> {
+class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends BasicModel<readonly Item[]> {
   /**
    * @internal
    */
