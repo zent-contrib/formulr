@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>FieldArrayModel | formulr</title>
+	<title>FieldArrayModel | formulr - v0.2.14</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">formulr</a>
+					<a href="../index.html" class="title">formulr - v0.2.14</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -109,7 +109,8 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported"><a href="fieldarraymodel.html#__computed" class="tsd-kind-icon">__computed</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-not-exported"><a href="fieldarraymodel.html#_field_array_id_" class="tsd-kind-icon">[FIELD_<wbr>ARRAY_<wbr>ID]</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-not-exported"><a href="fieldarraymodel.html#_model_id_" class="tsd-kind-icon">[MODEL_<wbr>ID]</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-not-exported"><a href="fieldarraymodel.html#childfactory" class="tsd-kind-icon">child<wbr>Factory</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-not-exported"><a href="fieldarraymodel.html#children_" class="tsd-kind-icon">children$</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-not-exported"><a href="fieldarraymodel.html#defaultvalue" class="tsd-kind-icon">default<wbr>Value</a></li>
@@ -136,6 +137,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported"><a href="fieldarraymodel.html#clear" class="tsd-kind-icon">clear</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported"><a href="fieldarraymodel.html#dirty" class="tsd-kind-icon">dirty</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported"><a href="fieldarraymodel.html#dispose" class="tsd-kind-icon">dispose</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported"><a href="fieldarraymodel.html#getrawvalue" class="tsd-kind-icon">get<wbr>Raw<wbr>Value</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported"><a href="fieldarraymodel.html#getsubmitvalue" class="tsd-kind-icon">get<wbr>Submit<wbr>Value</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported"><a href="fieldarraymodel.html#initialize" class="tsd-kind-icon">initialize</a></li>
@@ -143,6 +145,8 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="fieldarraymodel.html#pop" class="tsd-kind-icon">pop</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported"><a href="fieldarraymodel.html#pristine" class="tsd-kind-icon">pristine</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="fieldarraymodel.html#push" class="tsd-kind-icon">push</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="fieldarraymodel.html#registerchild" class="tsd-kind-icon">register<wbr>Child</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="fieldarraymodel.html#removechild" class="tsd-kind-icon">remove<wbr>Child</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported"><a href="fieldarraymodel.html#reset" class="tsd-kind-icon">reset</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="fieldarraymodel.html#shift" class="tsd-kind-icon">shift</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="fieldarraymodel.html#splice" class="tsd-kind-icon">splice</a></li>
@@ -169,7 +173,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L22">src/models/array.ts:22</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L23">src/models/array.ts:23</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -194,14 +198,30 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
-					<a name="__computed" class="tsd-anchor"></a>
-					<h3>__computed</h3>
-					<div class="tsd-signature tsd-kind-icon">__computed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+					<a name="_field_array_id_" class="tsd-anchor"></a>
+					<h3>[FIELD_<wbr>ARRAY_<wbr>ID]</h3>
+					<div class="tsd-signature tsd-kind-icon">[FIELD_<wbr>ARRAY_<wbr>ID]<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
-						<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#__computed">__computed</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L18">src/models/array.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L19">src/models/array.ts:19</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>internal</dt>
+							<dd></dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-not-exported">
+					<a name="_model_id_" class="tsd-anchor"></a>
+					<h3>[MODEL_<wbr>ID]</h3>
+					<div class="tsd-signature tsd-kind-icon">[MODEL_<wbr>ID]<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#_model_id_">[MODEL_ID]</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L59">src/models/basic.ts:59</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -217,7 +237,7 @@
 					<div class="tsd-signature tsd-kind-icon">child<wbr>Factory<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L22">src/models/array.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L23">src/models/array.ts:23</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -248,7 +268,7 @@
 					<div class="tsd-signature tsd-kind-icon">children$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">BehaviorSubject</span><span class="tsd-signature-symbol">&lt;</span><a href="../globals.html#fieldarraychild" class="tsd-signature-type">FieldArrayChild</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Child</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L20">src/models/array.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L21">src/models/array.ts:21</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -258,7 +278,7 @@
 					<div class="tsd-signature tsd-kind-icon">default<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">keyof Item[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L25">src/models/array.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L26">src/models/array.ts:26</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -269,7 +289,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#destroyonunmount">destroyOnUnmount</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L56">src/models/basic.ts:56</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L56">src/models/basic.ts:56</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -285,7 +305,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#error_">error$</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L64">src/models/basic.ts:64</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L64">src/models/basic.ts:64</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -296,7 +316,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#form">form</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L51">src/models/basic.ts:51</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L51">src/models/basic.ts:51</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -313,7 +333,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#id">id</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L29">src/models/basic.ts:29</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L29">src/models/basic.ts:29</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -330,7 +350,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#initialvalue">initialValue</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L47">src/models/basic.ts:47</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L47">src/models/basic.ts:47</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -348,7 +368,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#owner">owner</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L49">src/models/basic.ts:49</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L49">src/models/basic.ts:49</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -365,7 +385,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#phantomvalue">phantomValue</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L31">src/models/basic.ts:31</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L31">src/models/basic.ts:31</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -382,7 +402,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#validate_">validate$</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L35">src/models/basic.ts:35</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L35">src/models/basic.ts:35</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -399,7 +419,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#validators">validators</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L41">src/models/basic.ts:41</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L41">src/models/basic.ts:41</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -423,7 +443,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L54">src/models/array.ts:54</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L55">src/models/array.ts:55</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -447,7 +467,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#error">error</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L95">src/models/basic.ts:95</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L96">src/models/basic.ts:96</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -466,7 +486,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#error">error</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L102">src/models/basic.ts:102</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L103">src/models/basic.ts:103</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -499,7 +519,7 @@
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#clear">clear</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#clear">clear</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L45">src/models/array.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L46">src/models/array.ts:46</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -523,7 +543,7 @@
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#dirty">dirty</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#dirty">dirty</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L234">src/models/array.ts:234</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L261">src/models/array.ts:261</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -533,6 +553,24 @@
 								<p><code>dirty === !pristine</code></p>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
+					<a name="dispose" class="tsd-anchor"></a>
+					<h3>dispose</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">dispose<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#dispose">dispose</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L323">src/models/array.ts:323</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -548,7 +586,7 @@
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#getrawvalue">getRawValue</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#getrawvalue">getRawValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L83">src/models/array.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L84">src/models/array.ts:84</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -571,7 +609,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#getsubmitvalue">getSubmitValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L98">src/models/array.ts:98</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L99">src/models/array.ts:99</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -594,7 +632,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#initialize">initialize</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L143">src/models/array.ts:143</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L144">src/models/array.ts:144</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -626,7 +664,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#patchvalue">patchValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L114">src/models/array.ts:114</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L115">src/models/array.ts:115</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -657,7 +695,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L160">src/models/array.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L170">src/models/array.ts:170</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -686,7 +724,7 @@
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#pristine">pristine</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#pristine">pristine</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L218">src/models/array.ts:218</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L245">src/models/array.ts:245</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -708,7 +746,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L152">src/models/array.ts:152</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L158">src/models/array.ts:158</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -729,6 +767,66 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="registerchild" class="tsd-anchor"></a>
+					<h3>register<wbr>Child</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">register<wbr>Child<span class="tsd-signature-symbol">(</span>child<span class="tsd-signature-symbol">: </span><a href="../globals.html#fieldarraychild" class="tsd-signature-type">FieldArrayChild</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Child</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L283">src/models/array.ts:283</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>递归地给child添加form引用</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>child: <a href="../globals.html#fieldarraychild" class="tsd-signature-type">FieldArrayChild</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Child</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="removechild" class="tsd-anchor"></a>
+					<h3>remove<wbr>Child</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">remove<wbr>Child<span class="tsd-signature-symbol">(</span>child<span class="tsd-signature-symbol">: </span><a href="../globals.html#fieldarraychild" class="tsd-signature-type">FieldArrayChild</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Child</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L310">src/models/array.ts:310</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>递归地释放child</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>child: <a href="../globals.html#fieldarraychild" class="tsd-signature-type">FieldArrayChild</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Child</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
 					<a name="reset" class="tsd-anchor"></a>
 					<h3>reset</h3>
@@ -741,7 +839,7 @@
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#reset">reset</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#reset">reset</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L37">src/models/array.ts:37</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L38">src/models/array.ts:38</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -763,7 +861,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L170">src/models/array.ts:170</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L181">src/models/array.ts:181</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -790,7 +888,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L192">src/models/array.ts:192</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L208">src/models/array.ts:208</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -835,7 +933,7 @@
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#touched">touched</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#touched">touched</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L241">src/models/array.ts:241</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L268">src/models/array.ts:268</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -858,7 +956,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#triggervalidate">triggerValidate</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/basic.ts#L82">src/models/basic.ts:82</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/basic.ts#L83">src/models/basic.ts:83</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -881,7 +979,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L181">src/models/array.ts:181</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L193">src/models/array.ts:193</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -914,7 +1012,7 @@
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#valid">valid</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#valid">valid</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L61">src/models/array.ts:61</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L62">src/models/array.ts:62</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -938,7 +1036,7 @@
 								<p>Implementation of <a href="../interfaces/imodel.html">IModel</a>.<a href="../interfaces/imodel.html#validate">validate</a></p>
 								<p>Overrides <a href="basicmodel.html">BasicModel</a>.<a href="basicmodel.html#validate">validate</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/aea843e/src/models/array.ts#L203">src/models/array.ts:203</a></li>
+									<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/models/array.ts#L230">src/models/array.ts:230</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -979,8 +1077,11 @@
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
 								<a href="fieldarraymodel.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
-								<a href="fieldarraymodel.html#__computed" class="tsd-kind-icon">__computed</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-not-exported">
+								<a href="fieldarraymodel.html#_field_array_id_" class="tsd-kind-icon">[FIELD_<wbr>ARRAY_<wbr>ID]</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-not-exported">
+								<a href="fieldarraymodel.html#_model_id_" class="tsd-kind-icon">[MODEL_<wbr>ID]</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private tsd-is-not-exported">
 								<a href="fieldarraymodel.html#childfactory" class="tsd-kind-icon">child<wbr>Factory</a>
@@ -1031,6 +1132,9 @@
 								<a href="fieldarraymodel.html#dirty" class="tsd-kind-icon">dirty</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
+								<a href="fieldarraymodel.html#dispose" class="tsd-kind-icon">dispose</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
 								<a href="fieldarraymodel.html#getrawvalue" class="tsd-kind-icon">get<wbr>Raw<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
@@ -1050,6 +1154,12 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
 								<a href="fieldarraymodel.html#push" class="tsd-kind-icon">push</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="fieldarraymodel.html#registerchild" class="tsd-kind-icon">register<wbr>Child</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="fieldarraymodel.html#removechild" class="tsd-kind-icon">remove<wbr>Child</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-not-exported">
 								<a href="fieldarraymodel.html#reset" class="tsd-kind-icon">reset</a>

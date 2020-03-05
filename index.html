@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>formulr</title>
+	<title>formulr - v0.2.14</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">formulr</a>
+					<a href="index.html" class="title">formulr - v0.2.14</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1> formulr</h1>
+			<h1> formulr - v0.2.14</h1>
 		</div>
 	</div>
 </header>
@@ -137,6 +137,9 @@
 					<li class=" tsd-kind-interface tsd-has-type-parameter">
 						<a href="interfaces/iasyncvalidator.html" class="tsd-kind-icon">IAsync<wbr>Validator</a>
 					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/icompositionhandlers.html" class="tsd-kind-icon">IComposition<wbr>Handlers</a>
+					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/ifieldsetvalueprops.html" class="tsd-kind-icon">IField<wbr>Set<wbr>Value<wbr>Props</a>
 					</li>
@@ -179,8 +182,14 @@
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter tsd-is-not-exported">
 						<a href="globals.html#_fieldsetvalue" class="tsd-kind-icon">$<wbr>Field<wbr>Set<wbr>Value</a>
 					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#_mergeprops" class="tsd-kind-icon">$<wbr>Merge<wbr>Props</a>
+					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter tsd-is-not-exported">
 						<a href="globals.html#fieldarraychild" class="tsd-kind-icon">Field<wbr>Array<wbr>Child</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#func" class="tsd-kind-icon">Func</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
 						<a href="globals.html#ifieldvalueprops" class="tsd-kind-icon">IField<wbr>Value<wbr>Props</a>
@@ -202,6 +211,9 @@
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
 						<a href="globals.html#maybe" class="tsd-kind-icon">Maybe</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#middleware" class="tsd-kind-icon">Middleware</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="globals.html#async_validator" class="tsd-kind-icon">ASYNC_<wbr>VALIDATOR</a>
@@ -258,6 +270,9 @@
 						<a href="globals.html#array" class="tsd-kind-icon">array</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#compose" class="tsd-kind-icon">compose</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#createasyncvalidator" class="tsd-kind-icon">create<wbr>Async<wbr>Validator</a>
 					</li>
 					<li class=" tsd-kind-function">
@@ -312,6 +327,9 @@
 						<a href="globals.html#issome" class="tsd-kind-icon">is<wbr>Some</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#last" class="tsd-kind-icon">last</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#makechangehandler" class="tsd-kind-icon">make<wbr>Change<wbr>Handler</a>
 					</li>
 					<li class=" tsd-kind-function">
@@ -325,6 +343,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#minlength" class="tsd-kind-icon">min<wbr>Length</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#multi" class="tsd-kind-icon">multi</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#noop" class="tsd-kind-icon">noop</a>
@@ -375,6 +396,9 @@
 						<a href="globals.html#usefieldsetmodel" class="tsd-kind-icon">use<wbr>Field<wbr>Set<wbr>Model</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#usefieldvalue" class="tsd-kind-icon">use<wbr>Field<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#useform" class="tsd-kind-icon">use<wbr>Form</a>
 					</li>
 					<li class=" tsd-kind-function">
@@ -385,6 +409,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter tsd-is-not-exported">
 						<a href="globals.html#usemodelandchildprops" class="tsd-kind-icon">use<wbr>Model<wbr>And<wbr>Child<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#usemulti" class="tsd-kind-icon">use<wbr>Multi</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#usepipe" class="tsd-kind-icon">use<wbr>Pipe</a>
