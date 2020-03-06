@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { IModel, IForm } from './base';
+import { IModel } from './base';
 import { ValidateOption, IMaybeError, IValidators } from '../validate';
 import { Maybe, None } from '../maybe';
 
@@ -32,7 +32,7 @@ class ModelRef<Value, Parent extends IModel<any>, Model extends IModel<Value>> i
     }
   }
 
-  get form(): IForm<any> | null | undefined {
+  get form() {
     return this.owner?.form;
   }
 

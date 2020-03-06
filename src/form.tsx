@@ -4,7 +4,7 @@ import { IFormContext } from './context';
 import { FormBuilder, $FieldSetBuilderChildren } from './builders';
 import { BasicBuilder } from './builders/basic';
 
-export interface IUseForm<T extends Record<string, BasicModel<unknown>>> {
+export interface IForm<T extends Record<string, BasicModel<unknown>>> {
   ctx: IFormContext;
   model: FormModel<T>;
 }
@@ -18,7 +18,7 @@ export function useForm<
   T extends Record<string, Builder>,
   Builder extends BasicBuilder<unknown, Model>,
   Model extends BasicModel<unknown>
->(arg: FormStrategy.View | FormBuilder<T, Builder, Model>): IUseForm<$FieldSetBuilderChildren<T>> {
+>(arg: FormStrategy.View | FormBuilder<T, Builder, Model>): IForm<$FieldSetBuilderChildren<T>> {
   return useMemo(() => {
     let strategy: FormStrategy;
     let model: FormModel<any>;

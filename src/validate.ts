@@ -140,8 +140,8 @@ export class ValidatorContext<T> {
     return data as T;
   }
 
-  getFormValue<T extends object = Record<string, unknown>>(): T | null {
-    return this.model.form && this.model.form.getRawValue();
+  getFormValue<T extends object = Record<string, unknown>>(): T | null | undefined {
+    return this.model.form?.getRawValue();
   }
 }
 

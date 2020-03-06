@@ -2,7 +2,7 @@ import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { ErrorSubscriber, IMaybeError, IValidation, IValidators, validate, ValidateOption } from '../validate';
 import { switchMap } from 'rxjs/operators';
 import { Maybe, None } from '../maybe';
-import { IForm, IModel } from './base';
+import { IModel } from './base';
 
 const MODEL_ID = Symbol('model');
 
@@ -43,7 +43,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
 
   readonly error$ = new BehaviorSubject<IMaybeError<Value>>(null);
 
-  get form(): IForm<any> | null | undefined {
+  get form() {
     return this.owner?.form;
   }
 
