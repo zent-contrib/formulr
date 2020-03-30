@@ -15,6 +15,10 @@ import { IValidators } from './validate';
 import { removeOnUnmount } from './utils';
 import { or } from './maybe';
 
+function isValueFactory<Value>(candidate: Value | (() => Value)): candidate is () => Value {
+  return typeof candidate === 'function';
+}
+
 function useModelAndChildProps<Value>(
   field: FieldModel<Value> | ModelRef<Value, any, FieldModel<Value>> | string,
   parent: FieldSetModel,
@@ -30,7 +34,10 @@ function useModelAndChildProps<Value>(
       }
       const m = parent.get(field);
       if (!m || !isFieldModel<Value>(m)) {
-        const v = or<Value>(parent.getPatchedValue(field), defaultValue);
+        const v = or<Value>(
+          parent.getPatchedValue(field),
+          isValueFactory(defaultValue) ? defaultValue : () => defaultValue,
+        );
         model = new FieldModel<Value>(v);
         parent.registerChild(field, model as BasicModel<unknown>);
       } else {
@@ -39,7 +46,9 @@ function useModelAndChildProps<Value>(
     } else if (isModelRef<Value, any, FieldModel<Value>>(field)) {
       const m = field.getModel();
       if (!m || !isFieldModel<Value>(m)) {
-        const v = or<Value>(field.patchedValue, () => or(field.initialValue, defaultValue));
+        const v = or<Value>(field.patchedValue, () =>
+          or(field.initialValue, isValueFactory(defaultValue) ? defaultValue : () => defaultValue),
+        );
         model = new FieldModel<Value>(v);
         field.setModel(model);
       } else {

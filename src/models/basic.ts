@@ -1,32 +1,12 @@
-import { Subject, BehaviorSubject } from 'rxjs';
-import { ValidateOption, IMaybeError, ErrorSubscriber, IValidation, validate, IValidators } from '../validate';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { ErrorSubscriber, IMaybeError, IValidation, IValidators, validate, ValidateOption } from '../validate';
 import { switchMap } from 'rxjs/operators';
-import { FieldSetModel } from './set';
-import { ModelRef } from './ref';
-import { FormModel } from './form';
 import { Maybe, None } from '../maybe';
-
-interface IModel<Value> {
-  getRawValue(): any;
-  pristine(): boolean;
-  touched(): boolean;
-  dirty(): boolean;
-  valid(): boolean;
-  patchValue(value: Value): void;
-  validate(strategy: ValidateOption): void;
-  reset(): void;
-  clear(): void;
-  initialize(value: Value): void;
-  error: IMaybeError<Value>;
-}
-
-let uniqueId = 0;
+import { IModel } from './base';
 
 const MODEL_ID = Symbol('model');
 
 abstract class BasicModel<Value> implements IModel<Value> {
-  /** @internal */
-  id: string;
   /** @internal */
   phantomValue!: Value;
   /**
@@ -45,15 +25,15 @@ abstract class BasicModel<Value> implements IModel<Value> {
    * 初始值
    */
   initialValue: Maybe<Value> = None();
-  /** @internal */
-  owner: FieldSetModel<any> | ModelRef<any, any, any> | null = null;
-  /** @internal */
-  form: FormModel<any> | null = null;
 
   /**
    * 组件 unmount 的时候删除 model
    */
   destroyOnUnmount = false;
+
+  private subscriptions: Subscription[] = [];
+
+  abstract owner: IModel<any> | null;
 
   /** @internal */
   [MODEL_ID]!: boolean;
@@ -63,13 +43,14 @@ abstract class BasicModel<Value> implements IModel<Value> {
 
   readonly error$ = new BehaviorSubject<IMaybeError<Value>>(null);
 
-  constructor() {
-    this.id = `model-${uniqueId}`;
-    uniqueId += 1;
-    this.validate$.pipe(switchMap(validate(this))).subscribe(new ErrorSubscriber(this));
+  get form() {
+    return this.owner?.form;
   }
 
-  abstract dispose(): void;
+  protected constructor(readonly id: string) {
+    this.subscriptions.push(this.validate$.pipe(switchMap(validate(this))).subscribe(new ErrorSubscriber(this)));
+  }
+
   abstract pristine(): boolean;
   abstract touched(): boolean;
   abstract dirty(): boolean;
@@ -80,7 +61,20 @@ abstract class BasicModel<Value> implements IModel<Value> {
   abstract initialize(value: Value): void;
   abstract validate(option?: ValidateOption): Promise<any>;
 
+  dispose() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions = [];
+    this.owner = null;
+  }
+
   protected triggerValidate(option: ValidateOption) {
+    /**
+     * FormModel的owner是它自身
+     */
+    if (this.owner !== this && !(option & ValidateOption.StopPropagation)) {
+      const parentOption = option & ~ValidateOption.IncludeChildrenRecursively;
+      this.owner?.validate(parentOption);
+    }
     return new Promise<IMaybeError<Value>>((resolve, reject) => {
       this.validate$.next({
         option,
@@ -108,7 +102,7 @@ abstract class BasicModel<Value> implements IModel<Value> {
 BasicModel.prototype[MODEL_ID] = true;
 
 function isModel<T>(maybeModel: any): maybeModel is BasicModel<T> {
-  return !!(maybeModel && maybeModel[MODEL_ID]);
+  return Boolean(maybeModel?.[MODEL_ID]);
 }
 
-export { IModel, BasicModel, isModel };
+export { BasicModel, isModel };

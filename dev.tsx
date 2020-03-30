@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
 
 import {
@@ -16,6 +16,10 @@ import {
   FieldSetModel,
   ValidateOption,
   createAsyncValidator,
+  form,
+  field,
+  set,
+  array,
 } from './src';
 
 const asyncValidator = createAsyncValidator(() => {
@@ -74,6 +78,12 @@ const Input = ({ field }: { field: any; validators?: any[] }) => {
     },
     [model],
   );
+  useEffect(() => {
+    const $ = model.validate$.subscribe(() => {
+      console.log('validate', field);
+    });
+    return () => $.unsubscribe();
+  }, [model, field]);
   return (
     <div style={{ background: '#eee', padding: '10px' }}>
       <input value={model.value} onChange={onChange} style={{ color: error ? 'red' : undefined }} />
@@ -149,9 +159,11 @@ const App = () => {
         <button onClick={() => console.log(form.model.getRawValue())}>button</button>
         <button
           onClick={() =>
-            form.model.validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildrenRecursively).then(result => {
-              console.log('form validation complete', result);
-            })
+            form.model
+              .validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildrenRecursively)
+              .then(result => {
+                console.log('form validation complete', result);
+              })
           }
         >
           validate
@@ -164,3 +176,39 @@ const App = () => {
 ReactDOM.render(<App />, document.getElementById('app'));
 
 // ReactDOM.unstable_createRoot(document.getElementById('app')).render(<App />);
+
+function typeTest() {
+  const a = form({
+    foo: field(''),
+    bar: field(3),
+    baz: set({
+      foo: field(''),
+      bar: field(3),
+      baz: set({
+        foo: field(''),
+        bar: field(3),
+      }),
+    }),
+    array: array(
+      set({
+        foo: field(''),
+        bar: field(3),
+        baz: set({
+          foo: field(''),
+          bar: field(3),
+        }),
+      }),
+    ),
+  });
+
+  const b = a.build();
+
+  const c: string | undefined = b.get('array')?.children[0]?.get('foo')?.value;
+  const d = b.getRawValue();
+  const e: number = d.array[0].baz.bar;
+
+  void c;
+  void e;
+}
+
+void typeTest;

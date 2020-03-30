@@ -1,33 +1,39 @@
 import { BehaviorSubject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
 import { ValidateOption } from '../validate';
-import { ModelRef, isModelRef } from './ref';
+import { isModelRef, ModelRef } from './ref';
 import { BasicBuilder } from '../builders/basic';
-import { Some, or } from '../maybe';
-import { isFieldSetModel } from './set';
-
-type FieldArrayChild<Item, Child extends BasicModel<Item>> =
-  | Child
-  | ModelRef<Item, FieldArrayModel<Item, Child>, Child>;
+import { or, Some } from '../maybe';
+import UniqueId from '../unique-id';
+import { IModel } from './base';
 
 const FIELD_ARRAY_ID = Symbol('field-array');
 
-class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> extends BasicModel<readonly Item[]> {
+const uniqueId = new UniqueId('field-array');
+
+class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends BasicModel<readonly Item[]> {
   /**
    * @internal
    */
   [FIELD_ARRAY_ID]!: boolean;
 
-  readonly children$: BehaviorSubject<FieldArrayChild<Item, Child>[]>;
+  readonly children$: BehaviorSubject<Child[]>;
 
-  private readonly childFactory: (defaultValue: Item) => FieldArrayChild<Item, Child>;
+  private readonly childFactory: (defaultValue: Item) => Child;
+
+  owner: IModel<any> | null = null;
 
   /** @internal */
   constructor(childBuilder: BasicBuilder<Item, Child> | null, private readonly defaultValue: readonly Item[]) {
-    super();
+    super(uniqueId.get());
     this.childFactory = childBuilder
-      ? (defaultValue: Item) => childBuilder.build(Some(defaultValue))
-      : (defaultValue: Item) => new ModelRef<Item, FieldArrayModel<Item, Child>, Child>(null, Some(defaultValue), this);
+      ? (defaultValue: Item) => {
+          const child = childBuilder.build(Some(defaultValue));
+          child.owner = this;
+          return child;
+        }
+      : (defaultValue: Item) =>
+          (new ModelRef<Item, FieldArrayModel<Item, Child>, Child>(null, Some(defaultValue), this) as unknown) as Child;
     const children = this.defaultValue.map(this.childFactory);
     this.children$ = new BehaviorSubject(children);
   }
@@ -36,7 +42,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
    * 重置 `FieldArray` 为初始值，初始值通过 `initialize` 设置；如果初始值不存在就使用默认值
    */
   reset() {
-    const children = or(this.initialValue, this.defaultValue).map(this.childFactory);
+    const children = or(this.initialValue, () => this.defaultValue).map(this.childFactory);
     this.children$.next(children);
   }
 
@@ -144,10 +150,6 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   initialize(values: Item[]) {
     this.initialValue = Some(values);
     const children = values.map(this.childFactory);
-    const { length } = children;
-    for (let i = 0; i < length; i++) {
-      this.registerChild(children[i]);
-    }
     this.children$.next(children);
   }
 
@@ -156,11 +158,7 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
    * @param items 待添加的值
    */
   push(...items: Item[]) {
-    const nextChildren: FieldArrayChild<Item, Child>[] = this.children$.getValue().concat(items.map(this.childFactory));
-    const { length } = nextChildren;
-    for (let i = 0; i < length; i++) {
-      this.registerChild(nextChildren[i]);
-    }
+    const nextChildren: Child[] = this.children$.getValue().concat(items.map(this.childFactory));
     this.children$.next(nextChildren);
   }
 
@@ -170,7 +168,9 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   pop() {
     const children = this.children$.getValue().slice();
     const child = children.pop();
-    child && this.removeChild(child);
+    if (child) {
+      child.owner = null;
+    }
     this.children$.next(children);
     return child;
   }
@@ -181,7 +181,9 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
   shift() {
     const children = this.children$.getValue().slice();
     const child = children.shift();
-    child && this.removeChild(child);
+    if (child) {
+      child.owner = null;
+    }
     this.children$.next(children);
     return child;
   }
@@ -192,10 +194,6 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
    */
   unshift(...items: Item[]) {
     const nextChildren = items.map(this.childFactory).concat(this.children$.getValue());
-    const { length } = nextChildren;
-    for (let i = 0; i < length; i++) {
-      this.registerChild(nextChildren[i]);
-    }
     this.children$.next(nextChildren);
   }
 
@@ -205,22 +203,17 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
    * @param deleteCount 删除的元素个数
    * @param items 待添加的元素值
    */
-  splice(start: number, deleteCount = 0, ...items: readonly Item[]): FieldArrayChild<Item, Child>[] {
+  splice(start: number, deleteCount = 0, ...items: readonly Item[]): Child[] {
     const children = this.children$.getValue().slice();
     const insertedChildren = items.map(this.childFactory);
-    const ret = children.splice(start, deleteCount, ...insertedChildren);
+    const removedChildren = children.splice(start, deleteCount, ...insertedChildren);
     this.children$.next(children);
-
-    const { length: insertCount } = insertedChildren;
-    for (let i = 0; i < insertCount; i++) {
-      this.registerChild(insertedChildren[i]);
-    }
-
-    const { length: removeCount } = ret;
-    for (let i = 0; i < removeCount; i++) {
-      this.removeChild(ret[i]);
-    }
-    return ret;
+    removedChildren.forEach(child => {
+      if (child) {
+        child.owner = null;
+      }
+    });
+    return removedChildren;
   }
 
   /**
@@ -229,10 +222,11 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
    */
   validate(option = ValidateOption.Default): Promise<any> {
     if (option & ValidateOption.IncludeChildrenRecursively) {
+      const childOption = option | ValidateOption.StopPropagation;
       return Promise.all(
         this.children$
           .getValue()
-          .map(it => it.validate(option))
+          .map(it => it.validate(childOption))
           .concat(this.triggerValidate(option)),
       );
     }
@@ -276,73 +270,21 @@ class FieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>> e
     return false;
   }
 
-  /**
-   * 递归地给child添加form引用
-   * @param child
-   */
-  registerChild(child: FieldArrayChild<Item, Child>) {
-    let model: Child | BasicModel<unknown> | null = null;
-    if (isModelRef(child)) {
-      model = child.getModel();
-    } else if (isModel(child)) {
-      model = child;
-    }
-
-    if (model) {
-      model.form = this.form;
-      if (isFieldSetModel(model)) {
-        const { children } = model;
-        const keys = Object.keys(model.children);
-        const keysLength = keys.length;
-        for (let index = 0; index < keysLength; index++) {
-          const name = keys[index];
-          const child = children[name];
-          model.registerChild(name, child);
-        }
-      }
-    }
-  }
-
-  /**
-   * 递归地释放child
-   * @param child
-   */
-  removeChild(child: FieldArrayChild<Item, Child>) {
-    let model: Child | BasicModel<unknown> | null = null;
-    if (isModelRef(child)) {
-      model = child.getModel();
-    } else if (isModel(child)) {
-      model = child;
-    }
-
-    if (model) {
-      model.dispose();
-    }
-  }
-
   dispose() {
-    this.form = null;
-    this.owner = null;
-    const { children } = this;
-    const len = children.length;
-    for (let i = 0; i < len; i++) {
-      const child = children[i];
-      if (isModelRef(child)) {
-        const model = child.getModel();
-        model && model.dispose();
-      } else if (isModel(child)) {
-        child.dispose();
-      }
-    }
+    super.dispose();
+    this.children.forEach(child => {
+      child.dispose();
+    });
+    this.children$.next([]);
   }
 }
 
 FieldArrayModel.prototype[FIELD_ARRAY_ID] = true;
 
-function isFieldArrayModel<Item, Child extends BasicModel<Item> = BasicModel<Item>>(
+function isFieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>>(
   maybeModel: any,
 ): maybeModel is FieldArrayModel<Item, Child> {
   return !!(maybeModel && maybeModel[FIELD_ARRAY_ID]);
 }
 
-export { FieldArrayChild, FieldArrayModel, isFieldArrayModel };
+export { FieldArrayModel, isFieldArrayModel };

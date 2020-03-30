@@ -1,15 +1,18 @@
 import { Subject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
-import { ValidateOption, IMaybeError } from '../validate';
-import { Some, Maybe, None } from '../maybe';
+import { IMaybeError, ValidateOption } from '../validate';
+import { Maybe, None, Some } from '../maybe';
 import { isPlainObject } from '../utils';
-import { isFieldArrayModel } from './array';
+import UniqueId from '../unique-id';
+import { IModel } from './base';
 
 type $FieldSetValue<Children extends Record<string, BasicModel<any>>> = {
   [Key in keyof Children]: Children[Key]['phantomValue'];
 };
 
 const SET_ID = Symbol('set');
+
+const uniqueId = new UniqueId('field-set');
 
 class FieldSetModel<
   Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
@@ -26,9 +29,11 @@ class FieldSetModel<
   childRemove$ = new Subject<string>();
   readonly children: Children = {} as Children;
 
+  owner: IModel<any> | null = null;
+
   /** @internal */
-  constructor(children: Children) {
-    super();
+  constructor(children: Children, id = uniqueId.get()) {
+    super(id);
     const keys = Object.keys(children);
     const keysLength = keys.length;
     for (let index = 0; index < keysLength; index++) {
@@ -104,33 +109,12 @@ class FieldSetModel<
    * @param model 字段对应的 model
    */
   registerChild(name: string, model: BasicModel<any>) {
-    if (this.children[name]) {
-      const prevModel = this.children[name];
-      prevModel.form = null;
-      prevModel.owner = null;
+    if (this.children.hasOwnProperty(name) && this.children[name] !== model) {
+      this.removeChild(name);
     }
-    model.form = this.form;
     model.owner = this;
     (this.children as Record<string, BasicModel<unknown>>)[name] = model;
     this.childRegister$.next(name);
-    /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
-    if (isFieldSetModel(model)) {
-      const { children } = model;
-      const keys = Object.keys(model.children);
-      const keysLength = keys.length;
-      for (let index = 0; index < keysLength; index++) {
-        const name = keys[index];
-        const child = children[name];
-        model.registerChild(name, child);
-      }
-    } else if (isFieldArrayModel(model)) {
-      const { children } = model;
-      const { length } = children;
-      for (let index = 0; index < length; index++) {
-        const child = children[index];
-        model.registerChild(child);
-      }
-    }
   }
 
   /**
@@ -139,23 +123,19 @@ class FieldSetModel<
    */
   removeChild(name: string) {
     const model = this.children[name];
-    model.dispose();
+    model.owner = null;
     delete this.children[name];
     this.childRemove$.next(name);
     return model;
   }
 
   dispose() {
-    this.form = null;
-    this.owner = null;
+    super.dispose();
     const { children } = this;
-    const keys = Object.keys(children);
-    const len = keys.length;
-    for (let i = 0; i < len; i++) {
-      const name = keys[i];
-      const child = children[name];
+    Object.keys(children).forEach(key => {
+      const child = children[key];
       child.dispose();
-    }
+    });
   }
 
   /**
@@ -188,9 +168,8 @@ class FieldSetModel<
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = this.children[key];
-      if (child) {
-        child.patchValue(value[key]);
+      if (this.children.hasOwnProperty(key)) {
+        this.children[key]?.patchValue(value[key]);
       }
     }
   }
@@ -202,10 +181,7 @@ class FieldSetModel<
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = this.children[key];
-      if (child) {
-        child.clear();
-      }
+      this.children[key]?.clear();
     }
   }
 
@@ -216,10 +192,7 @@ class FieldSetModel<
     const keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
-      const child = this.children[key];
-      if (child) {
-        child.reset();
-      }
+      this.children[key]?.reset();
     }
   }
 
@@ -229,9 +202,10 @@ class FieldSetModel<
    */
   validate(option = ValidateOption.Default): Promise<IMaybeError<any> | IMaybeError<any>[]> {
     if (option & ValidateOption.IncludeChildrenRecursively) {
+      const childOption = option | ValidateOption.StopPropagation;
       return Promise.all<IMaybeError<any>>(
         Object.keys(this.children)
-          .map(key => this.children[key].validate(option))
+          .map(key => this.children[key].validate(childOption))
           .concat(this.triggerValidate(option)),
       );
     }

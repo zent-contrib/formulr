@@ -93,6 +93,7 @@ export enum ValidateOption {
    * 不校验没有修改过的 `Field`
    */
   ExcludePristine               = 0b000010000,
+  StopPropagation               = 0b000100000,
 
   Default                       = Empty,
 }
@@ -139,8 +140,8 @@ export class ValidatorContext<T> {
     return data as T;
   }
 
-  getFormValue<T extends object = Record<string, unknown>>(): T | null {
-    return this.model.form && this.model.form.getRawValue();
+  getFormValue<T extends object = Record<string, unknown>>(): T | null | undefined {
+    return this.model.form?.getRawValue();
   }
 }
 

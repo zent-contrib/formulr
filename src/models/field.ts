@@ -3,12 +3,15 @@ import { BasicModel } from './basic';
 import { Some, None, or, isSome, get } from '../maybe';
 import { ValidateOption } from '../validate';
 import { id } from '../utils';
+import UniqueId from '../unique-id';
 
 const FIELD_ID = Symbol('field');
 
 export interface INormalizeBeforeSubmit<A, B> {
   (a: A): B;
 }
+
+const uniqueId = new UniqueId('field');
 
 class FieldModel<Value> extends BasicModel<Value> {
   /**
@@ -29,9 +32,11 @@ class FieldModel<Value> extends BasicModel<Value> {
    */
   normalizeBeforeSubmit: INormalizeBeforeSubmit<Value, any> = id;
 
+  owner: BasicModel<any> | null = null;
+
   /** @internal */
   constructor(private readonly defaultValue: Value) {
-    super();
+    super(uniqueId.get());
     this.value$ = new BehaviorSubject(defaultValue);
   }
 
@@ -53,7 +58,7 @@ class FieldModel<Value> extends BasicModel<Value> {
    * 重置 `Field` 为初始值，初始值通过 `initialize` 设置；如果初始值不存在就使用默认值
    */
   reset() {
-    this.value$.next(or(this.initialValue, this.defaultValue));
+    this.value$.next(or(this.initialValue, () => this.defaultValue));
   }
 
   /**
@@ -75,11 +80,6 @@ class FieldModel<Value> extends BasicModel<Value> {
 
   getRawValue() {
     return this.value$.getValue();
-  }
-
-  dispose() {
-    this.form = null;
-    this.owner = null;
   }
 
   /**

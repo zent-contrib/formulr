@@ -1,19 +1,27 @@
 const SOME = Symbol('some');
 
-export type Maybe<T> = ([T] & { __some: typeof SOME }) | null | undefined;
+export interface ISome<T> {
+  [SOME]: true;
+  value: T;
+}
 
-export const Some = <T>(value: T) => [value] as [T] & { __some: typeof SOME };
+export type Maybe<T> = ISome<T> | null | undefined;
+
+export const Some = <T>(value: T): ISome<T> => ({
+  [SOME]: true,
+  value,
+});
 
 export const None = () => null;
 
-export function or<T>(maybe: Maybe<T>, def: T | (() => T)) {
-  return maybe ? maybe[0] : typeof def === 'function' ? (def as (() => T))() : def;
+export function or<T>(maybe: Maybe<T>, def: () => T) {
+  return maybe ? maybe.value : def();
 }
 
-export function isSome<T>(maybe: Maybe<T>): maybe is [T] & { __some: typeof SOME } {
+export function isSome<T>(maybe: Maybe<T>): maybe is ISome<T> {
   return !!maybe;
 }
 
-export function get<T>(some: [T] & { __some: typeof SOME }) {
-  return some[0];
+export function get<T>(some: ISome<T>) {
+  return some.value;
 }

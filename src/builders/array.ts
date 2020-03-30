@@ -6,23 +6,23 @@ export class FieldArrayBuilder<ChildBuilder extends BasicBuilder<any, any>> exte
   readonly (ChildBuilder['phantomValue'] | null)[],
   FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']>
 > {
-  private _defaultValue: readonly ChildBuilder['phantomValue'][] = [];
+  private _defaultValue: ReadonlyArray<ChildBuilder['phantomValue']> = [];
 
   constructor(private readonly childBuilder: ChildBuilder) {
     super();
   }
 
-  defaultValue(defaultValue: readonly ChildBuilder['phantomValue'][]) {
+  defaultValue(defaultValue: ReadonlyArray<ChildBuilder['phantomValue']>) {
     this._defaultValue = defaultValue;
     return this;
   }
 
   build(
-    defaultValue?: Maybe<readonly (ChildBuilder['phantomValue'] | null)[]>,
+    defaultValue?: Maybe<ReadonlyArray<ChildBuilder['phantomValue'] | null>>,
   ): FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']> {
     const model = new FieldArrayModel<ChildBuilder['phantomValue'], ChildBuilder['phantomModel']>(
       this.childBuilder,
-      or(defaultValue, this._defaultValue),
+      or(defaultValue, () => this._defaultValue),
     );
     model.validators = this._validators;
     return model;

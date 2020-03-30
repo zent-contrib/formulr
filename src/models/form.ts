@@ -2,6 +2,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { FieldSetModel } from './set';
 import { BasicModel } from './basic';
 import { ValidateOption } from '../validate';
+import UniqueId from '../unique-id';
 
 enum FormStrategy {
   /**
@@ -17,6 +18,8 @@ enum FormStrategy {
 
 const FORM_ID = Symbol('form');
 
+const uniqueId = new UniqueId('form');
+
 class FormModel<
   Children extends Record<string, BasicModel<unknown>> = Record<string, BasicModel<unknown>>
 > extends FieldSetModel<Children> {
@@ -29,9 +32,20 @@ class FormModel<
   private readonly workingValidators = new Set<Observable<unknown>>();
   readonly isValidating$ = new BehaviorSubject(false);
 
+  get owner(): BasicModel<any> | null {
+    return this;
+  }
+
+  set owner(owner: BasicModel<any> | null) {
+    // noop
+  }
+
+  get form(): FormModel | null | undefined {
+    return this as FormModel<any>;
+  }
+
   constructor(public readonly children: Children) {
-    super(children);
-    this.form = this;
+    super(children, uniqueId.get());
     const keys = Object.keys(children);
     const keysLength = keys.length;
     for (let index = 0; index < keysLength; index++) {
@@ -42,11 +56,11 @@ class FormModel<
   }
 
   /**
-   * 执行整个 `Form` 的校验，会递归触发所有表单元素的校验
+   * 执行整个 `Form` 的校验，默认会递归触发所有表单元素的校验
    * @param option 表单校验的参数
    */
-  validate(option: ValidateOption = ValidateOption.Default) {
-    return super.validate(option | ValidateOption.IncludeChildrenRecursively);
+  validate(option: ValidateOption = ValidateOption.Default | ValidateOption.IncludeChildrenRecursively) {
+    return super.validate(option);
   }
 
   /** @internal */

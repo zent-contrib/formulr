@@ -15,7 +15,7 @@ export class FieldBuilder<Value> extends BasicBuilder<Value, FieldModel<Value>> 
   }
 
   build(defaultValue?: Maybe<Value>) {
-    const model = new FieldModel(or(defaultValue, this._defaultValue));
+    const model = new FieldModel(or(defaultValue, () => this._defaultValue));
     model.validators = this._validators;
     model.normalizeBeforeSubmit = this._normalizeBeforeSubmit;
     return model;

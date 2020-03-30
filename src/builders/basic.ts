@@ -1,8 +1,8 @@
-import { BasicModel } from '../models';
+import { IModel } from '../models/base';
 import { IValidators } from '../validate';
 import { Maybe } from '../maybe';
 
-export abstract class BasicBuilder<Value, Model extends BasicModel<Value>> {
+export abstract class BasicBuilder<Value, Model extends IModel<Value>> {
   /**
    * @internal
    */

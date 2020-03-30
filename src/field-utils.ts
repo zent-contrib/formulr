@@ -73,7 +73,7 @@ export function useMulti<T, R>(...funcs: any[]): (t: T) => void {
   } else {
     deps = funcs;
   }
-  return useCallback(multi.apply(null, funcs), deps);
+  return useCallback(multi(...funcs), deps);
 }
 
 export type Func<Args extends any[], R> = (...args: Args) => R;

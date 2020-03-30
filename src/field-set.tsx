@@ -1,18 +1,18 @@
 import { useMemo } from 'react';
-import { useFormContext, IFormContext } from './context';
+import { IFormContext, useFormContext } from './context';
 import {
-  FieldSetModel,
-  BasicModel,
-  FormStrategy,
-  ModelRef,
   $FieldSetValue,
-  isModelRef,
+  BasicModel,
+  FieldSetModel,
+  FormStrategy,
   isFieldSetModel,
+  isModelRef,
+  ModelRef,
 } from './models';
 import { useValue$ } from './hooks';
 import { IValidators } from './validate';
-import { removeOnUnmount, isPlainObject } from './utils';
-import { isSome, get, or } from './maybe';
+import { isPlainObject, removeOnUnmount } from './utils';
+import { get, isSome, or } from './maybe';
 
 export type IUseFieldSet<T extends Record<string, BasicModel<any>>> = [IFormContext, FieldSetModel<T>];
 
@@ -47,10 +47,9 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
       const m = field.getModel();
       if (!m || !isFieldSetModel<T>(m)) {
         model = new FieldSetModel({});
-        const v = or<Partial<$FieldSetValue<T>>>(field.patchedValue, () =>
-          or(field.initialValue, {} as $FieldSetValue<T>),
+        model.patchedValue = or<Partial<$FieldSetValue<T>>>(field.patchedValue, () =>
+          or(field.initialValue, () => ({})),
         );
-        model.patchedValue = v;
         field.setModel(model);
       } else {
         model = m;
@@ -64,7 +63,7 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
 
 /**
  * 创建一个 `FieldSet`
- * 
+ *
  * @param field model 或者字段名，当`FormStrategy`是`View`的时候才能用字段名
  * @param validators 当`field`是字段名的时候，可以传入`validator`
  */
