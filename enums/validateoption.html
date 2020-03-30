@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ValidateOption | formulr - v0.2.14</title>
+	<title>ValidateOption | formulr - v0.3.0</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">formulr - v0.2.14</a>
+					<a href="../index.html" class="title">formulr - v0.3.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -79,6 +79,7 @@
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="validateoption.html#includeasync" class="tsd-kind-icon">Include<wbr>Async</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="validateoption.html#includechildrenrecursively" class="tsd-kind-icon">Include<wbr>Children<wbr>Recursively</a></li>
 								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="validateoption.html#includeuntouched" class="tsd-kind-icon">Include<wbr>Untouched</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="validateoption.html#stoppropagation" class="tsd-kind-icon">Stop<wbr>Propagation</a></li>
 							</ul>
 						</section>
 					</div>
@@ -92,7 +93,7 @@
 					<div class="tsd-signature tsd-kind-icon">Default<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;Empty</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/validate.ts#L97">src/validate.ts:97</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/b221ca7/src/validate.ts#L98">src/validate.ts:98</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -102,7 +103,7 @@
 					<div class="tsd-signature tsd-kind-icon">Empty<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;0</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/validate.ts#L79">src/validate.ts:79</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/b221ca7/src/validate.ts#L79">src/validate.ts:79</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -117,7 +118,7 @@
 					<div class="tsd-signature tsd-kind-icon">Exclude<wbr>Pristine<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;16</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/validate.ts#L95">src/validate.ts:95</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/b221ca7/src/validate.ts#L95">src/validate.ts:95</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -132,7 +133,7 @@
 					<div class="tsd-signature tsd-kind-icon">Include<wbr>Async<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;2</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/validate.ts#L83">src/validate.ts:83</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/b221ca7/src/validate.ts#L83">src/validate.ts:83</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -147,7 +148,7 @@
 					<div class="tsd-signature tsd-kind-icon">Include<wbr>Children<wbr>Recursively<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;8</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/validate.ts#L91">src/validate.ts:91</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/b221ca7/src/validate.ts#L91">src/validate.ts:91</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -162,7 +163,7 @@
 					<div class="tsd-signature tsd-kind-icon">Include<wbr>Untouched<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;4</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/884e3ca/src/validate.ts#L87">src/validate.ts:87</a></li>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/b221ca7/src/validate.ts#L87">src/validate.ts:87</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -170,6 +171,16 @@
 							<p>校验时包含没有 <code>touch</code> 过的字段</p>
 						</div>
 					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="stoppropagation" class="tsd-anchor"></a>
+					<h3>Stop<wbr>Propagation</h3>
+					<div class="tsd-signature tsd-kind-icon">Stop<wbr>Propagation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;32</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/zent-contrib/formulr/blob/b221ca7/src/validate.ts#L96">src/validate.ts:96</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -205,6 +216,9 @@
 							</li>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
 								<a href="validateoption.html#includeuntouched" class="tsd-kind-icon">Include<wbr>Untouched</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="validateoption.html#stoppropagation" class="tsd-kind-icon">Stop<wbr>Propagation</a>
 							</li>
 						</ul>
 					</li>
