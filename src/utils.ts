@@ -41,3 +41,5 @@ export function removeOnUnmount<Model extends BasicModel<any>>(
 }
 
 export type $MergeProps<T> = (T extends any ? (t: T) => void : never) extends (r: infer R) => void ? R : never;
+
+export type UnknownObject = Record<string | number | symbol, unknown>;

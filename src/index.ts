@@ -1,5 +1,6 @@
 import * as Validators from './validators';
 import * as FieldUtils from './field-utils';
+import * as ValidatorMiddlewares from './validator-middlewares';
 
 export * from './builders';
 export * from './field';
@@ -12,4 +13,4 @@ export * from './context';
 export * from './hooks';
 export * from './value-listener';
 export * from './maybe';
-export { Validators, FieldUtils };
+export { Validators, FieldUtils, ValidatorMiddlewares };

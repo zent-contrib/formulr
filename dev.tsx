@@ -20,6 +20,7 @@ import {
   field,
   set,
   array,
+  ValidatorMiddlewares,
 } from './src';
 
 const asyncValidator = createAsyncValidator(() => {
@@ -65,13 +66,13 @@ const Input = ({ field }: { field: any; validators?: any[] }) => {
   const model = useField(field, '', [Validators.required('required'), asyncValidator]);
   const { error } = model;
   const onChange = useCallback(
-    e => {
+    (e) => {
       model.value = e.target.value;
       model.validate(ValidateOption.Default | ValidateOption.IncludeAsync).then(
-        result => {
+        (result) => {
           console.log('complete', result);
         },
-        error => {
+        (error) => {
           console.log('throws error', error);
         },
       );
@@ -84,6 +85,31 @@ const Input = ({ field }: { field: any; validators?: any[] }) => {
     });
     return () => $.unsubscribe();
   }, [model, field]);
+  return (
+    <div style={{ background: '#eee', padding: '10px' }}>
+      <input value={model.value} onChange={onChange} style={{ color: error ? 'red' : undefined }} />
+      {error ? error.message : null}
+    </div>
+  );
+};
+
+const Input2 = ({ name, validators }: any) => {
+  const model = useField(name, '', validators);
+  const { error } = model;
+  const onChange = useCallback(
+    (e) => {
+      model.value = e.target.value;
+      model.validate(ValidateOption.Default | ValidateOption.IncludeAsync).then(
+        (result) => {
+          console.log('complete', result);
+        },
+        (error) => {
+          console.log('throws error', error);
+        },
+      );
+    },
+    [model],
+  );
   return (
     <div style={{ background: '#eee', padding: '10px' }}>
       <input value={model.value} onChange={onChange} style={{ color: error ? 'red' : undefined }} />
@@ -140,16 +166,28 @@ const App = () => {
   console.log('App render');
   return (
     <FormProvider value={form.ctx}>
+      <Input2
+        name="name"
+        validators={[
+          ValidatorMiddlewares.dynamicMessage(() => (Math.random() > 0.5 ? '> 0.5' : '< 0.5'))(Validators.required()),
+        ]}
+      />
+      <Input2
+        name="name2"
+        validators={[
+          ValidatorMiddlewares.whenAsync(async () => Math.random() > 0.5)(Validators.required('required when > 0.5')),
+        ]}
+      />
       {/* {Array(1000)
         .fill()
         .map((_, index) => (
           <Input key={index} name={`input${index}`} />
         ))} */}
-      <FieldSet name="fieldset">
+      {/* <FieldSet name="fieldset">
         <Input field="input1" />
         <FieldValue name="input1" />
         <Input field="input2" />
-      </FieldSet>
+      </FieldSet> */}
       <FieldSetValue name="fieldset">
         <FieldValue name="input2" />
       </FieldSetValue>
@@ -161,12 +199,27 @@ const App = () => {
           onClick={() =>
             form.model
               .validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildrenRecursively)
-              .then(result => {
+              .then((result) => {
                 console.log('form validation complete', result);
               })
           }
         >
           validate
+        </button>
+        <button
+          onClick={() =>
+            form.model
+              .validate(
+                ValidateOption.IncludeUntouched |
+                  ValidateOption.IncludeChildrenRecursively |
+                  ValidateOption.IncludeAsync,
+              )
+              .then((result) => {
+                console.log('form validation complete', result);
+              })
+          }
+        >
+          validate including async
         </button>
       </div>
     </FormProvider>
