@@ -11,6 +11,10 @@ function withMessage<F extends UnknownObject = UnknownObject, V = unknown>(
   return maybeError && { ...maybeError, message: messagenerator(formValue) };
 }
 
+/**
+ * 为校验错误设定动态的message
+ * @param messagenerator
+ */
 export function dynamicMessage<F extends UnknownObject = UnknownObject, V = unknown>(
   messagenerator: (formValue: F) => string,
 ) {

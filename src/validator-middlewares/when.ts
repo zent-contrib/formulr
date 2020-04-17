@@ -3,6 +3,10 @@ import { UnknownObject } from '../utils';
 import { IValidator, isAsyncValidator, createAsyncValidator, ValidatorContext } from '..';
 import { switchMap } from 'rxjs/operators';
 
+/**
+ * 条件校验，条件函数返回true时才会执行校验，否则直接视为校验通过
+ * @param condition
+ */
 export function when<F extends UnknownObject = UnknownObject, V = unknown>(condition: (formValue: F) => boolean) {
   return (validator: IValidator<V>) => {
     if (isAsyncValidator(validator)) {
@@ -25,6 +29,10 @@ export function when<F extends UnknownObject = UnknownObject, V = unknown>(condi
   };
 }
 
+/**
+ * ValidatorMiddlewares.when的异步版本，接收异步的条件函数
+ * @param condition
+ */
 export function whenAsync<F extends UnknownObject = UnknownObject, V = unknown>(
   condition: (formValue: F) => Promise<boolean> | Observable<boolean>,
 ) {
