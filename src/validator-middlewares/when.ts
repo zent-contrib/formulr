@@ -7,7 +7,9 @@ import { switchMap } from 'rxjs/operators';
  * 条件校验，条件函数返回true时才会执行校验，否则直接视为校验通过
  * @param condition
  */
-export function when<F extends UnknownObject = UnknownObject, V = unknown>(condition: (formValue: F) => boolean) {
+export function when<F extends UnknownObject = UnknownObject, S extends UnknownObject = UnknownObject, V = unknown>(
+  condition: (formValue: F, ownerValue: S) => boolean,
+) {
   return (validator: IValidator<V>) => {
     if (isAsyncValidator(validator)) {
       return createAsyncValidator<V>((value, context) => {
@@ -15,7 +17,11 @@ export function when<F extends UnknownObject = UnknownObject, V = unknown>(condi
         if (!formValue) {
           throw new Error('Validation is aborted due to context.getFormValue() returned null or undefined.');
         }
-        return condition(formValue) ? validator.validator(value, context) : null;
+        const fieldSetValue = context.getSectionValue() as S;
+        if (!fieldSetValue) {
+          throw new Error('Validation is aborted due to context.getSectionValue() returned null or undefined.');
+        }
+        return condition(formValue, fieldSetValue) ? validator.validator(value, context) : null;
       });
     } else {
       return (value: V, context: ValidatorContext<V>) => {
@@ -23,7 +29,11 @@ export function when<F extends UnknownObject = UnknownObject, V = unknown>(condi
         if (!formValue) {
           throw new Error('Validation is aborted due to context.getFormValue() returned null or undefined.');
         }
-        return condition(formValue) ? validator(value, context) : null;
+        const fieldSetValue = context.getSectionValue() as S;
+        if (!fieldSetValue) {
+          throw new Error('Validation is aborted due to context.getSectionValue() returned null or undefined.');
+        }
+        return condition(formValue, fieldSetValue) ? validator(value, context) : null;
       };
     }
   };
