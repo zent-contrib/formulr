@@ -66,13 +66,13 @@ const Input = ({ field }: { field: any; validators?: any[] }) => {
   const model = useField(field, '', [Validators.required('required'), asyncValidator]);
   const { error } = model;
   const onChange = useCallback(
-    (e) => {
+    e => {
       model.value = e.target.value;
       model.validate(ValidateOption.Default | ValidateOption.IncludeAsync).then(
-        (result) => {
+        result => {
           console.log('complete', result);
         },
-        (error) => {
+        error => {
           console.log('throws error', error);
         },
       );
@@ -97,13 +97,13 @@ const Input2 = ({ name, validators }: any) => {
   const model = useField(name, '', validators);
   const { error } = model;
   const onChange = useCallback(
-    (e) => {
+    e => {
       model.value = e.target.value;
       model.validate(ValidateOption.Default | ValidateOption.IncludeAsync).then(
-        (result) => {
+        result => {
           console.log('complete', result);
         },
-        (error) => {
+        error => {
           console.log('throws error', error);
         },
       );
@@ -199,7 +199,7 @@ const App = () => {
           onClick={() =>
             form.model
               .validate(ValidateOption.IncludeUntouched | ValidateOption.IncludeChildrenRecursively)
-              .then((result) => {
+              .then(result => {
                 console.log('form validation complete', result);
               })
           }
@@ -214,7 +214,7 @@ const App = () => {
                   ValidateOption.IncludeChildrenRecursively |
                   ValidateOption.IncludeAsync,
               )
-              .then((result) => {
+              .then(result => {
                 console.log('form validation complete', result);
               })
           }

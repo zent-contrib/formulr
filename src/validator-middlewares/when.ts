@@ -53,7 +53,7 @@ export function whenAsync<F extends UnknownObject = UnknownObject, V = unknown>(
         throw new Error('Validation is aborted due to context.getFormValue() returned null or undefined.');
       }
       return from(condition(formValue)).pipe(
-        switchMap((shouldValidate) => {
+        switchMap(shouldValidate => {
           if (shouldValidate) {
             return isAsyncValidator(validator)
               ? validator.validator(value, context) || of(null)

@@ -10,7 +10,7 @@ import { id, last } from './utils';
 
 export function multi<T, R>(...funcs: ((t: T) => R)[]): (t: T) => void {
   return (t: T) => {
-    funcs.forEach((func) => func(t));
+    funcs.forEach(func => func(t));
   };
 }
 

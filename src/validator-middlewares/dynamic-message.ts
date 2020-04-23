@@ -29,12 +29,12 @@ export function dynamicMessage<F extends UnknownObject = UnknownObject, V = unkn
 
         if (isObservable(result)) {
           return result.pipe(
-            switchMap((maybeError) => {
+            switchMap(maybeError => {
               return of(withMessage(maybeError, messagenerator, formValue));
             }),
           );
         } else if (result instanceof Promise) {
-          return result.then((maybeError) => withMessage(maybeError, messagenerator, formValue));
+          return result.then(maybeError => withMessage(maybeError, messagenerator, formValue));
         } else {
           return result;
         }
