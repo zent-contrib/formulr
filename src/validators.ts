@@ -1,5 +1,5 @@
 import Decimal from 'big.js';
-import { ISyncValidator, IMaybeError } from './validate';
+import { ISyncValidator, IMaybeError, IValidator } from './validate';
 
 const EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
 
@@ -9,6 +9,14 @@ function isEmptyInputValue(value: any) {
 }
 
 export const SYMBOL_REQUIRED = Symbol('required');
+
+export function markForRequired<T>(validator: IValidator<T>) {
+  validator.$$id = SYMBOL_REQUIRED;
+}
+
+export function isRequiredValidator<T>(validator: IValidator<T>) {
+  return validator.$$id === SYMBOL_REQUIRED;
+}
 
 /**
  * 限制一个值的最小值
