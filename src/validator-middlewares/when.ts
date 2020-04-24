@@ -1,6 +1,7 @@
 import { of, Observable, from } from 'rxjs';
 import { IValidator, isAsyncValidator, createAsyncValidator, ValidatorContext } from '..';
 import { switchMap } from 'rxjs/operators';
+import { markForRequired, isRequiredValidator } from '../validators';
 
 /**
  * 条件校验，条件函数返回true时才会执行校验，否则直接视为校验通过
@@ -8,15 +9,15 @@ import { switchMap } from 'rxjs/operators';
  */
 export function when<V = unknown>(condition: (ctx: ValidatorContext<V>) => boolean) {
   return (validator: IValidator<V>) => {
-    if (isAsyncValidator(validator)) {
-      return createAsyncValidator<V>((value, context) => {
-        return condition(context) ? validator.validator(value, context) : null;
-      });
-    } else {
-      return (value: V, context: ValidatorContext<V>) => {
-        return condition(context) ? validator(value, context) : null;
-      };
-    }
+    const next: IValidator<V> = isAsyncValidator(validator)
+      ? createAsyncValidator<V>((value, context) => {
+          return condition(context) ? validator.validator(value, context) : null;
+        })
+      : (value: V, context: ValidatorContext<V>) => {
+          return condition(context) ? validator(value, context) : null;
+        };
+    isRequiredValidator(validator) && markForRequired(next);
+    return next;
   };
 }
 
@@ -28,7 +29,7 @@ export function whenAsync<V = unknown>(
   condition: (formValue: ValidatorContext<V>) => Promise<boolean> | Observable<boolean>,
 ) {
   return (validator: IValidator<V>) => {
-    return createAsyncValidator<V>((value, context) => {
+    const next = createAsyncValidator<V>((value, context) => {
       return from(condition(context)).pipe(
         switchMap(shouldValidate => {
           if (shouldValidate) {
@@ -40,5 +41,7 @@ export function whenAsync<V = unknown>(
         }),
       );
     });
+    isRequiredValidator(validator) && markForRequired(next);
+    return next;
   };
 }

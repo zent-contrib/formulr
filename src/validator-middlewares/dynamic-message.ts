@@ -1,6 +1,7 @@
 import { IValidator, isAsyncValidator, createAsyncValidator, IMaybeError, ValidatorContext } from '../validate';
 import { of, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { markForRequired, isRequiredValidator } from '../validators';
 
 function withMessage<V = unknown>(
   maybeError: IMaybeError<V>,
@@ -16,18 +17,18 @@ function withMessage<V = unknown>(
  */
 export function dynamicMessage<V = unknown>(messagenerator: (ctx: ValidatorContext<V>) => string) {
   return (validator: IValidator<V>) => {
-    if (isAsyncValidator(validator)) {
-      return createAsyncValidator<V>((value, context) => {
-        const result = validator.validator(value, context);
+    const next: IValidator<V> = isAsyncValidator(validator)
+      ? createAsyncValidator<V>((value, context) => {
+          const result = validator.validator(value, context);
 
-        return (
-          result && from(result).pipe(switchMap(maybeError => of(withMessage(maybeError, messagenerator, context))))
-        );
-      });
-    } else {
-      return (value: V, context: ValidatorContext<V>) => {
-        return withMessage(validator(value, context), messagenerator, context);
-      };
-    }
+          return (
+            result && from(result).pipe(switchMap(maybeError => of(withMessage(maybeError, messagenerator, context))))
+          );
+        })
+      : (value: V, context: ValidatorContext<V>) => {
+          return withMessage(validator(value, context), messagenerator, context);
+        };
+    isRequiredValidator(validator) && markForRequired(next);
+    return next;
   };
 }
