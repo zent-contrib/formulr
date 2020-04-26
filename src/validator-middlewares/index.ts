@@ -1,2 +1,2 @@
-export * from './dynamic-message';
+export * from './message';
 export * from './when';

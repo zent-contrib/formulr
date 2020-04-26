@@ -15,7 +15,7 @@ function withMessage<V = unknown>(
  * 为校验错误设定动态的message
  * @param messagenerator
  */
-export function dynamicMessage<V = unknown>(messagenerator: (ctx: ValidatorContext<V>) => string) {
+export function message<V = unknown>(messagenerator: (ctx: ValidatorContext<V>) => string) {
   return (validator: IValidator<V>) => {
     const next: IValidator<V> = isAsyncValidator(validator)
       ? createAsyncValidator<V>((value, context) => {
