@@ -160,11 +160,11 @@ class FieldSetModel<
    * 更新 `FieldSet` 的值
    * @param value 待更新的值
    */
-  patchValue(value: $FieldSetValue<Children>) {
+  patchValue(value: Partial<$FieldSetValue<Children>>) {
     if (!isPlainObject(value)) {
       return;
     }
-    this.patchedValue = value;
+    this.patchedValue = value as $FieldSetValue<Children>;
     const keys = Object.keys(value);
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
