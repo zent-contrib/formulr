@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { IFormContext, useFormContext } from './context';
 import {
   $FieldSetValue,
@@ -21,8 +21,9 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
   parent: FieldSetModel,
   strategy: FormStrategy,
 ) {
-  return useMemo(() => {
+  const { model, effect } = useMemo(() => {
     let model: FieldSetModel<any>;
+    let effect: (() => void) | undefined;
     if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
         throw new Error();
@@ -39,7 +40,7 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
           }
         }
         model.patchedValue = v;
-        parent.registerChild(field, model as BasicModel<unknown>);
+        effect = () => parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
       }
@@ -50,15 +51,19 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
         model.patchedValue = or<Partial<$FieldSetValue<T>>>(field.patchedValue, () =>
           or(field.initialValue, () => ({})),
         );
-        field.setModel(model);
+        effect = () => field.setModel(model);
       } else {
         model = m;
       }
     } else {
       model = field;
     }
-    return model;
+    return { model, effect };
   }, [field, parent, strategy]);
+
+  useEffect(() => effect?.(), [effect]);
+
+  return model;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import {
   FieldModel,
   BasicModel,
@@ -26,8 +26,9 @@ function useModelAndChildProps<Value>(
   defaultValue: Value | (() => Value),
   form: FormModel,
 ) {
-  return useMemo(() => {
+  const { model, effect } = useMemo(() => {
     let model: FieldModel<Value>;
+    let effect: (() => void) | undefined;
     if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
         throw new Error();
@@ -39,7 +40,7 @@ function useModelAndChildProps<Value>(
           isValueFactory(defaultValue) ? defaultValue : () => defaultValue,
         );
         model = new FieldModel<Value>(v);
-        parent.registerChild(field, model as BasicModel<unknown>);
+        effect = () => parent.registerChild(field, model as BasicModel<unknown>);
       } else {
         model = m;
       }
@@ -50,15 +51,19 @@ function useModelAndChildProps<Value>(
           or(field.initialValue, isValueFactory(defaultValue) ? defaultValue : () => defaultValue),
         );
         model = new FieldModel<Value>(v);
-        field.setModel(model);
+        effect = () => field.setModel(model);
       } else {
         model = m;
       }
     } else {
       model = field;
     }
-    return model;
+    return { model, effect };
   }, [field, parent, strategy, form]);
+
+  useEffect(() => effect?.(), [effect]);
+
+  return model;
 }
 
 /**
