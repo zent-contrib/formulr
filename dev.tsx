@@ -93,8 +93,8 @@ const Input = ({ field }: { field: any; validators?: any[] }) => {
   );
 };
 
-const Input2 = ({ name, validators }: any) => {
-  const model = useField(name, '', validators);
+const Input2 = ({ name, validators, defaultValue }: any) => {
+  const model = useField(name, defaultValue || '', validators);
   const { error } = model;
   const onChange = useCallback(
     e => {
@@ -166,10 +166,23 @@ const App = () => {
   console.log('App render');
   return (
     <FormProvider value={form.ctx}>
-      <Input2
+      <Input2 name="field0" defaultValue="field0-value" />
+      <FieldSet name="set">
+        <Input2 name="field1" defaultValue="field1-value" />
+      </FieldSet>
+      <FieldSet name="set">
+        <Input2 name="field2" defaultValue="field2-value" />
+      </FieldSet>
+      <FieldSetValue name="set">
+        <FieldValue name="field1">{value => <span>field1: {value}</span>}</FieldValue>
+        <FieldValue name="field2">{value => <span>field2: {value}</span>}</FieldValue>
+        <Input2 name="field3" defaultValue="field3-value" />
+      </FieldSetValue>
+      <FieldValue name="field0">{value => <span>field0: {value}</span>}</FieldValue>
+      {/* <Input2
         name="name"
         validators={[
-          ValidatorMiddlewares.dynamicMessage(() => (Math.random() > 0.5 ? '> 0.5' : '< 0.5'))(Validators.required()),
+          ValidatorMiddlewares.message(() => (Math.random() > 0.5 ? '> 0.5' : '< 0.5'))(Validators.required()),
         ]}
       />
       <Input2
@@ -177,7 +190,7 @@ const App = () => {
         validators={[
           ValidatorMiddlewares.whenAsync(async () => Math.random() > 0.5)(Validators.required('required when > 0.5')),
         ]}
-      />
+      /> */}
       {/* {Array(1000)
         .fill()
         .map((_, index) => (
@@ -188,13 +201,13 @@ const App = () => {
         <FieldValue name="input1" />
         <Input field="input2" />
       </FieldSet> */}
-      <FieldSetValue name="fieldset">
+      {/* <FieldSetValue name="fieldset">
         <FieldValue name="input2" />
       </FieldSetValue>
       <List />
-      <NestedList1 model="nested-list" />
+      <NestedList1 model="nested-list" /> */}
       <div>
-        <button onClick={() => console.log(form.model.getRawValue())}>button</button>
+        <button onClick={() => console.log(form.model.getRawValue())}>get form value</button>
         <button
           onClick={() =>
             form.model
