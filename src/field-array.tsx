@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { FieldArrayModel, FormStrategy, FieldSetModel, ModelRef, isModelRef, isFieldArrayModel } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
@@ -15,8 +15,9 @@ function useArrayModel<Item, Child extends IModel<Item>>(
   strategy: FormStrategy,
   defaultValue: readonly Item[],
 ) {
-  return useMemo(() => {
+  const { model, effect } = useMemo(() => {
     let model: FieldArrayModel<Item, Child>;
+    let effect: (() => void) | undefined;
     if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
         throw new Error();
@@ -32,7 +33,7 @@ function useArrayModel<Item, Child extends IModel<Item>>(
           }
         }
         model = new FieldArrayModel<Item, Child>(null, v);
-        parent.registerChild(field, model);
+        effect = () => parent.registerChild(field, model);
       } else {
         model = m;
       }
@@ -52,15 +53,19 @@ function useArrayModel<Item, Child extends IModel<Item>>(
           }
         }
         model = new FieldArrayModel(null, v);
-        field.setModel(model);
+        effect = () => field.setModel(model);
       } else {
         model = m;
       }
     } else {
       model = field;
     }
-    return model;
+    return { model, effect };
   }, [field, parent, strategy]);
+
+  useEffect(() => effect?.(), [effect]);
+
+  return model;
 }
 
 /**

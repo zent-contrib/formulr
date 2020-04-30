@@ -123,6 +123,7 @@ export function useFieldValue<T>(field: string | FieldModel<T>): T | null {
       });
     return () => $.unsubscribe();
   }, [field, ctx.parent]);
+
   if (!model) {
     useValue$(never(), null);
     return null;
@@ -152,9 +153,6 @@ export function useFieldValue<T>(field: string | FieldModel<T>): T | null {
 export function FieldValue<T>(props: IFieldValueProps<T>): React.ReactElement | null {
   const { name, model, children } = props as $MergeProps<IFieldValueProps<T>>;
   const value = useFieldValue(model || name);
-  if (value === null) {
-    return null;
-  }
   if (children) {
     return children(value);
   }
