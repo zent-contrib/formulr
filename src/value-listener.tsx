@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { merge, never, of, Observable } from 'rxjs';
 import { filter, switchMap } from 'rxjs/operators';
-import { useFormContext, FormContext, IFormContext } from './context';
+import { useValueContext, ValueContext, IFormContext } from './context';
 import { useValue$ } from './hooks';
 import {
   FieldModel,
@@ -63,7 +63,7 @@ function getModelFromContext<Model>(
  * 根据 `name` 订阅 `FieldSet` 的值
  */
 export function FieldSetValue({ name, children }: IFieldSetValueProps) {
-  const ctx = useFormContext();
+  const ctx = useValueContext();
   const model = getModelFromContext(ctx, name, undefined, isFieldSetModel);
   const childContext = React.useMemo<IFormContext>(
     () => ({
@@ -74,9 +74,9 @@ export function FieldSetValue({ name, children }: IFieldSetValueProps) {
   );
   if (model) {
     return (
-      <FormContext.Provider key={model.id} value={childContext}>
+      <ValueContext.Provider key={model.id} value={childContext}>
         {children}
-      </FormContext.Provider>
+      </ValueContext.Provider>
     );
   }
   return null;
@@ -100,7 +100,7 @@ export interface IFieldValueModelDrivenProps<T> extends IFieldValueCommonProps<T
 export type IFieldValueProps<T> = IFieldValueModelDrivenProps<T> | IFieldValueViewDrivenProps<T>;
 
 export function useFieldValue<T>(field: string | FieldModel<T>): T | null {
-  const ctx = useFormContext();
+  const ctx = useValueContext();
   const [model, setModel] = React.useState<FieldModel<T> | ModelRef<T, any, FieldModel<T>> | null>(
     isFieldModel<T>(field) || isModelRef<T, any, FieldModel<T>>(field) ? field : null,
   );
@@ -163,7 +163,7 @@ export function FieldValue<T>(props: IFieldValueProps<T>): React.ReactElement | 
  * 根据 `name` 或者 `model` 订阅 `FieldArray` 的更新
  */
 export function useFieldArrayValue<Item, Child extends BasicModel<Item>>(field: string | FieldArrayModel<Item, Child>) {
-  const ctx = useFormContext();
+  const ctx = useValueContext();
   const model = getModelFromContext(
     ctx,
     field as string | undefined,
