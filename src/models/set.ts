@@ -2,7 +2,7 @@ import { Subject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
 import { IMaybeError, ValidateOption } from '../validate';
 import { Maybe, None, Some } from '../maybe';
-import { isPlainObject } from '../utils';
+import { isPlainObject, isString } from '../utils';
 import UniqueId from '../unique-id';
 import { IModel } from './base';
 
@@ -14,9 +14,9 @@ const SET_ID = Symbol('set');
 
 const uniqueId = new UniqueId('field-set');
 
-class FieldSetModel<
-  Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>
-> extends BasicModel<$FieldSetValue<Children>> {
+class FieldSetModel<Children extends Record<string, BasicModel<any>> = Record<string, BasicModel<any>>>
+  extends BasicModel<$FieldSetValue<Children>>
+  implements IModel<$FieldSetValue<Children>> {
   /**
    * @internal
    */
@@ -121,12 +121,28 @@ class FieldSetModel<
    * 在 `FieldSet` 上删除指定的字段
    * @param name 字段名
    */
-  removeChild(name: string) {
-    const model = this.children[name];
-    model.owner = null;
-    delete this.children[name];
-    this.childRemove$.next(name);
-    return model;
+  removeChild(field: string | IModel<any>) {
+    if (isString(field)) {
+      const model = this.children[field];
+      model.owner = null;
+      delete this.children[field];
+      this.childRemove$.next(field);
+      return model;
+    } else {
+      const { children } = this;
+      const keys = Object.keys(this.children);
+      const { length } = keys;
+      for (let i = 0; i < length; i++) {
+        const name = keys[i];
+        const model = children[name];
+        if (model === field) {
+          delete children[name];
+          this.childRemove$.next(name);
+          return model;
+        }
+      }
+      return null;
+    }
   }
 
   dispose() {

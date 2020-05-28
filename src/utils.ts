@@ -25,6 +25,8 @@ export function isPlainObject(value: unknown): value is object {
   return Object.getPrototypeOf(value) === proto;
 }
 
+export const isString = (value: unknown): value is string => typeof value === 'string';
+
 export function removeOnUnmount<Model extends BasicModel<any>>(
   field: string | BasicModel<any> | ModelRef<any, any, Model>,
   model: BasicModel<any>,
@@ -32,7 +34,7 @@ export function removeOnUnmount<Model extends BasicModel<any>>(
 ) {
   useEffect(
     () => () => {
-      if (typeof field === 'string' && model.destroyOnUnmount) {
+      if (isString(field) && model.destroyOnUnmount) {
         parent.removeChild(field);
       }
     },

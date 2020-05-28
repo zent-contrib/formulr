@@ -11,7 +11,8 @@ const FIELD_ARRAY_ID = Symbol('field-array');
 
 const uniqueId = new UniqueId('field-array');
 
-class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends BasicModel<readonly Item[]> {
+class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends BasicModel<readonly Item[]>
+  implements IModel<readonly Item[]> {
   /**
    * @internal
    */
@@ -268,6 +269,11 @@ class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends B
       }
     }
     return false;
+  }
+
+  removeChild(model: Child) {
+    const index = this.children.indexOf(model);
+    return index > -1 ? this.splice(index, 1)[0] : null;
   }
 
   dispose() {

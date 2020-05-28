@@ -64,6 +64,8 @@ abstract class BasicModel<Value> implements IModel<Value> {
   dispose() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
     this.subscriptions = [];
+    const { owner } = this;
+    owner?.removeChild?.(this);
     this.owner = null;
   }
 

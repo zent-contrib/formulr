@@ -18,4 +18,5 @@ export interface IModel<Value> {
   form: FormModel<any> | null | undefined;
   dispose(): void;
   validators: IValidators<Value>;
+  removeChild?(field: IModel<any>): IModel<any> | null;
 }

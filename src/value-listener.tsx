@@ -13,7 +13,7 @@ import {
   isModelRef,
   ModelRef,
 } from './models';
-import { noop, $MergeProps } from './utils';
+import { noop, $MergeProps, isString } from './utils';
 
 export interface IFieldSetValueProps {
   name: string;
@@ -28,7 +28,7 @@ function getModelFromContext<Model>(
 ): Model | null {
   const { parent } = ctx;
   const m = React.useMemo(() => {
-    if (typeof name === 'string') {
+    if (isString(name)) {
       const m = parent.get(name);
       if (check(m)) {
         return m;
