@@ -1,11 +1,12 @@
 import Decimal from 'big.js';
 import { ISyncValidator, IMaybeError, IValidator } from './validate';
+import { isNil } from './utils';
 
 const EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
 
 function isEmptyInputValue(value: any) {
   // we don't check for string here so it also works with arrays
-  return value == null || value.length === 0;
+  return isNil(value) || (value as IWithLength).length === 0;
 }
 
 export const SYMBOL_REQUIRED = Symbol('required');
