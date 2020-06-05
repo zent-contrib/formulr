@@ -2,7 +2,7 @@ import { Subject } from 'rxjs';
 import { BasicModel, isModel } from './basic';
 import { IMaybeError, ValidateOption } from '../validate';
 import { Maybe, None, Some } from '../maybe';
-import { isPlainObject } from '../utils';
+import { isPlainObject, isNil } from '../utils';
 import UniqueId from '../unique-id';
 import { IModel } from './base';
 
@@ -142,7 +142,7 @@ class FieldSetModel<
    * 是否 `FieldSet` 所有字段都通过了校验
    */
   valid() {
-    if (this.error$.getValue() !== null) {
+    if (!isNil(this.error$.getValue())) {
       return false;
     }
     const keys = Object.keys(this.children);
