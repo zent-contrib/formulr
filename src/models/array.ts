@@ -6,7 +6,7 @@ import { BasicBuilder } from '../builders/basic';
 import { or, Some } from '../maybe';
 import UniqueId from '../unique-id';
 import { IModel } from './base';
-import { isUndefined } from '../utils';
+import { isNil, isUndefined } from '../utils';
 
 const FIELD_ARRAY_ID = Symbol('field-array');
 
@@ -67,7 +67,7 @@ class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends B
    * `FieldArray` 内所有 model 是否都通过了校验
    */
   valid() {
-    if (this.error$.getValue() !== null) {
+    if (!isNil(this.error$.getValue())) {
       return false;
     }
     const children = this.children$.getValue();

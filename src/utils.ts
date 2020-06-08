@@ -42,6 +42,6 @@ export function removeOnUnmount<Model extends BasicModel<any>>(
 
 export type $MergeProps<T> = (T extends any ? (t: T) => void : never) extends (r: infer R) => void ? R : never;
 
-export function isUndefined(value: unknown): value is undefined {
-  return value === void 0;
-}
+export const isNil = <T>(value: T): value is Exclude<T, null | undefined> => value === null || value === undefined;
+
+export const isUndefined = <T>(value: T): value is Exclude<T, undefined> => value === undefined;
