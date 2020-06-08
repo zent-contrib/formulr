@@ -2,6 +2,7 @@ import { Observable, from, NextObserver, empty, of, defer } from 'rxjs';
 import { catchError, map, concatAll, filter, takeWhile } from 'rxjs/operators';
 import { BasicModel, isFieldSetModel } from './models';
 import { finalizeWithLast } from './finalize-with-last';
+import { isNil } from './utils';
 
 export const ASYNC_VALIDATOR = Symbol('AsyncValidator');
 
@@ -190,7 +191,7 @@ class ValidatorExecutor<T> {
       filter(validator => (skipAsync ? !isAsyncValidator(validator) : true)),
       map(validator => defer(() => runValidator(validator, validation, value, this.ctx))),
       concatAll(),
-      takeWhile(it => it == null, true),
+      takeWhile(isNil, true),
       catchError(error => {
         reject(error);
         return empty();

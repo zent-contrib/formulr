@@ -2,7 +2,7 @@ import { BehaviorSubject } from 'rxjs';
 import { BasicModel } from './basic';
 import { Some, None, or, isSome, get } from '../maybe';
 import { ValidateOption } from '../validate';
-import { id } from '../utils';
+import { id, isNil } from '../utils';
 import UniqueId from '../unique-id';
 
 const FIELD_ID = Symbol('field');
@@ -94,7 +94,7 @@ class FieldModel<Value> extends BasicModel<Value> {
    * `Field` 是否所有校验都通过了
    */
   valid() {
-    return this.error$.getValue() == null;
+    return isNil(this.error$.getValue());
   }
 
   /**
