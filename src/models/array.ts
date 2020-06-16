@@ -6,7 +6,7 @@ import { BasicBuilder } from '../builders/basic';
 import { or, Some } from '../maybe';
 import UniqueId from '../unique-id';
 import { IModel } from './base';
-import { isNil, isUndefined } from '../utils';
+import { isNil } from '../utils';
 
 const FIELD_ARRAY_ID = Symbol('field-array');
 
@@ -126,11 +126,6 @@ class FieldArrayModel<Item, Child extends IModel<Item> = IModel<Item>> extends B
         break;
       }
       const item = value[i];
-
-      if (isUndefined(item)) {
-        continue;
-      }
-
       const model = children[i];
       if (isModelRef(model)) {
         const m = model.getModel();

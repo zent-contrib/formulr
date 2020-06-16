@@ -2,7 +2,7 @@ import { BehaviorSubject } from 'rxjs';
 import { BasicModel } from './basic';
 import { Some, None, or, isSome, get } from '../maybe';
 import { ValidateOption } from '../validate';
-import { id, isNil, isUndefined } from '../utils';
+import { id, isNil } from '../utils';
 import UniqueId from '../unique-id';
 
 const FIELD_ID = Symbol('field');
@@ -110,9 +110,7 @@ class FieldModel<Value> extends BasicModel<Value> {
    * @param value 要设置的值
    */
   patchValue(value: Value) {
-    if (!isUndefined(value)) {
-      this.value$.next(value);
-    }
+    this.value$.next(value);
   }
 
   /**

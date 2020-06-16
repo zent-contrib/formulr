@@ -2,7 +2,6 @@ import { BehaviorSubject } from 'rxjs';
 import { IModel } from './base';
 import { ValidateOption, IMaybeError, IValidators } from '../validate';
 import { Maybe, None } from '../maybe';
-import { isUndefined } from '../utils';
 
 const REF_ID = Symbol('ref');
 
@@ -131,9 +130,7 @@ class ModelRef<Value, Parent extends IModel<any>, Model extends IModel<Value>> i
   }
 
   patchValue(value: Value) {
-    if (!isUndefined(value)) {
-      this.getModel()?.patchValue(value);
-    }
+    this.getModel()?.patchValue(value);
   }
 
   initialize(value: Value) {
