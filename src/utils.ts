@@ -36,7 +36,7 @@ export function removeOnUnmount<Model extends BasicModel<any>>(
         parent.removeChild(field);
       }
     },
-    [field, model, model],
+    [field, model, parent],
   );
 }
 
