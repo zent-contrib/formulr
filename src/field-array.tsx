@@ -21,7 +21,7 @@ function useArrayModel<Item, Child extends IModel<Item>>(
     let effect: (() => void) | undefined;
     if (isString(field)) {
       if (strategy !== FormStrategy.View) {
-        unexpectedFormStrategy(strategy);
+        unexpectedFormStrategy();
       }
       const m = parent.get(field);
       if (!m || !isFieldArrayModel<Item, Child>(m)) {

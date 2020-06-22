@@ -27,7 +27,7 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
     let effect: (() => void) | undefined;
     if (isString(field)) {
       if (strategy !== FormStrategy.View) {
-        unexpectedFormStrategy(strategy);
+        unexpectedFormStrategy();
       }
       const m = parent.get(field);
       if (!m || !isFieldSetModel<T>(m)) {

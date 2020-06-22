@@ -1,5 +1,4 @@
 import { isArray } from './utils';
-import { FormStrategy } from './models';
 
 export function throwError(message: string, reason: string[] | string): never {
   throw new Error(
@@ -10,14 +9,6 @@ export function throwError(message: string, reason: string[] | string): never {
   );
 }
 
-export function unexpectedFormStrategy(strategy: FormStrategy.Model): never {
-  let reason: string;
-  switch (strategy) {
-    case FormStrategy.Model:
-      reason = 'The first argument to form hooks is string in a model-driven form context';
-      break;
-    default:
-      reason = `Unknown strategy (${strategy}) in "useForm". Expect \`FormStrategy.View\` or \`FormStrategy.Model\``;
-  }
-  throwError('Unexpected FormStrategy', reason);
+export function unexpectedFormStrategy(): never {
+  throwError('Unexpected FormStrategy', 'The first argument to form hooks is string in a model-driven form context');
 }

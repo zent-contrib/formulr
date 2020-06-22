@@ -32,7 +32,7 @@ function useModelAndChildProps<Value>(
     let effect: (() => void) | undefined;
     if (isString(field)) {
       if (strategy !== FormStrategy.View) {
-        unexpectedFormStrategy(strategy);
+        unexpectedFormStrategy();
       }
       const m = parent.get(field);
       if (!m || !isFieldModel<Value>(m)) {
