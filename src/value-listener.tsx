@@ -105,7 +105,7 @@ export function useFieldValue<T>(field: string | FieldModel<T>): T | null {
     isFieldModel<T>(field) || isModelRef<T, any, FieldModel<T>>(field) ? field : null,
   );
   React.useEffect(() => {
-    if (typeof field !== 'string') {
+    if (!isString(field)) {
       setModel(isFieldModel(field) || isModelRef(field) ? field : null);
       return noop;
     }
