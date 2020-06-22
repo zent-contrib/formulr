@@ -12,8 +12,9 @@ import {
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { IValidators } from './validate';
-import { removeOnUnmount } from './utils';
+import { removeOnUnmount, isString } from './utils';
 import { or } from './maybe';
+import { unexpectedFormStrategy } from './error';
 
 function isValueFactory<Value>(candidate: Value | (() => Value)): candidate is () => Value {
   return typeof candidate === 'function';
@@ -29,9 +30,9 @@ function useModelAndChildProps<Value>(
   const { model, effect } = useMemo(() => {
     let model: FieldModel<Value>;
     let effect: (() => void) | undefined;
-    if (typeof field === 'string') {
+    if (isString(field)) {
       if (strategy !== FormStrategy.View) {
-        throw new Error();
+        unexpectedFormStrategy(strategy);
       }
       const m = parent.get(field);
       if (!m || !isFieldModel<Value>(m)) {
@@ -96,7 +97,7 @@ export function useField<Value>(
   const { value$, error$ } = model;
   useValue$(value$, value$.getValue());
   useValue$(error$, error$.getValue());
-  if (typeof field === 'string' || isModelRef(field)) {
+  if (isString(field) || isModelRef(field)) {
     model.validators = validators;
   }
   removeOnUnmount(field, model, parent);

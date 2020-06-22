@@ -169,7 +169,7 @@ const App = () => {
       <Input2
         name="name"
         validators={[
-          ValidatorMiddlewares.dynamicMessage(() => (Math.random() > 0.5 ? '> 0.5' : '< 0.5'))(Validators.required()),
+          ValidatorMiddlewares.message(() => (Math.random() > 0.5 ? '> 0.5' : '< 0.5'))(Validators.required()),
         ]}
       />
       <Input2

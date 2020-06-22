@@ -2,10 +2,11 @@ import { useMemo, useEffect } from 'react';
 import { FieldArrayModel, FormStrategy, FieldSetModel, ModelRef, isModelRef, isFieldArrayModel } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
-import { removeOnUnmount } from './utils';
+import { removeOnUnmount, isString } from './utils';
 import { isSome, get } from './maybe';
 import { IValidators } from './validate';
 import { IModel } from './models/base';
+import { unexpectedFormStrategy } from './error';
 
 export type IUseFieldArray<Item, Child extends IModel<Item>> = [Child[], FieldArrayModel<Item, Child>];
 
@@ -18,9 +19,9 @@ function useArrayModel<Item, Child extends IModel<Item>>(
   const { model, effect } = useMemo(() => {
     let model: FieldArrayModel<Item, Child>;
     let effect: (() => void) | undefined;
-    if (typeof field === 'string') {
+    if (isString(field)) {
       if (strategy !== FormStrategy.View) {
-        throw new Error();
+        unexpectedFormStrategy(strategy);
       }
       const m = parent.get(field);
       if (!m || !isFieldArrayModel<Item, Child>(m)) {
@@ -97,7 +98,7 @@ export function useFieldArray<Item, Child extends IModel<Item>>(
 ): FieldArrayModel<Item, Child> {
   const { parent, strategy } = useFormContext();
   const model = useArrayModel(field, parent, strategy, defaultValue);
-  if (typeof field === 'string' || isModelRef(field)) {
+  if (isString(field) || isModelRef(field)) {
     model.validators = validators;
   }
   const { error$, children$ } = model;
