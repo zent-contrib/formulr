@@ -12,7 +12,7 @@ import {
 import { useValue$ } from './hooks';
 import { useFormContext } from './context';
 import { IValidators } from './validate';
-import { removeOnUnmount, isString } from './utils';
+import { removeOnUnmount } from './utils';
 import { or } from './maybe';
 import { unexpectedFormStrategy } from './error';
 
@@ -30,7 +30,7 @@ function useModelAndChildProps<Value>(
   const { model, effect } = useMemo(() => {
     let model: FieldModel<Value>;
     let effect: (() => void) | undefined;
-    if (isString(field)) {
+    if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
         unexpectedFormStrategy();
       }
@@ -97,7 +97,7 @@ export function useField<Value>(
   const { value$, error$ } = model;
   useValue$(value$, value$.getValue());
   useValue$(error$, error$.getValue());
-  if (isString(field) || isModelRef(field)) {
+  if (typeof field === 'string' || isModelRef(field)) {
     model.validators = validators;
   }
   removeOnUnmount(field, model, parent);

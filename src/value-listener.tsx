@@ -13,7 +13,7 @@ import {
   isModelRef,
   ModelRef,
 } from './models';
-import { noop, $MergeProps, isString } from './utils';
+import { noop, $MergeProps } from './utils';
 
 export interface IFieldSetValueProps {
   name: string;
@@ -28,7 +28,7 @@ function getModelFromContext<Model>(
 ): Model | null {
   const { parent } = ctx;
   const m = React.useMemo(() => {
-    if (isString(name)) {
+    if (typeof name === 'string') {
       const m = parent.get(name);
       if (check(m)) {
         return m;
@@ -105,7 +105,7 @@ export function useFieldValue<T>(field: string | FieldModel<T>): T | null {
     isFieldModel<T>(field) || isModelRef<T, any, FieldModel<T>>(field) ? field : null,
   );
   React.useEffect(() => {
-    if (!isString(field)) {
+    if (!typeof field === 'string') {
       setModel(isFieldModel(field) || isModelRef(field) ? field : null);
       return noop;
     }

@@ -2,7 +2,7 @@ import { useMemo, useEffect } from 'react';
 import { FieldArrayModel, FormStrategy, FieldSetModel, ModelRef, isModelRef, isFieldArrayModel } from './models';
 import { useFormContext } from './context';
 import { useValue$ } from './hooks';
-import { removeOnUnmount, isString } from './utils';
+import { removeOnUnmount } from './utils';
 import { isSome, get } from './maybe';
 import { IValidators } from './validate';
 import { IModel } from './models/base';
@@ -19,7 +19,7 @@ function useArrayModel<Item, Child extends IModel<Item>>(
   const { model, effect } = useMemo(() => {
     let model: FieldArrayModel<Item, Child>;
     let effect: (() => void) | undefined;
-    if (isString(field)) {
+    if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
         unexpectedFormStrategy();
       }
@@ -98,7 +98,7 @@ export function useFieldArray<Item, Child extends IModel<Item>>(
 ): FieldArrayModel<Item, Child> {
   const { parent, strategy } = useFormContext();
   const model = useArrayModel(field, parent, strategy, defaultValue);
-  if (isString(field) || isModelRef(field)) {
+  if (typeof field === 'string' || isModelRef(field)) {
     model.validators = validators;
   }
   const { error$, children$ } = model;

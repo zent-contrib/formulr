@@ -11,7 +11,7 @@ import {
 } from './models';
 import { useValue$ } from './hooks';
 import { IValidators } from './validate';
-import { isPlainObject, removeOnUnmount, isString } from './utils';
+import { isPlainObject, removeOnUnmount } from './utils';
 import { get, isSome, or } from './maybe';
 import { unexpectedFormStrategy } from './error';
 
@@ -25,7 +25,7 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
   const { model, effect } = useMemo(() => {
     let model: FieldSetModel<any>;
     let effect: (() => void) | undefined;
-    if (isString(field)) {
+    if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
         unexpectedFormStrategy();
       }
@@ -79,7 +79,7 @@ export function useFieldSet<T extends Record<string, BasicModel<any>>>(
 ): IUseFieldSet<T> {
   const { parent, strategy, form } = useFormContext();
   const model = useFieldSetModel(field, parent, strategy);
-  if (isString(field) || isModelRef(field)) {
+  if (typeof field === 'string' || isModelRef(field)) {
     model.validators = validators;
   }
   const childContext = useMemo(
