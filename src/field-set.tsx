@@ -13,7 +13,7 @@ import { useValue$ } from './hooks';
 import { IValidators } from './validate';
 import { isPlainObject, removeOnUnmount } from './utils';
 import { get, isSome, or } from './maybe';
-import { unexpectedFormStrategy } from './error';
+import { UnexpectedFormStrategyError } from './error';
 
 export type IUseFieldSet<T extends Record<string, BasicModel<any>>> = [IFormContext, FieldSetModel<T>];
 
@@ -27,7 +27,7 @@ function useFieldSetModel<T extends Record<string, BasicModel<any>>>(
     let effect: (() => void) | undefined;
     if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
-        unexpectedFormStrategy();
+        throw UnexpectedFormStrategyError;
       }
       const m = parent.get(field);
       if (!m || !isFieldSetModel<T>(m)) {

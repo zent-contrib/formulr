@@ -6,7 +6,7 @@ import { removeOnUnmount } from './utils';
 import { isSome, get } from './maybe';
 import { IValidators } from './validate';
 import { IModel } from './models/base';
-import { unexpectedFormStrategy } from './error';
+import { UnexpectedFormStrategyError } from './error';
 
 export type IUseFieldArray<Item, Child extends IModel<Item>> = [Child[], FieldArrayModel<Item, Child>];
 
@@ -21,7 +21,7 @@ function useArrayModel<Item, Child extends IModel<Item>>(
     let effect: (() => void) | undefined;
     if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
-        unexpectedFormStrategy();
+        throw UnexpectedFormStrategyError;
       }
       const m = parent.get(field);
       if (!m || !isFieldArrayModel<Item, Child>(m)) {

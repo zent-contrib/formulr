@@ -14,7 +14,7 @@ import { useFormContext } from './context';
 import { IValidators } from './validate';
 import { removeOnUnmount } from './utils';
 import { or } from './maybe';
-import { unexpectedFormStrategy } from './error';
+import { UnexpectedFormStrategyError } from './error';
 
 function isValueFactory<Value>(candidate: Value | (() => Value)): candidate is () => Value {
   return typeof candidate === 'function';
@@ -32,7 +32,7 @@ function useModelAndChildProps<Value>(
     let effect: (() => void) | undefined;
     if (typeof field === 'string') {
       if (strategy !== FormStrategy.View) {
-        unexpectedFormStrategy();
+        throw UnexpectedFormStrategyError;
       }
       const m = parent.get(field);
       if (!m || !isFieldModel<Value>(m)) {
