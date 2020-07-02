@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import * as React from 'react';
 import { useCallback, useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
@@ -21,6 +23,7 @@ import {
   set,
   array,
   ValidatorMiddlewares,
+  FieldArrayModel,
 } from './src';
 
 const asyncValidator = createAsyncValidator(() => {
@@ -93,27 +96,19 @@ const Input = ({ field }: { field: any; validators?: any[] }) => {
   );
 };
 
-const Input2 = ({ name, validators }: any) => {
+const Input2 = ({ name, validators, destroyOnUnmount }: any) => {
   const model = useField(name, '', validators);
-  const { error } = model;
+  model.destroyOnUnmount = !!destroyOnUnmount;
   const onChange = useCallback(
     e => {
       model.value = e.target.value;
-      model.validate(ValidateOption.Default | ValidateOption.IncludeAsync).then(
-        result => {
-          console.log('complete', result);
-        },
-        error => {
-          console.log('throws error', error);
-        },
-      );
     },
     [model],
   );
   return (
     <div style={{ background: '#eee', padding: '10px' }}>
-      <input value={model.value} onChange={onChange} style={{ color: error ? 'red' : undefined }} />
-      {error ? error.message : null}
+      <label>{name}: </label>
+      <input value={model.value} onChange={onChange} />
     </div>
   );
 };
@@ -160,40 +155,51 @@ const FieldSet = ({
   return <FormProvider value={ctx}>{children}</FormProvider>;
 };
 
+function FieldArray({ name, children }: any) {
+  const model = useFieldArray(name, undefined, [{}]);
+  return <>{children(model)}</>;
+}
+
 const App = () => {
   const form = useForm(FormStrategy.View);
+  const [_, __] = React.useState(false);
   // const isValidating = useValue$(form.isValidating$, false);
-  console.log('App render');
+
   return (
     <FormProvider value={form.ctx}>
-      <Input2
-        name="name"
-        validators={[
-          ValidatorMiddlewares.message(() => (Math.random() > 0.5 ? '> 0.5' : '< 0.5'))(Validators.required()),
-        ]}
-      />
-      <Input2
-        name="name2"
-        validators={[
-          ValidatorMiddlewares.whenAsync(async () => Math.random() > 0.5)(Validators.required('required when > 0.5')),
-        ]}
-      />
+      <FieldArray name="array">
+        {(model: FieldArrayModel<any, any>) => {
+          return model.children.map((it, index) => {
+            return (
+              <FieldSet key={it.getModel()?.id || index} model={it}>
+                <Input2 name="input1" />
+                <FieldValue name="input1">
+                  {input1 => {
+                    return input1 !== null ? <Input2 destroyOnUnmount name="input2" /> : null;
+                  }}
+                </FieldValue>
+              </FieldSet>
+            );
+          });
+        }}
+      </FieldArray>
       {/* {Array(1000)
         .fill()
         .map((_, index) => (
           <Input key={index} name={`input${index}`} />
         ))} */}
-      {/* <FieldSet name="fieldset">
+      <FieldSet name="fieldset">
         <Input field="input1" />
         <FieldValue name="input1" />
         <Input field="input2" />
-      </FieldSet> */}
+      </FieldSet>
       <FieldSetValue name="fieldset">
         <FieldValue name="input2" />
       </FieldSetValue>
       <List />
       <NestedList1 model="nested-list" />
       <div>
+        <button onClick={() => __(_ => !_)}>re-render</button>
         <button onClick={() => console.log(form.model.getRawValue())}>button</button>
         <button
           onClick={() =>
