@@ -47,7 +47,18 @@ function getModelFromContext<Model>(
     const m = parent.get(name);
     check(m) && setModel(m);
     const $ = merge(parent.childRegister$, parent.childRemove$)
-      .pipe(filter(change => change === name))
+      .pipe(
+        filter(change => change === name),
+        /**
+         * Because `FieldSetModel.prototype.registerChild` will be
+         * called inside `useMemo`, consume at next microtask queue
+         * to avoid react warning below.
+         *
+         * Cannot update a component from inside the function body
+         * of a different component.
+         */
+        switchMap(it => Promise.resolve(it)),
+      )
       .subscribe(name => {
         const candidate = parent.get(name);
         if (check(candidate)) {
@@ -102,7 +113,12 @@ export type IFieldValueProps<T> = IFieldValueModelDrivenProps<T> | IFieldValueVi
 export function useFieldValue<T>(field: string | FieldModel<T>): T | null {
   const ctx = useFormContext();
   const [model, setModel] = React.useState<FieldModel<T> | ModelRef<T, any, FieldModel<T>> | null>(
-    isFieldModel<T>(field) || isModelRef<T, any, FieldModel<T>>(field) ? field : null,
+    isFieldModel<T>(field) || isModelRef<T, any, FieldModel<T>>(field)
+      ? field
+      : () => {
+          const m = ctx.parent.get(field);
+          return isFieldModel<T>(m) ? m : null;
+        },
   );
   React.useEffect(() => {
     if (typeof field !== 'string') {
@@ -114,7 +130,18 @@ export function useFieldValue<T>(field: string | FieldModel<T>): T | null {
       setModel(m);
     }
     const $ = merge(ctx.parent.childRegister$, ctx.parent.childRemove$)
-      .pipe(filter(change => change === field))
+      .pipe(
+        filter(change => change === field),
+        /**
+         * Because `FieldSetModel.prototype.registerChild` will be
+         * called inside `useMemo`, consume at next microtask queue
+         * to avoid react warning below.
+         *
+         * Cannot update a component from inside the function body
+         * of a different component.
+         */
+        switchMap(it => Promise.resolve(it)),
+      )
       .subscribe(name => {
         const candidate = ctx.parent.get(name);
         if (isFieldModel<T>(candidate)) {
@@ -138,6 +165,15 @@ export function useFieldValue<T>(field: string | FieldModel<T>): T | null {
             }
             return of(null);
           }),
+          /**
+           * Because `ModelRef.prototype.setModel` will be called
+           * inside `useMemo`, consume at next microtask queue to
+           * avoid react warning below.
+           *
+           * Cannot update a component from inside the function body
+           * of a different component.
+           */
+          switchMap(it => Promise.resolve(it)),
         )
         .subscribe((value: T | null) => setValue(value));
       return () => $.unsubscribe();
