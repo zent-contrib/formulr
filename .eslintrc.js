@@ -18,18 +18,26 @@ module.exports = {
     jest: true,
     node: true,
   },
-  extends: ['plugin:@typescript-eslint/recommended', 'prettier/react'],
-  plugins: ['prettier', '@typescript-eslint', 'lean-imports'],
+  extends: ['prettier/react', 'plugin:react/recommended', 'plugin:@typescript-eslint/recommended'],
+  plugins: ['react', 'react-hooks', 'prettier', '@typescript-eslint', 'lean-imports'],
   settings: {
     'import/resolver': {
       node: {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
     },
+    react: {
+      version: 'detect',
+    },
   },
   rules: {
     'no-restricted-globals': ['error'].concat(restrictedGlobals),
     '@typescript-eslint/interface-name-prefix': ['error', 'always'],
     '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-use-before-define': ['error', 'nofunc'],
+    // 'react-hooks/exhaustive-deps': 'off',
+    'react/prop-types': 'off',
   },
 };
