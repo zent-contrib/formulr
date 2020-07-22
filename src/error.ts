@@ -1,6 +1,6 @@
 import { isArray } from './utils';
 
-export class FormulrError extends Error {
+class FormulrError extends Error {
   constructor(message: string, reason: string | string[]) {
     super(
       `${message}.\n` +
@@ -13,6 +13,11 @@ export class FormulrError extends Error {
     this.name = 'FormulrError';
   }
 }
+
+export const UnexpectedFormContextError = new FormulrError('FormContext not found', [
+  'Using form hooks outside the form context',
+  "There's a copy of formulr in your project, run `yarn list formulr` to check",
+]);
 
 export const UnexpectedFormStrategyError = new FormulrError(
   'Unexpected FormStrategy',
